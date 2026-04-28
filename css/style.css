@@ -1,0 +1,878 @@
+/* ============================================
+   流星雨的约定 - 全局样式
+   动森风马卡龙治愈配色
+   全屏移动端适配
+   ============================================ */
+
+:root {
+  /* 布局参数 - 使用 clamp() 自动适配不同屏幕高度 */
+  /* 基准：812px（iPhone X），短屏自动缩小 */
+  --status-bar-height: clamp(16px, 2.5vh, 20px);
+  --search-bar-height: clamp(26px, 3.7vh, 30px);
+  --search-bar-radius: clamp(8px, 1.5vh, 12px);
+  --search-bar-margin-x: clamp(12px, 2.7vw, 20px);
+  --widget-radius: clamp(16px, 3.7vh, 30px);
+  --widget-margin-x: clamp(4px, 1.1vw, 4px);
+  --widget-padding: clamp(8px, 1.8vh, 15px);
+  --widget-gap: clamp(6px, 1.2vh, 10px);
+  --app-icon-size: clamp(36px, 6.2vh, 50px);
+  --app-icon-radius: clamp(10px, 2.1vh, 17px);
+  --app-icon-gap: clamp(20px, 4.1vh, 33px);
+  --dock-height: clamp(56px, 10vh, 81px);
+  --dock-icon-size: clamp(32px, 5.4vh, 44px);
+  --dock-icon-gap: clamp(14px, 3vh, 24px);
+  --dock-radius: clamp(14px, 3vh, 24px);
+
+  /* ===== 统一配色规范 ===== */
+  --color-bg: #F8F5E9;
+  --color-card: #E6E2D3;
+  --color-white: #FFFFFF;
+  --color-dark-text: #3A3A3A;
+  --color-light-text: #8E8E93;
+  --color-accent: #86E0C1;
+  --color-red: #FF3B30;
+  --color-divider: #E6E2D3;
+  --color-dock: rgba(255, 255, 255, 0.6);
+  --color-date-bg: #bb7616;
+  --color-date-text: #f3edd1;
+
+  /* 字体参数 - 使用 clamp() 自动缩放 */
+  --font-size-date: clamp(14px, 2.6vh, 21px);
+  --font-size-temp: clamp(20px, 3.9vh, 32px);
+  --font-size-widget-title: clamp(12px, 2.1vh, 17px);
+  --font-size-countdown: clamp(13px, 2.2vh, 18px);
+  --font-size-memo: clamp(10px, 1.6vh, 13px);
+  --font-size-vertical: clamp(16px, 3vh, 24px);
+  --font-size-app-label: clamp(9px, 1.6vh, 13px);
+  --font-size-dock-label: clamp(8px, 1.4vh, 11px);
+
+  /* 兼容旧变量名 */
+  --cream: var(--color-bg);
+  --widget-bg: var(--color-card);
+  --text-dark: var(--color-dark-text);
+  --text-light: var(--color-light-text);
+  --ios-bg: var(--color-white);
+  --divider: var(--color-divider);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+  background-color: var(--color-bg);
+  color: var(--text-dark);
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+::-webkit-scrollbar { display: none; }
+
+/* ============================================
+   桌面端：手机外壳模型（屏幕 > 430px 时显示）
+   ============================================ */
+@media (min-width: 431px) {
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: #2C2C2E;
+  }
+
+  #phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #000;
+    border-radius: 50px;
+    padding: 12px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #333,
+      0 0 0 4px #1a1a1a,
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      inset 0 0 4px rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+  }
+
+  .notch {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 999;
+  }
+
+  #app {
+    border-radius: 40px;
+  }
+
+  #page-container {
+    border-radius: 40px;
+  }
+}
+
+/* ============================================
+   移动端：全屏适配（屏幕 <= 430px）
+   ============================================ */
+@media (max-width: 430px) {
+  #phone-frame {
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    padding: 0;
+    position: relative;
+  }
+
+  .notch {
+    display: none;
+  }
+
+  #app {
+    border-radius: 0;
+  }
+
+  #page-container {
+    border-radius: 0;
+  }
+}
+
+/* ============================================
+   #app 手机屏幕 - 弹性填充
+   ============================================ */
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+}
+
+/* ============================================
+   #status-bar 状态栏 - 固定44px + safe-area
+   ============================================ */
+#status-bar {
+  height: var(--status-bar-height);
+  padding-top: var(--safe-top);
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark-text);
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  background: rgba(248, 245, 233, 0.85);
+}
+
+/* ============================================
+   #search-bar 搜索栏
+   ============================================ */
+#search-bar {
+  flex-shrink: 0;
+  padding: 8px var(--search-bar-margin-x);
+  z-index: 20;
+  display: block;
+  position: relative;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+#search-input {
+  width: 100%;
+  height: var(--search-bar-height);
+  background: var(--color-card);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: var(--search-bar-radius);
+  border: none;
+  padding: 0 12px 0 34px;
+  font-size: 1rem;
+  outline: none;
+  color: var(--color-dark-text);
+  font-family: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+#search-input::placeholder { color: var(--color-light-text); }
+#search-input:focus { background: var(--color-card); }
+
+/* ============================================
+   #main-scroll 主内容区 - 弹性填充
+   ============================================ */
+#main-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ============================================
+   小组件通用样式
+   ============================================ */
+.widgets-area {
+  padding: 0 var(--widget-margin-x);
+  position: relative;
+  z-index: 1;
+}
+
+.widget {
+  background: var(--color-card);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: var(--widget-radius);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.widget:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.widget-title {
+  font-size: var(--font-size-widget-title);
+  font-weight: 600;
+  color: var(--color-dark-text);
+  margin-bottom: 6px;
+}
+
+/* ---------- 日期天气小组件 - 深灰色胶囊 ---------- */
+.widget-weather {
+  padding: var(--widget-padding) calc(var(--widget-padding) + 4px);
+  margin-bottom: var(--widget-gap);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-date-bg);
+  border-radius: 50px;
+}
+
+.weather-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.weather-date {
+  font-size: var(--font-size-date);
+  font-weight: 600;
+  color: var(--color-date-text);
+}
+
+.weather-year {
+  font-size: 0.6875rem;
+  color: var(--color-date-text);
+  opacity: 0.7;
+}
+
+.weather-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+}
+
+.weather-temp {
+  font-size: var(--font-size-temp);
+  font-weight: 700;
+  color: var(--color-date-text);
+  line-height: 1.1;
+}
+
+.weather-label {
+  font-size: 0.6875rem;
+  color: var(--color-date-text);
+  opacity: 0.7;
+}
+
+/* ---------- 日历（减半宽度）+ 竖体文字 并排一行 ---------- */
+.calendar-text-row {
+  display: flex;
+  gap: var(--widget-gap);
+  margin-bottom: var(--widget-gap);
+  align-items: stretch;
+}
+
+.calendar-text-row .widget-calendar {
+  flex: 1;
+  min-width: 0;
+  padding: var(--widget-padding);
+  margin-bottom: 0;
+}
+
+.vertical-text-col {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+  font-size: var(--font-size-vertical);
+  color: var(--color-light-text);
+  font-family: "ZCOOL KuaiLe", "Ma Shan Zheng", "STKaiti", "KaiTi", cursive, sans-serif;
+  letter-spacing: 6px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------- 日历小组件 ---------- */
+.widget-date {
+  font-size: var(--font-size-date);
+  font-weight: 500;
+  color: var(--color-dark-text);
+  margin-bottom: 2px;
+}
+
+.widget-events { margin-top: 4px; }
+
+.widget-event {
+  font-size: 0.75rem;
+  color: var(--color-light-text);
+  padding: 2px 0;
+}
+
+/* ---------- 小组件并排行 ---------- */
+.widget-row {
+  display: flex;
+  gap: var(--widget-gap);
+  margin-bottom: var(--widget-gap);
+}
+
+.widget-row .widget {
+  flex: 1;
+  padding: var(--widget-padding);
+}
+
+/* ---------- 倒计时小组件 ---------- */
+.widget-countdown .widget-title {
+  font-size: 0.6875rem;
+  color: var(--color-light-text);
+}
+
+.countdown-number {
+  font-size: var(--font-size-countdown);
+  font-weight: bold;
+  color: var(--color-dark-text);
+  margin-bottom: 2px;
+}
+
+.progress-bar {
+  height: 5px;
+  background: #D4CFC0;
+  border-radius: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 3px;
+  width: 66%;
+}
+
+/* ---------- 备忘录小组件 ---------- */
+.widget-memo .widget-title {
+  font-size: var(--font-size-memo);
+  color: var(--color-dark-text);
+  font-weight: 600;
+}
+
+.memo-preview {
+  font-size: var(--font-size-memo);
+  color: var(--color-dark-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 0;
+}
+
+/* ============================================
+   App图标区域 - 弹性居中
+   ============================================ */
+.app-icons-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 8px 0;
+  flex-shrink: 0;
+}
+
+.app-icon-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--app-icon-gap);
+}
+
+.app-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  width: calc(var(--app-icon-size) + 8px);
+}
+
+.app-icon:active .icon-box { transform: scale(0.9); }
+
+.icon-box {
+  width: var(--app-icon-size);
+  height: var(--app-icon-size);
+  border-radius: var(--app-icon-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--app-icon-size) * 0.47);
+  color: white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease;
+}
+
+.icon-label {
+  font-size: var(--font-size-app-label);
+  color: var(--color-dark-text);
+  text-align: center;
+}
+
+/* 图标颜色 - 和谐色系 */
+.icon-wechat { background: #69a742; }
+.icon-memo { background: #f79b68; }
+.icon-weibo { background: #be84f3; }
+.icon-phone { background: #c5da5b; }
+.icon-sms { background: #8ccfd8; }
+.icon-album { background: #e8e55a; }
+.icon-deepseek { background: #5c67b0; }
+.icon-qq { background: #5c67b0; }
+.icon-footprint { background: #69a742; }
+
+/* ============================================
+   Dock 栏 - 弹性高度 + safe-area
+   ============================================ */
+#dock {
+  height: var(--dock-height);
+  padding-bottom: var(--safe-bottom);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dock-icon-gap);
+  background: var(--color-dock);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-radius: 0;
+  flex-shrink: 0;
+  z-index: 10;
+  margin: 0;
+}
+
+.dock-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dock-icon:active .dock-icon-box { transform: scale(0.9); }
+
+.dock-icon-box {
+  width: var(--dock-icon-size);
+  height: var(--dock-icon-size);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--dock-icon-size) * 0.5);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease;
+}
+
+.dock-icon-label {
+  font-size: var(--font-size-dock-label);
+  color: var(--color-dark-text);
+  margin-top: 3px;
+  text-align: center;
+}
+
+/* ============================================
+   #page-container 页面容器
+   ============================================ */
+#page-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--ios-bg);
+  z-index: 30;
+}
+
+#page-container.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   全局页面导航栏（iOS 风格）
+   ============================================ */
+.page-header {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 0.5px solid var(--color-divider);
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* 桌面端导航栏留出刘海空间 */
+@media (min-width: 431px) {
+  .page-header {
+    padding-top: 50px;
+  }
+}
+
+/* 移动端导航栏适配安全区域 */
+@media (max-width: 430px) {
+  .page-header {
+    padding-top: var(--safe-top);
+  }
+}
+
+.page-header .back-btn {
+  font-size: 17px;
+  color: var(--color-accent);
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  min-width: 60px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page-header .back-btn:active { opacity: 0.5; }
+
+.page-header .title {
+  font-size: 17px;
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+  color: #1C1C1E;
+}
+
+.page-content {
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.page-enter {
+  animation: fadeIn 0.25s ease;
+}
+
+/* ============================================
+   备忘录手风琴样式
+   ============================================ */
+.memo-accordion-item {
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.memo-accordion-header {
+  padding: 14px 16px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1C1C1E;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.memo-accordion-header:active {
+  background-color: #F2F2F7;
+}
+
+.memo-accordion-header::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #C7C7CC;
+  border-bottom: 2px solid #C7C7CC;
+  transform: rotate(-45deg);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.memo-accordion-header.open::after {
+  transform: rotate(45deg);
+}
+
+.memo-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.memo-accordion-text {
+  padding: 0 16px 14px;
+  font-size: 0.9375rem;
+  color: #3A3A3A;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* ============================================
+   通用组件样式
+   ============================================ */
+
+/* 列表 */
+.list-item {
+  padding: 14px 16px;
+  border-bottom: 0.5px solid var(--divider);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.list-item:active { background-color: #D1D1D6; }
+
+/* 聊天 */
+.chat-container { display: flex; flex-direction: column; padding: 16px; }
+.chat-bubble {
+  max-width: 75%; padding: 10px 14px; border-radius: 18px;
+  font-size: 0.9375rem; line-height: 1.5; margin-bottom: 8px; word-break: break-word;
+}
+.chat-bubble.sent { background-color: var(--color-accent); color: #1C1C1E; align-self: flex-end; border-bottom-right-radius: 4px; }
+.chat-bubble.received { background-color: #E9E9EB; color: #1C1C1E; align-self: flex-start; border-bottom-left-radius: 4px; }
+
+/* 登录表单 */
+.login-form { padding: 40px 24px; }
+.form-input {
+  width: 100%; height: 44px; border: 0.5px solid #E5E5EA; border-radius: 10px;
+  padding: 0 12px; font-size: 1rem; outline: none; background-color: #F2F2F7;
+  color: #1C1C1E; font-family: inherit; -webkit-appearance: none; appearance: none;
+}
+.form-input:focus { border-color: #86E0C1; }
+.form-input::placeholder { color: #C7C7CC; }
+.form-btn {
+  width: 100%; height: 50px; background-color: var(--color-accent); color: #FFFFFF;
+  border: none; border-radius: 14px; font-size: 1.0625rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; -webkit-appearance: none; appearance: none;
+  transition: background-color 0.15s ease;
+}
+.form-btn:active { opacity: 0.8; }
+
+/* Toast */
+#toast {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8); color: #FFFFFF; padding: 16px 24px;
+  border-radius: 12px; font-size: 0.9375rem; text-align: center; z-index: 200;
+  display: none; pointer-events: none; max-width: 260px; word-break: break-word;
+}
+#toast.show { display: block; animation: fadeInOut 2s ease forwards; }
+
+/* Modal */
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
+#modal.show { display: block; }
+#modal .modal-content {
+  position: absolute; bottom: 0; width: 100%; background-color: #FFFFFF;
+  border-radius: 12px 12px 0 0; padding: 20px; animation: slideUp 0.3s ease;
+}
+#modal .modal-title { font-size: 1.0625rem; font-weight: 600; text-align: center; margin-bottom: 16px; color: #1C1C1E; }
+
+/* 页面编号 */
+#page-number { position: fixed; bottom: 34px; right: 24px; font-size: 0.6875rem; color: rgba(255,255,255,0.4); z-index: 50; pointer-events: none; }
+
+/* 标签页 */
+.tabs { display: flex; border-bottom: 0.5px solid var(--divider); background-color: #FFFFFF; }
+.tab {
+  flex: 1; text-align: center; padding: 10px 0; font-size: 0.875rem; color: #8E8E93;
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-bottom-color 0.2s ease;
+  background: none; border-top: none; border-left: none; border-right: none; font-family: inherit;
+}
+.tab.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+
+/* 表格 */
+.info-table { width: 100%; border-collapse: collapse; }
+.info-table td, .info-table th { padding: 10px 12px; border-bottom: 0.5px solid var(--divider); font-size: 0.875rem; text-align: left; color: #1C1C1E; }
+.info-table th { font-weight: 600; color: #1C1C1E; background-color: #F9F9FB; }
+
+/* 日历网格 */
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.calendar-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; border-radius: 8px; color: #1C1C1E; position: relative; cursor: pointer; }
+.calendar-cell.today { background-color: #86E0C1; color: #FFFFFF; font-weight: 600; }
+.calendar-cell.marked::after { content: ''; position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background-color: #FF3B30; }
+
+/* 图片网格 */
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.photo-grid .photo { aspect-ratio: 1; object-fit: cover; background-color: #E5E5EA; width: 100%; display: block; }
+
+/* ============================================
+   动画
+   ============================================ */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+@keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ============================================
+   辅助工具类
+   ============================================ */
+.text-primary { color: #86E0C1; }
+.text-secondary { color: #8E8E93; }
+.text-danger { color: #FF3B30; }
+.text-success { color: #34C759; }
+.text-center { text-align: center; }
+.font-bold { font-weight: 600; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.hidden { display: none !important; }
+
+/* ============================================
+   响应式 - 移动端全屏
+   ============================================ */
+
+/* 小屏手机（< 360px） */
+@media (max-width: 360px) {
+  html { font-size: 14px; }
+  .app-icon-row { gap: 6vw; }
+  #dock { gap: 4vw; }
+}
+
+/* 大屏手机/平板（431px - 768px） */
+@media (min-width: 431px) and (max-width: 768px) {
+  html { font-size: 17px; }
+}
+
+/* 超大屏（> 768px）字体上限 */
+@media (min-width: 769px) {
+  html { font-size: 18px; }
+}
+
+/* 横屏锁定 - 仅竖屏生效 */
+@media (orientation: landscape) {
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #2C2C2E;
+  }
+  #phone-frame {
+    width: 375px;
+    height: 812px;
+    transform: rotate(0deg);
+    transform-origin: center center;
+  }
+}
+
+/* 极短屏幕适配 */
+@media (max-height: 600px) {
+  #status-bar { height: 32px; }
+  #search-bar { padding: 4px 4.27vw; }
+  .widget-weather { padding: 8px 5.33vw; margin-bottom: 6px; }
+  .widget-row { gap: 6px; margin-bottom: 6px; }
+  .calendar-text-row { gap: 6px; margin-bottom: 6px; }
+  .widgets-area { padding: 0 4.27vw; }
+  .app-icons-area { flex: 0; padding: 6px 0; }
+  #dock { height: clamp(50px, 8vh, 65px); }
+}
+
+/* ========== 搜索历史下拉 ========== */
+#search-history {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 6px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 8px 16px;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+#search-history:empty {
+  display: none;
+}

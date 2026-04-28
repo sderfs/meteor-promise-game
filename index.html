@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#F8F5E9">
+  <title>流星雨的约定</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- 手机外壳 -->
+  <div id="phone-frame">
+    <!-- 手机屏幕 -->
+    <div id="app">
+
+      <!-- 状态栏 -->
+      <header id="status-bar">
+        <span class="status-time" id="status-time">10:30</span>
+      </header>
+
+      <!-- 搜索栏 -->
+      <div id="search-bar">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.75" stroke="rgba(142,142,147,0.5)" stroke-width="2"/><line x1="13" y1="13" x2="18" y2="18" stroke="rgba(142,142,147,0.5)" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="text" id="search-input" placeholder="搜索" autocomplete="off">
+        </div>
+        <div id="search-history" style="display:none;"></div>
+      </div>
+
+      <!-- 主内容区（不滚动，一屏展示） -->
+      <div id="main-scroll">
+
+        <!-- 小组件区域 -->
+        <div class="widgets-area">
+
+          <!-- 日期天气小组件 -->
+          <div class="widget widget-weather" id="weather-widget">
+            <div class="weather-left">
+              <div class="weather-date" id="weather-date">8月13日 周四</div>
+              <div class="weather-year">2026年</div>
+            </div>
+            <div class="weather-right">
+              <div class="weather-temp">28°C</div>
+              <div class="weather-label">晴天</div>
+            </div>
+          </div>
+
+          <!-- 日历（减半宽度）+ 竖体文字 并排一行 -->
+          <div class="calendar-text-row">
+            <div class="widget widget-calendar" data-navigate="05">
+              <div class="widget-title">&#128197; 日历</div>
+              <div class="widget-events">
+                <div class="widget-event">8月20日 &#127874; 叶禾生日</div>
+                <div class="widget-event">8月11日 &#128230; 准备礼物</div>
+              </div>
+            </div>
+            <div class="vertical-text-col">
+              <div class="vertical-text">努力赚钱</div>
+              <div class="vertical-text">早日退休</div>
+            </div>
+          </div>
+
+          <!-- 倒计时 + 备忘录 并排 -->
+          <div class="widget-row">
+            <!-- 倒计时小组件 -->
+            <div class="widget widget-countdown">
+              <div class="widget-title">距离30岁环游世界</div>
+              <div class="countdown-number">2924 天（8年）</div>
+              <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+            </div>
+
+            <!-- 备忘录小组件 -->
+            <div class="widget widget-memo" data-navigate="01">
+              <div class="widget-title">&#128221; 备忘录</div>
+              <div class="memo-preview">&#128214; 新手操作指南</div>
+              <div class="memo-preview">&#128221; 随手记</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- App图标区域（倒数第二行，较小） -->
+        <div class="app-icons-area">
+          <div class="app-icon-row">
+            <div class="app-icon" data-app="06">
+              <div class="icon-box icon-wechat">&#128172;</div>
+              <span class="icon-label">微信</span>
+            </div>
+            <div class="app-icon" data-app="15">
+              <div class="icon-box icon-qq">&#129418;</div>
+              <span class="icon-label">QQ</span>
+            </div>
+            <div class="app-icon" data-app="18">
+              <div class="icon-box icon-weibo">&#128226;</div>
+              <span class="icon-label">微博</span>
+            </div>
+            <div class="app-icon" data-app="footprints">
+              <div class="icon-box" style="background:linear-gradient(135deg,#A8D8EA,#88C9A1);">&#128099;</div>
+              <span class="icon-label">足迹</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dock栏 -->
+      <div id="dock">
+        <div class="dock-icon" data-app="04">
+          <div class="dock-icon-box icon-phone">&#128222;</div>
+          <span class="dock-icon-label">电话</span>
+        </div>
+        <div class="dock-icon" data-app="02">
+          <div class="dock-icon-box icon-sms">&#128172;</div>
+          <span class="dock-icon-label">短信</span>
+        </div>
+        <div class="dock-icon" data-app="23">
+          <div class="dock-icon-box icon-album">&#127752;</div>
+          <span class="dock-icon-label">相册</span>
+        </div>
+        <div class="dock-icon" data-app="11">
+          <div class="dock-icon-box icon-deepseek">&#129302;</div>
+          <span class="dock-icon-label">DeepSeek</span>
+        </div>
+      </div>
+
+      <!-- 页面内容容器 -->
+      <div id="page-container" aria-live="polite"></div>
+      <div id="toast" role="alert" aria-live="assertive"></div>
+      <div id="modal" role="dialog" aria-modal="true" hidden></div>
+      <div id="page-number" aria-label="页面编号"></div>
+
+    </div>
+  </div>
+
+  <script src="js/data.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
+</body>
+</html>
