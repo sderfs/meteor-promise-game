@@ -99,15 +99,9 @@ body {
   bottom: 0;
 }
 
-/* 动态视口高度兼容：不支持100dvh的浏览器回退到100vh */
-@supports (height: 100dvh) {
-  html, body { height: 100dvh; }
-  #phone-frame { height: 100dvh; }
-}
-@supports not (height: 100dvh) {
-  html, body { height: 100vh; height: -webkit-fill-available; }
-  #phone-frame { height: 100vh; height: -webkit-fill-available; }
-}
+/* 视口高度：使用JS计算的CSS变量，兼容所有浏览器 */
+html, body { height: calc(var(--vh, 1vh) * 100); }
+#phone-frame { height: calc(var(--vh, 1vh) * 100); }
 
 ::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; }

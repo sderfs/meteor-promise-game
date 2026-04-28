@@ -137,6 +137,20 @@
     </div>
   </div>
 
+  <script>
+    // 移动端视口高度兼容：解决地址栏导致的100vh/dvh不准确问题
+    function setViewportHeight() {
+      var vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', vh + 'px');
+    }
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', function() {
+      setTimeout(setViewportHeight, 100);
+    });
+    // iOS Safari 地址栏收起时也更新
+    window.visualViewport && window.visualViewport.addEventListener('resize', setViewportHeight);
+  </script>
   <script src="js/data.js?v=12"></script>
   <script src="js/app.js?v=12"></script>
 </body>

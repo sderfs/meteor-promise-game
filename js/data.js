@@ -562,12 +562,12 @@ const gameData = {
       type: "gallery",
       data: {
         photos: [
-          { id: 1, src: "assets/photos/photo1.png", desc: "\u6B22\u4E50\u8C37\u5408\u5F71", date: "2025\u5E745\u67081\u65E5 14:23:07", location: "\u661F\u613F\u6B22\u4E50\u8C37", selectable: true },
-          { id: 2, src: "assets/photos/photo2.png", desc: "\u9A91\u9F99\u81EA\u62CD", date: "2025\u5E748\u670813\u65E5 17:41:52", location: "\u672A\u77E5\u5730\u70B9", unknown: true },
-          { id: 3, src: "assets/photos/photo3.png", desc: "\u591A\u8089\u690D\u7269", date: "2026\u5E746\u670815\u65E5 11:08:34", location: "\u9633\u5149\u533A" },
-          { id: 4, src: "assets/photos/photo4.png", desc: "\u8292\u679C\u5E72\u5F00\u888B", date: "2026\u5E747\u670823\u65E5 22:15:08", location: "\u9633\u5149\u533A" },
-          { id: 5, src: "assets/photos/photo5.png", desc: "\u5FEB\u9012\u5806", date: "2026\u5E748\u670811\u65E5 16:42:19", location: "\u9633\u5149\u533A" },
-          { id: 6, src: "assets/photos/photo6.png", desc: "\u4E66\u684C", date: "2026\u5E747\u670828\u65E5 02:33:41", location: "\u9633\u5149\u533A" }
+          { id: 1, src: "assets/photos/photo1.webp", desc: "\u6B22\u4E50\u8C37\u5408\u5F71", date: "2025\u5E745\u67081\u65E5 14:23:07", location: "\u661F\u613F\u6B22\u4E50\u8C37", selectable: true },
+          { id: 2, src: "assets/photos/photo2.webp", desc: "\u9A91\u9F99\u81EA\u62CD", date: "2025\u5E748\u670813\u65E5 17:41:52", location: "\u672A\u77E5\u5730\u70B9", unknown: true },
+          { id: 3, src: "assets/photos/photo3.webp", desc: "\u591A\u8089\u690D\u7269", date: "2026\u5E746\u670815\u65E5 11:08:34", location: "\u9633\u5149\u533A" },
+          { id: 4, src: "assets/photos/photo4.webp", desc: "\u8292\u679C\u5E72\u5F00\u888B", date: "2026\u5E747\u670823\u65E5 22:15:08", location: "\u9633\u5149\u533A" },
+          { id: 5, src: "assets/photos/photo5.webp", desc: "\u5FEB\u9012\u5806", date: "2026\u5E748\u670811\u65E5 16:42:19", location: "\u9633\u5149\u533A" },
+          { id: 6, src: "assets/photos/photo6.webp", desc: "\u4E66\u684C", date: "2026\u5E747\u670828\u65E5 02:33:41", location: "\u9633\u5149\u533A" }
         ]
       }
     },
@@ -892,7 +892,7 @@ const gameData = {
         phone: "173xxxx1234",
         recommend: "栗子蛋糕、椰蓉蛋糕、芒果慕斯、提拉米苏、巴斯克芝士",
         buttonText: "查看完整菜单",
-        menuImage: "assets/menu.png"
+        menuImage: "assets/menu.webp"
       }
     },
 
