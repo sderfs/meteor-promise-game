@@ -256,6 +256,30 @@
     }
   };
 
+  // ========== 1.7 密码提示弹窗（统一） ==========
+  function showPasswordHint(message) {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
+
+    var modal = document.createElement('div');
+    modal.style.cssText = 'background:#fff;border-radius:14px;padding:20px;width:260px;max-width:80vw;text-align:center;animation:scaleIn 0.2s ease-out;';
+
+    var msg = document.createElement('div');
+    msg.style.cssText = 'font-size:16px;color:#3A3A3A;margin-bottom:20px;line-height:1.5;';
+    msg.textContent = message;
+    modal.appendChild(msg);
+
+    var btn = document.createElement('div');
+    btn.style.cssText = 'display:inline-block;background:#86E0C1;color:#fff;font-size:15px;font-weight:600;padding:10px 40px;border-radius:14px;cursor:pointer;';
+    btn.textContent = '\u786E\u5B9A';
+    btn.addEventListener('click', function() { overlay.remove(); });
+    modal.appendChild(btn);
+
+    overlay.appendChild(modal);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
   // ========== 2. Modal 模态框 ==========
   const Modal = {
     /**
@@ -1339,14 +1363,14 @@
 
       // 可选的"忘记密码？"链接
       const forgotLink = document.createElement('div');
-      forgotLink.style.cssText = 'text-align:center;font-size:13px;color:#007AFF;cursor:pointer;';
-      forgotLink.textContent = '忘记密码？';
+      forgotLink.style.cssText = 'text-align:center;font-size:14px;color:#007AFF;cursor:pointer;padding:8px 0;text-decoration:underline;';
+      forgotLink.textContent = '\u5FD8\u8BB0\u5BC6\u7801\uFF1F';
       forgotLink.addEventListener('click', () => {
         const passwordKey = page.data.passwordKey;
         if (passwordKey) {
           const rule = window.gameData.passwords[passwordKey];
           if (rule && rule.securityQuestion) {
-            showHintModal(rule.securityQuestion);
+            showPasswordHint(rule.securityQuestion);
           } else {
             Toast.show('\u6682\u4E0D\u652F\u6301\u5BC6\u7801\u627E\u56DE');
           }
@@ -1354,29 +1378,6 @@
       });
 
       form.appendChild(forgotLink);
-
-      function showHintModal(message) {
-        var overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
-
-        var modal = document.createElement('div');
-        modal.style.cssText = 'background:#fff;border-radius:14px;padding:20px;width:260px;max-width:80vw;text-align:center;animation:scaleIn 0.2s ease-out;';
-
-        var msg = document.createElement('div');
-        msg.style.cssText = 'font-size:16px;color:#3A3A3A;margin-bottom:20px;line-height:1.5;';
-        msg.textContent = message;
-        modal.appendChild(msg);
-
-        var btn = document.createElement('div');
-        btn.style.cssText = 'display:inline-block;background:#86E0C1;color:#fff;font-size:15px;font-weight:600;padding:10px 40px;border-radius:14px;cursor:pointer;';
-        btn.textContent = '\u786E\u5B9A';
-        btn.addEventListener('click', function() { overlay.remove(); });
-        modal.appendChild(btn);
-
-        overlay.appendChild(modal);
-        overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
-        document.body.appendChild(overlay);
-      }
 
       container.appendChild(form);
     },
@@ -4477,7 +4478,7 @@
         } else {
           hintMsg = '\u6682\u65E0\u8BE5\u8D26\u53F7\u7684\u5BC6\u7801\u63D0\u793A';
         }
-        showHintModal(hintMsg);
+        showPasswordHint(hintMsg);
       });
       card.appendChild(forgotLink);
 
@@ -4493,29 +4494,6 @@
         var entry = { username: username, password: password, lastLogin: Date.now() };
         if (idx >= 0) { list[idx] = entry; } else { list.push(entry); }
         sessionStorage.setItem(storageKey, JSON.stringify(list));
-      }
-
-      function showHintModal(message) {
-        var overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
-
-        var modal = document.createElement('div');
-        modal.style.cssText = 'background:#fff;border-radius:14px;padding:20px;width:260px;max-width:80vw;text-align:center;animation:scaleIn 0.2s ease-out;';
-
-        var msg = document.createElement('div');
-        msg.style.cssText = 'font-size:16px;color:#3A3A3A;margin-bottom:20px;line-height:1.5;';
-        msg.textContent = message;
-        modal.appendChild(msg);
-
-        var btn = document.createElement('div');
-        btn.style.cssText = 'display:inline-block;background:#86E0C1;color:#fff;font-size:15px;font-weight:600;padding:10px 40px;border-radius:14px;cursor:pointer;';
-        btn.textContent = '\u786E\u5B9A';
-        btn.addEventListener('click', function() { overlay.remove(); });
-        modal.appendChild(btn);
-
-        overlay.appendChild(modal);
-        overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
-        document.body.appendChild(overlay);
       }
 
       function showAccountSwitcher() {
@@ -5265,18 +5243,12 @@
         content.appendChild(input);
 
         const hint = document.createElement('div');
-        hint.style.cssText = 'font-size:13px;color:#8E8E93;margin-bottom:20px;cursor:pointer;';
+        hint.style.cssText = 'text-align:center;font-size:14px;color:#007AFF;cursor:pointer;padding:8px 0;text-decoration:underline;';
         hint.textContent = '\u5FD8\u8BB0\u5BC6\u7801\uFF1F';
-        content.appendChild(hint);
-
-        var hintShown = false;
         hint.addEventListener('click', function() {
-          if (!hintShown) {
-            hintShown = true;
-            hint.textContent = data.passwordHint || '';
-            hint.style.color = '#3A3A3A';
-          }
+          showPasswordHint(data.passwordHint || '\u6682\u65E0\u63D0\u793A');
         });
+        content.appendChild(hint);
 
         const btn = document.createElement('div');
         btn.style.cssText = 'width:240px;height:44px;background:#86E0C1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:600;cursor:pointer;';
