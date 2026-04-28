@@ -28,6 +28,234 @@
     }
   };
 
+  // ========== 1.5 菜单大图查看器 ==========
+  const ShopMenuViewer = {
+    show(src) {
+      // 创建遮罩
+      var overlay = document.createElement('div');
+      overlay.id = 'menu-viewer-overlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease;';
+
+      // 关闭按钮（左上角）
+      var closeBtn = document.createElement('div');
+      closeBtn.style.cssText = 'position:absolute;top:12px;left:12px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;z-index:201;cursor:pointer;font-size:20px;color:#fff;';
+      closeBtn.textContent = '\u2715';
+      closeBtn.addEventListener('click', function() { ShopMenuViewer.hide(); });
+      overlay.appendChild(closeBtn);
+
+      // 可滚动、可缩放的图片容器
+      var scrollWrap = document.createElement('div');
+      scrollWrap.style.cssText = 'width:100%;height:100%;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;justify-content:center;';
+
+      var img = document.createElement('img');
+      img.src = src;
+      img.style.cssText = 'width:100%;max-width:430px;height:auto;object-fit:contain;transform-origin:center center;transition:transform 0.1s ease;user-select:none;-webkit-user-drag:none;';
+
+      // 双指缩放
+      var lastDist = 0;
+      var currentScale = 1;
+
+      img.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+          lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      img.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+          var dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+          currentScale = Math.min(Math.max(currentScale * (dist / lastDist), 0.5), 5);
+          img.style.transform = 'scale(' + currentScale + ')';
+          lastDist = dist;
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      // 双击重置缩放
+      var lastTap = 0;
+      img.addEventListener('touchend', function(e) {
+        var now = Date.now();
+        if (now - lastTap < 300 && e.changedTouches.length === 1) {
+          currentScale = currentScale > 1 ? 1 : 2.5;
+          img.style.transform = 'scale(' + currentScale + ')';
+        }
+        lastTap = now;
+      });
+
+      scrollWrap.appendChild(img);
+      overlay.appendChild(scrollWrap);
+
+      // 点击遮罩（非图片区域）关闭
+      scrollWrap.addEventListener('click', function(e) {
+        if (e.target === scrollWrap) {
+          ShopMenuViewer.hide();
+        }
+      });
+
+      document.body.appendChild(overlay);
+
+      // 淡入
+      requestAnimationFrame(function() {
+        overlay.style.opacity = '1';
+      });
+    },
+
+    hide() {
+      var overlay = document.getElementById('menu-viewer-overlay');
+      if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(function() {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 300);
+      }
+    }
+  };
+
+  // ========== 1.6 相册大图查看器 ==========
+  const GalleryViewer = {
+    show(photos, startIndex) {
+      var currentIndex = startIndex || 0;
+      var overlay = document.createElement('div');
+      overlay.id = 'gallery-viewer-overlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:200;display:flex;flex-direction:column;opacity:0;transition:opacity 0.3s ease;';
+
+      // 顶部栏：关闭按钮 + 计数
+      var topBar = document.createElement('div');
+      topBar.style.cssText = 'position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:201;';
+
+      var closeBtn = document.createElement('div');
+      closeBtn.style.cssText = 'width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;';
+      closeBtn.textContent = '\u2715';
+      closeBtn.addEventListener('click', function() { GalleryViewer.hide(); });
+      topBar.appendChild(closeBtn);
+
+      var counter = document.createElement('span');
+      counter.style.cssText = 'font-size:14px;color:rgba(255,255,255,0.7);';
+      counter.textContent = (currentIndex + 1) + ' / ' + photos.length;
+      topBar.appendChild(counter);
+
+      var spacer = document.createElement('div');
+      spacer.style.cssText = 'width:36px;';
+      topBar.appendChild(spacer);
+
+      overlay.appendChild(topBar);
+
+      // 图片容器（左右滑动）
+      var slideWrap = document.createElement('div');
+      slideWrap.style.cssText = 'flex:1;overflow:hidden;position:relative;';
+
+      var track = document.createElement('div');
+      track.style.cssText = 'display:flex;height:100%;transition:transform 0.3s ease;';
+
+      photos.forEach(function(photo) {
+        var slide = document.createElement('div');
+        slide.style.cssText = 'min-width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;';
+
+        var img = document.createElement('img');
+        img.src = photo.src || '';
+        img.style.cssText = 'max-width:100%;max-height:70vh;object-fit:contain;user-select:none;-webkit-user-drag:none;transform-origin:center center;transition:transform 0.15s ease;';
+        slide.appendChild(img);
+
+        // 照片信息卡片
+        var infoCard = document.createElement('div');
+        infoCard.style.cssText = 'padding:12px 20px;text-align:center;';
+
+        if (photo.date) {
+          var dateEl = document.createElement('div');
+          dateEl.style.cssText = 'font-size:13px;color:rgba(255,255,255,0.6);';
+          dateEl.textContent = photo.date;
+          infoCard.appendChild(dateEl);
+        }
+
+        if (photo.location) {
+          var locEl = document.createElement('div');
+          locEl.style.cssText = 'font-size:14px;color:rgba(255,255,255,0.9);margin-top:4px;';
+          if (photo.unknown) {
+            locEl.style.cssText += 'font-style:italic;color:rgba(255,255,255,0.4);';
+          }
+          if (photo.selectable) {
+            locEl.style.cssText += '-webkit-user-select:text;user-select:text;cursor:text;';
+          }
+          locEl.textContent = photo.location;
+          infoCard.appendChild(locEl);
+        }
+
+        slide.appendChild(infoCard);
+        track.appendChild(slide);
+      });
+
+      slideWrap.appendChild(track);
+      overlay.appendChild(slideWrap);
+
+      // 左右滑动
+      var startX = 0, moveX = 0, isDragging = false;
+      track.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1) {
+          startX = e.touches[0].clientX;
+          isDragging = true;
+          track.style.transition = 'none';
+        }
+      }, { passive: true });
+
+      track.addEventListener('touchmove', function(e) {
+        if (isDragging && e.touches.length === 1) {
+          moveX = e.touches[0].clientX - startX;
+          track.style.transform = 'translateX(' + (moveX - currentIndex * slideWrap.offsetWidth) + 'px)';
+        }
+      }, { passive: true });
+
+      track.addEventListener('touchend', function(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        track.style.transition = 'transform 0.3s ease';
+        var threshold = slideWrap.offsetWidth * 0.2;
+        if (moveX < -threshold && currentIndex < photos.length - 1) {
+          currentIndex++;
+        } else if (moveX > threshold && currentIndex > 0) {
+          currentIndex--;
+        }
+        moveX = 0;
+        track.style.transform = 'translateX(' + (-currentIndex * slideWrap.offsetWidth) + 'px)';
+        counter.textContent = (currentIndex + 1) + ' / ' + photos.length;
+      });
+
+      // 双击放大
+      photos.forEach(function(photo, idx) {
+        var slides = track.children;
+        if (!slides[idx]) return;
+        var img = slides[idx].querySelector('img');
+        if (!img) return;
+        var scale = 1;
+        var lastTap = 0;
+        img.addEventListener('touchend', function(e) {
+          var now = Date.now();
+          if (now - lastTap < 300) {
+            scale = scale > 1 ? 1 : 3;
+            img.style.transform = 'scale(' + scale + ')';
+          }
+          lastTap = now;
+        });
+      });
+
+      document.body.appendChild(overlay);
+      requestAnimationFrame(function() {
+        overlay.style.opacity = '1';
+        track.style.transform = 'translateX(' + (-currentIndex * slideWrap.offsetWidth) + 'px)';
+      });
+    },
+
+    hide() {
+      var overlay = document.getElementById('gallery-viewer-overlay');
+      if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(function() {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 300);
+      }
+    }
+  };
+
   // ========== 2. Modal 模态框 ==========
   const Modal = {
     /**
@@ -248,6 +476,7 @@
         case 'weibo-profile': this.renderWeiboProfile(page); break;
         case 'weibo-locked': this.renderWeiboLocked(page); break;
         case 'product': this.renderProduct(page); break;
+        case 'shop': this.renderShop(page); break;
         case 'calendar': this.renderCalendar(page); break;
         case 'photo-grid': this.renderPhotoGrid(page); break;
         case 'widget': this.renderWidget(page); break;
@@ -3087,6 +3316,103 @@
       container.appendChild(content);
     },
 
+    /** 渲染大众点评商家页 */
+    renderShop(page) {
+      const container = document.getElementById('page-container');
+      container.appendChild(this.createHeader(page.title));
+
+      const content = document.createElement('div');
+      content.className = 'page-content';
+      content.style.padding = '0';
+
+      // 商家头部图片占位
+      const imgArea = document.createElement('div');
+      imgArea.style.cssText = 'width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#FFF5E6,#FFE0B2);display:flex;align-items:center;justify-content:center;';
+      imgArea.innerHTML = '<span style="font-size:48px;">🍰</span>';
+      content.appendChild(imgArea);
+
+      // 商家信息卡片
+      const infoCard = document.createElement('div');
+      infoCard.style.cssText = 'padding:16px;background:#fff;';
+
+      const nameEl = document.createElement('div');
+      nameEl.style.cssText = 'font-size:18px;font-weight:700;color:#1C1C1E;';
+      nameEl.textContent = page.data.subtitle || page.data.title || '';
+      infoCard.appendChild(nameEl);
+
+      const catEl = document.createElement('div');
+      catEl.style.cssText = 'font-size:13px;color:#8E8E93;margin-top:4px;';
+      catEl.textContent = page.data.category || '';
+      infoCard.appendChild(catEl);
+
+      // 分割线
+      const divider1 = document.createElement('div');
+      divider1.style.cssText = 'height:0.5px;background:#E5E5EA;margin:12px 0;';
+      infoCard.appendChild(divider1);
+
+      // 营业信息
+      var shopInfo = [
+        { label: '营业时间', value: page.data.hours || '' },
+        { label: '地址', value: page.data.address || '' },
+        { label: '电话', value: page.data.phone || '' }
+      ];
+      shopInfo.forEach(function(info) {
+        if (!info.value) return;
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;padding:6px 0;font-size:14px;';
+        var label = document.createElement('span');
+        label.style.cssText = 'color:#8E8E93;width:70px;flex-shrink:0;';
+        label.textContent = info.label;
+        var value = document.createElement('span');
+        value.style.cssText = 'color:#1C1C1E;';
+        value.textContent = info.value;
+        row.appendChild(label);
+        row.appendChild(value);
+        infoCard.appendChild(row);
+      });
+
+      content.appendChild(infoCard);
+
+      // 推荐菜
+      if (page.data.recommend) {
+        var recCard = document.createElement('div');
+        recCard.style.cssText = 'padding:16px;background:#fff;margin-top:8px;';
+
+        var recTitle = document.createElement('div');
+        recTitle.style.cssText = 'font-size:16px;font-weight:600;color:#1C1C1E;margin-bottom:10px;';
+        recTitle.textContent = '推荐菜';
+        recCard.appendChild(recTitle);
+
+        var recList = document.createElement('div');
+        recList.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+        var items = page.data.recommend.split('、');
+        items.forEach(function(item) {
+          var tag = document.createElement('span');
+          tag.style.cssText = 'padding:4px 12px;background:#F2F2F7;border-radius:14px;font-size:13px;color:#3C3C43;';
+          tag.textContent = item.trim();
+          recList.appendChild(tag);
+        });
+        recCard.appendChild(recList);
+        content.appendChild(recCard);
+      }
+
+      // 查看完整菜单按钮
+      if (page.data.buttonText) {
+        var btnArea = document.createElement('div');
+        btnArea.style.cssText = 'padding:16px;background:#fff;margin-top:8px;';
+        var menuBtn = document.createElement('button');
+        menuBtn.className = 'form-btn';
+        menuBtn.textContent = page.data.buttonText;
+        menuBtn.addEventListener('click', function() {
+          ShopMenuViewer.show(page.data.menuImage || 'assets/menu.png');
+        });
+        btnArea.appendChild(menuBtn);
+        content.appendChild(btnArea);
+      }
+
+      container.appendChild(content);
+    },
+
     /** 渲染日历页 */
     renderCalendar(page) {
       const container = document.getElementById('page-container');
@@ -4881,28 +5207,28 @@
         const grid = document.createElement('div');
         grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:2px;';
 
-        data.photos.forEach(function(photo) {
+        data.photos.forEach(function(photo, index) {
           const cell = document.createElement('div');
-          cell.style.cssText = 'aspect-ratio:1;background:#F2F2F7;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;';
+          cell.style.cssText = 'aspect-ratio:1;background:#F2F2F7;overflow:hidden;cursor:pointer;position:relative;border-radius:8px;';
 
-          const icon = document.createElement('div');
-          icon.style.cssText = 'font-size:32px;color:#C7C7CC;';
-          icon.textContent = '\uD83D\uDBC2';
-          cell.appendChild(icon);
-
-          const desc = document.createElement('div');
-          desc.style.cssText = 'font-size:10px;color:#8E8E93;margin-top:4px;text-align:center;padding:0 2px;';
-          desc.textContent = photo.desc || '';
-          cell.appendChild(desc);
-
-          if (photo.special) {
-            const tag = document.createElement('div');
-            tag.style.cssText = 'position:absolute;top:4px;right:4px;font-size:8px;color:#FF3B30;background:rgba(255,255,255,0.9);padding:1px 4px;border-radius:3px;';
-            tag.textContent = photo.special;
-            cell.appendChild(tag);
+          if (photo.src) {
+            const img = document.createElement('img');
+            img.src = photo.src;
+            img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            img.loading = 'lazy';
+            cell.appendChild(img);
+          } else {
+            const icon = document.createElement('div');
+            icon.style.cssText = 'font-size:32px;color:#C7C7CC;display:flex;align-items:center;justify-content:center;height:100%;';
+            icon.textContent = '\uD83D\uDBC2';
+            cell.appendChild(icon);
           }
 
           grid.appendChild(cell);
+
+          cell.addEventListener('click', function() {
+            GalleryViewer.show(data.photos, index);
+          });
         });
 
         content.appendChild(grid);
@@ -5037,15 +5363,12 @@
       const cards = window.gameData.searchCards;
       if (!cards) return false;
 
-      // 精确匹配
-      var matched = cards[keyword];
-      // 模糊匹配：遍历所有key，检查是否包含关键词
-      if (!matched) {
-        for (var key in cards) {
-          if (key.toLowerCase().includes(keyword) || keyword.includes(key.toLowerCase())) {
-            matched = cards[key];
-            break;
-          }
+      // 精确匹配（不区分大小写）
+      var matched = null;
+      for (var key in cards) {
+        if (key.toLowerCase() === keyword) {
+          matched = cards[key];
+          break;
         }
       }
 

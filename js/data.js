@@ -562,15 +562,12 @@ const gameData = {
       type: "gallery",
       data: {
         photos: [
-          { id: 1, desc: "\u6B22\u4E50\u8C37\u5408\u5F71", date: "2025.5.1" },
-          { id: 2, desc: "\u9A91\u9F99\u7167", date: "2025.8.13", special: "\u7D2B\u8272\u5929\u7A7A\u4E24\u9897\u6708\u4EAE" },
-          { id: 3, desc: "\u591A\u8089\u690D\u7269" },
-          { id: 4, desc: "\u5FEB\u9012\u5806" },
-          { id: 5, desc: "\u8292\u679C\u5E72\u5F00\u888B" },
-          { id: 6, desc: "\u661F\u7A7A" },
-          { id: 7, desc: "\u7BAD\u9986" },
-          { id: 8, desc: "\u7EFF\u841D" },
-          { id: 9, desc: "\u6CE1\u9762" }
+          { id: 1, src: "assets/photos/photo1.png", desc: "\u6B22\u4E50\u8C37\u5408\u5F71", date: "2025\u5E745\u67081\u65E5 14:23:07", location: "\u661F\u613F\u6B22\u4E50\u8C37", selectable: true },
+          { id: 2, src: "assets/photos/photo2.png", desc: "\u9A91\u9F99\u81EA\u62CD", date: "2025\u5E748\u670813\u65E5 17:41:52", location: "\u672A\u77E5\u5730\u70B9", unknown: true },
+          { id: 3, src: "assets/photos/photo3.png", desc: "\u591A\u8089\u690D\u7269", date: "2026\u5E746\u670815\u65E5 11:08:34", location: "\u9633\u5149\u533A" },
+          { id: 4, src: "assets/photos/photo4.png", desc: "\u8292\u679C\u5E72\u5F00\u888B", date: "2026\u5E747\u670823\u65E5 22:15:08", location: "\u9633\u5149\u533A" },
+          { id: 5, src: "assets/photos/photo5.png", desc: "\u5FEB\u9012\u5806", date: "2026\u5E748\u670811\u65E5 16:42:19", location: "\u9633\u5149\u533A" },
+          { id: 6, src: "assets/photos/photo6.png", desc: "\u4E66\u684C", date: "2026\u5E747\u670828\u65E5 02:33:41", location: "\u9633\u5149\u533A" }
         ]
       }
     },
@@ -881,20 +878,21 @@ const gameData = {
       }
     },
 
-    // ---- 页面 37：森屿烘焙商家页 ----
+    // ---- 页面 42：森屿烘焙商家页 ----
     "42": {
       id: "42",
       title: "森屿烘焙",
-      type: "product",
+      type: "shop",
       data: {
         title: "森屿烘焙",
         subtitle: "森屿烘焙（春申路店）",
-        category: "🍰面包甜点·人均¥58",
-        hours: "营业时间：09:00-21:00",
+        category: "🍰 面包甜点 · 人均 ¥58",
+        hours: "09:00-21:00",
         address: "阳光区春申路112号",
+        phone: "173xxxx1234",
         recommend: "栗子蛋糕、椰蓉蛋糕、芒果慕斯、提拉米苏、巴斯克芝士",
         buttonText: "查看完整菜单",
-        buttonTarget: "43"
+        menuImage: "assets/menu.png"
       }
     },
 
