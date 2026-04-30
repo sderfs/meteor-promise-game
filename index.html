@@ -8,100 +8,147 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#F8F5E9">
   <title>流星雨的约定</title>
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- 手机外壳 -->
   <div id="phone-frame">
-    <!-- 手机屏幕 -->
     <div id="app">
+
+      <!-- 壁纸背景 -->
+      <div id="wallpaper"></div>
 
       <!-- 状态栏 -->
       <header id="status-bar">
         <span class="status-time" id="status-time">10:30</span>
+        <div class="status-icons">
+          <svg class="status-signal" width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="8" width="3" height="4" rx="0.5" fill="#6B5340"/><rect x="4.5" y="5" width="3" height="7" rx="0.5" fill="#6B5340"/><rect x="9" y="2" width="3" height="10" rx="0.5" fill="#6B5340"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="#6B5340"/></svg>
+          <svg class="status-wifi" width="16" height="12" viewBox="0 0 16 12"><path d="M8 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#6B5340" transform="translate(0,-2)"/><path d="M4.5 8.5C5.5 7.2 6.7 6.5 8 6.5s2.5.7 3.5 2" stroke="#6B5340" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M2 6c1.8-1.8 3.8-2.8 6-2.8s4.2 1 6 2.8" stroke="#6B5340" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          <svg class="status-battery" width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="2.5" stroke="#6B5340" stroke-width="1" fill="none"/><rect x="24.5" y="3.5" width="2" height="5" rx="1" fill="#6B5340"/><rect x="2" y="2" width="19.5" height="9" rx="1.5" fill="#6B5340"/></svg>
+        </div>
       </header>
 
       <!-- 搜索栏 -->
       <div id="search-bar">
         <div class="search-wrapper">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.75" stroke="rgba(142,142,147,0.5)" stroke-width="2"/><line x1="13" y1="13" x2="18" y2="18" stroke="rgba(142,142,147,0.5)" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.75" stroke="#A0896E" stroke-width="2"/><line x1="13" y1="13" x2="18" y2="18" stroke="#A0896E" stroke-width="2" stroke-linecap="round"/></svg>
           <input type="text" id="search-input" placeholder="搜索" autocomplete="off">
         </div>
         <div id="search-history" style="display:none;"></div>
       </div>
 
-      <!-- 主内容区（不滚动，一屏展示） -->
+      <!-- 主内容区 -->
       <div id="main-scroll">
+
+        <!-- 时间显示 -->
+        <div style="text-align:center;padding:16px 0 8px;">
+          <div style="font-size:48px;font-weight:700;color:#3C3C43;letter-spacing:2px;line-height:1;">10:30</div>
+        </div>
 
         <!-- 小组件区域 -->
         <div class="widgets-area">
 
-          <!-- 日期天气小组件 -->
-          <div class="widget widget-weather" id="weather-widget">
-            <div class="weather-left">
-              <div class="weather-date" id="weather-date">8月13日 周四</div>
-              <div class="weather-year">2026年</div>
-            </div>
-            <div class="weather-right">
-              <div class="weather-temp">28°C</div>
-              <div class="weather-label">晴天</div>
-            </div>
-          </div>
-
-          <!-- 日历（减半宽度）+ 竖体文字 并排一行 -->
-          <div class="calendar-text-row">
-            <div class="widget widget-calendar" data-navigate="05">
-              <div class="widget-title">&#128197; 日历</div>
-              <div class="widget-events">
-                <div class="widget-event">8月20日 &#127874; 叶禾生日</div>
-                <div class="widget-event">8月11日 &#128230; 准备礼物</div>
+          <!-- 日历小组件（单周展示） -->
+          <div class="widget widget-calendar" data-navigate="05">
+            <div class="cal-card">
+              <div class="cal-deco-star cal-star-1">✦</div>
+              <div class="cal-deco-star cal-star-2">✧</div>
+              <div class="cal-deco-star cal-star-3">✦</div>
+              <div class="cal-deco-star cal-star-4">✧</div>
+              <div class="cal-deco-star cal-star-5">✦</div>
+              <div class="cal-header">
+                <div class="cal-month">8月</div>
+                <div class="cal-meta">
+                  <span class="cal-year-text">2026</span>
+                  <span class="cal-weather-text">☀️ 28℃</span>
+                </div>
               </div>
-            </div>
-            <div class="vertical-text-col">
-              <div class="vertical-text">努力赚钱</div>
-              <div class="vertical-text">早日退休</div>
+              <div class="cal-weekdays">
+                <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+              </div>
+              <div class="cal-dates">
+                <span class="cal-d">9</span>
+                <span class="cal-d">10</span>
+                <span class="cal-d cal-star-wrap">11<div class="cal-star-dot">★</div></span>
+                <span class="cal-d">12</span>
+                <span class="cal-d cal-today">13</span>
+                <span class="cal-d">14</span>
+                <span class="cal-d">15</span>
+              </div>
             </div>
           </div>
 
           <!-- 倒计时 + 备忘录 并排 -->
           <div class="widget-row">
-            <!-- 倒计时小组件 -->
-            <div class="widget widget-countdown">
-              <div class="widget-title">距离30岁环游世界</div>
-              <div class="countdown-number">2924 天（8年）</div>
-              <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+            <!-- 倒计时（唱片形式） -->
+            <div class="widget widget-vinyl">
+              <div class="vinyl-disc">
+                <div class="vinyl-grooves"></div>
+                <div class="vinyl-progress">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="progress-ring-glow" cx="50" cy="50" r="47"/>
+                    <circle class="progress-ring-fill-glow" cx="50" cy="50" r="47" style="stroke-dasharray: 295.31; stroke-dashoffset: 100.41;"/>
+                    <circle class="progress-ring-bg" cx="50" cy="50" r="47"/>
+                    <circle class="progress-ring-fill" cx="50" cy="50" r="47" style="stroke-dasharray: 295.31; stroke-dashoffset: 100.41;"/>
+                  </svg>
+                </div>
+                <div class="vinyl-label">
+                    <div class="vinyl-days">2924</div>
+                    <div class="vinyl-unit">天</div>
+                  </div>
+              </div>
+              <div class="vinyl-tonearm"></div>
+              <div class="vinyl-bottom">距离30岁环游世界</div>
             </div>
 
-            <!-- 备忘录小组件 -->
+            <!-- 备忘录（Q版龙头） -->
             <div class="widget widget-memo" data-navigate="01">
-              <div class="widget-title">&#128221; 备忘录</div>
-              <div class="memo-preview">&#128214; 新手操作指南</div>
-              <div class="memo-preview">&#128221; 随手记</div>
+              <div class="dragon-card">
+                <div class="dragon-horn dragon-horn-l"></div>
+                <div class="dragon-horn dragon-horn-r"></div>
+                <div class="dragon-face">
+                  <div class="dragon-eye dragon-eye-l"></div>
+                  <div class="dragon-eye dragon-eye-r"></div>
+                  <div class="dragon-mouth"></div>
+                </div>
+                <div class="dragon-body">
+                  <div class="dragon-memo-title">备忘录</div>
+                  <div class="dragon-memo-item">📘 新手操作指南</div>
+                  <div class="dragon-memo-item dragon-memo-sub">📝 随手记</div>
+                </div>
+                <div class="dragon-tail"></div>
+              </div>
             </div>
           </div>
+
+          <!-- 竖排文字 -->
+          <div class="vertical-text-area">
+            <div class="vertical-text">努力赚钱</div>
+            <div class="vertical-text">早日退休</div>
+          </div>
+
         </div>
 
-        <!-- App图标区域（倒数第二行，较小） -->
+        <!-- App图标区域 -->
         <div class="app-icons-area">
           <div class="app-icon-row">
             <div class="app-icon" data-app="06">
-              <div class="icon-box icon-wechat">&#128172;</div>
+              <div class="icon-box icon-wechat">💬</div>
               <span class="icon-label">微信</span>
             </div>
             <div class="app-icon" data-app="15">
-              <div class="icon-box icon-qq">&#129418;</div>
+              <div class="icon-box icon-qq">🤖</div>
               <span class="icon-label">QQ</span>
             </div>
             <div class="app-icon" data-app="18">
-              <div class="icon-box icon-weibo">&#128226;</div>
+              <div class="icon-box icon-weibo">📰</div>
               <span class="icon-label">微博</span>
             </div>
             <div class="app-icon" data-app="footprints">
-              <div class="icon-box" style="background:linear-gradient(135deg,#A8D8EA,#88C9A1);">&#128099;</div>
+              <div class="icon-box icon-footprint">👣</div>
               <span class="icon-label">足迹</span>
             </div>
           </div>
@@ -111,22 +158,25 @@
       <!-- Dock栏 -->
       <div id="dock">
         <div class="dock-icon" data-app="04">
-          <div class="dock-icon-box icon-phone">&#128222;</div>
+          <div class="dock-icon-box icon-phone">📞</div>
           <span class="dock-icon-label">电话</span>
         </div>
         <div class="dock-icon" data-app="02">
-          <div class="dock-icon-box icon-sms">&#128172;</div>
+          <div class="dock-icon-box icon-sms">💬</div>
           <span class="dock-icon-label">短信</span>
         </div>
         <div class="dock-icon" data-app="23">
-          <div class="dock-icon-box icon-album">&#127752;</div>
+          <div class="dock-icon-box icon-album">🌙</div>
           <span class="dock-icon-label">相册</span>
         </div>
         <div class="dock-icon" data-app="11">
-          <div class="dock-icon-box icon-deepseek">&#129302;</div>
+          <div class="dock-icon-box icon-deepseek">🤖</div>
           <span class="dock-icon-label">DeepSeek</span>
         </div>
       </div>
+
+      <!-- Home横条 -->
+      <!-- <div id="home-indicator"></div> -->
 
       <!-- 页面内容容器 -->
       <div id="page-container" aria-live="polite"></div>
@@ -138,7 +188,7 @@
   </div>
 
   <script>
-    // 移动端视口高度兼容：解决地址栏导致的100vh/dvh不准确问题
+    // 移动端视口高度兼容
     function setViewportHeight() {
       var vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', vh + 'px');
@@ -148,10 +198,9 @@
     window.addEventListener('orientationchange', function() {
       setTimeout(setViewportHeight, 100);
     });
-    // iOS Safari 地址栏收起时也更新
     window.visualViewport && window.visualViewport.addEventListener('resize', setViewportHeight);
   </script>
-  <script src="js/data.js?v=12"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/data.js?v=19"></script>
+  <script src="js/app.js?v=19"></script>
 </body>
 </html>

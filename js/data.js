@@ -49,28 +49,24 @@ const gameData = {
       data: {
         items: [
           { sender: "易存柜", preview: "您的包裹已于2026年8月11日 14:20存入智能柜。请及时取件。", date: "8月11日", bold: ["易存柜"], fullText: "您的包裹已于2026年8月11日 14:20存入智能柜。请及时取件。", fullTime: "2026年8月11日 14:20" },
-          { sender: "森屿烘焙", preview: "\u3010森屿烘焙\u3011您的生日蛋糕订单已确认！4月15日 11:00-12:00送达\u2026", date: "4月15日", bold: ["森屿烘焙", "生日蛋糕", "4月15日"], fullText: "\u3010森屿烘焙\u3011您的生日蛋糕订单已确认！4月15日 11:00-12:00送达。生日蛋糕（6寸）×1，蜡烛×1，生日帽×1。祝您生日快乐！订单号：SO2026041501。如有变动请联系173xxxx1234。", fullTime: "2026年4月15日 09:00" },
+          { sender: "森屿烘焙", preview: "\u3010森屿烘焙\u3011您的生日蛋糕订单已确认！4月15日 11:00-12:00送达\u2026", date: "4月15日", bold: ["森屿烘焙"], fullText: "\u3010森屿烘焙\u3011您的生日蛋糕订单已确认！4月15日 11:00-12:00送达。生日蛋糕（6寸）×1，蜡烛×1，生日帽×1。祝您生日快乐！订单号：SO2026041501。如有变动请联系173xxxx1234。", fullTime: "2026年4月15日 09:00" },
           { sender: "妈妈", preview: "晓晓，腊肉给你放冰箱冷冻层了，记得吃。", date: "8月2日", fullText: "晓晓，腊肉给你放冰箱冷冻层了，记得吃。", fullTime: "2026年8月2日 18:34" },
           { sender: "叶禾", preview: "今晚吃什么，我下班顺路带。", date: "8月1日", fullText: "今晚吃什么，我下班顺路带。", fullTime: "2026年8月1日 17:22" }
         ]
       }
     },
 
-    // ---- 页面 03：搜索"叶禾"结果（通话记录） ----
+    // ---- 页面 03：笔记-关于叶禾 ----
     "03": {
       id: "03",
-      title: "通话记录",
-      type: "call-log",
+      title: "笔记",
+      type: "article",
       data: {
-        records: [
-          { name: "叶禾", date: "2026年8月13日 08:12", detail: "未接来电（3次）", missed: true },
-          { name: "叶禾", date: "2026年8月12日 19:45", detail: "未接来电", missed: true },
-          { name: "叶禾", date: "2026年8月12日 16:30", detail: "未接来电", missed: true },
-          { name: "叶禾", date: "2026年8月11日 21:30", detail: "通话时长 12分07秒 ✓", missed: false },
-          { name: "叶禾", date: "2026年8月1日 14:22", detail: "通话时长 5分43秒 ✓", missed: false },
-          { name: "叶禾", date: "2026年7月20日 20:15", detail: "通话时长 8分30秒 ✓", missed: false },
-          { name: "叶禾", date: "2026年5月1日 11:08", detail: "通话时长 3分12秒 ✓", missed: false }
-        ]
+        title: "笔记 · 生活素材",
+        subtitle: "\uD83D\uDCDD 关于叶禾",
+        content: "\uD83C\uDF58 \u7CA5\n\n\u6211\u53D1\u70E7\u90A3\u56DE\uFF0C\u5979\u7FD8\u73ED\u6765\u716E\u7CA5\u3002\n\u7CCA\u4E86\u3002\u9505\u5E95\u90A3\u5C42\u9ED1\u5F97\u53EF\u4EE5\u5F53\u70AD\u7B14\u753B\u7D20\u63CF\u3002\n\u5979\u522E\u4E86\u534A\u5929\uFF0C\u7AEF\u8FC7\u6765\u7684\u65F6\u5019\u8138\u4E0D\u7EA2\u5FC3\u4E0D\u8DF3\uFF1A\n\u201C\u7CCA\u7684\u90A3\u5C42\u6700\u6709\u8425\u517B\u3002\u201D\n\u8BED\u6C14\u8DDF\u5979\u5728\u5929\u6587\u9986\u8BB2\u661F\u5EA7\u4E00\u6837\u6743\u5A01\u3002\n\n\u6211\u5403\u4E86\u3002\u53CD\u6B63\u6211\u6CE1\u9762\u90FD\u80FD\u5FD8\u653E\u8C03\u6599\u5305\uFF0C\u6CA1\u8D44\u683C\u6311\u5254\u3002\n\u800C\u4E14\u7CCA\u7CA5\u6BD4\u6CE1\u9762\u597D\u5403\u3002\u771F\u7684\uFF0C\u4E0D\u662F\u56E0\u4E3A\u611F\u52A8\u624D\u8FD9\u4E48\u8BF4\u7684\u3002\n\u597D\u5427\uFF0C\u6709\u4E00\u70B9\u70B9\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83D\uDDE3\uFE0F \u8BDD\u5C11\n\n\u53F6\u79BE\u8BDD\u5C11\u5230\u4EE4\u4EBA\u53D1\u6307\u3002\n\u6211\u8BF4\u201C\u5FD8\u5E26\u94A5\u5319\u4E86\u201D\uFF0C\u5979\u201C\u55EF\u201D\u4E00\u58F0\uFF0C\u7B2C\u4E8C\u5929\u95E8\u57AB\u4E0B\u9762\u591A\u4E86\u628A\u5907\u7528\u94A5\u5319\u3002\n\u6211\u8BF4\u201C\u6CE1\u9762\u53C8\u5FD8\u653E\u8C03\u6599\u5305\u4E86\u201D\uFF0C\u5979\u5468\u672B\u62CE\u4E86\u888B\u8292\u679C\u5E72\u6765\uFF1A\u201C\u8FD9\u4E2A\u4E0D\u7528\u716E\u3002\u201D\n\u4ECE\u5934\u5230\u5C3E\u6CA1\u63D0\u8C03\u6599\u5305\u7684\u4E8B\u3002\n\n\u5979\u5173\u5FC3\u4EBA\u7684\u65B9\u5F0F\u4E0D\u662F\u5B89\u6170\uFF0C\u662F\u628A\u4F60\u4E0B\u6B21\u53EF\u80FD\u72AF\u8821\u7684\u8DEF\u7ED9\u5835\u4E0A\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83C\uDFF9\uFE0F \u7BAD\u9986\n\n\u5979\u5728\u7BAD\u9986\u8BA4\u771F\u5F97\u8DDF\u62CD\u7EAA\u5F55\u7247\u4F3C\u7684\u3002\n\u7784\u51C6\u7684\u65F6\u5019\u773C\u775B\u90FD\u4E0D\u7728\uFF0C\u7BAD\u98DE\u51FA\u53BB\uFF0C\u9776\u5FC3\u591A\u4E86\u4E2A\u6D1E\u3002\n\u7136\u540E\u8F6C\u5934\u770B\u6211\uFF1A\u201C\u8FD8\u884C\u3002\u201D\n\u6211\u95EE\u6559\u7EC3\u6536\u9EC4\u4EC0\u4E48\u610F\u601D\u3002\u6559\u7EC3\u8BF4\u5C31\u662F\u5F88\u51C6\u3002\n\u6240\u4EE5\u201C\u8FD8\u884C\u201D\u7684\u610F\u601D\u662F\u2014\u2014\n\u201C\u6211\u4ECA\u5929\u51C6\u5F97\u79BB\u8C31\u4F46\u6211\u4E0D\u4E60\u60EF\u5938\u81EA\u5DF1\u6240\u4EE5\u7528\u8FD8\u884C\u4EE3\u66FF\u3002\u201D\n\u53F6\u6C0F\u8C26\u865A\u6CD5\u3002\u884C\u5427\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\u2604\uFE0F \u7EA6\u5B9A\n\n\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\uFF0C\u7EA6\u4E86\u4E09\u5E74\uFF0C\u6211\u9E3D\u4E86\u4E09\u5E74\u3002\n\u7B2C\u4E00\u5E74\u662F\u8D77\u4E0D\u6765\u3002\u7B2C\u4E8C\u5E74\u662F\u95F9\u949F\u6CA1\u54CD\u3002\u7B2C\u4E09\u5E74\u8D76\u7A3F\u5230\u51CC\u6668\u4E09\u70B9\uFF0C\u9192\u8FC7\u6765\u5DF2\u7ECF\u5929\u4EAE\u4E86\u3002\n\u5979\u6BCF\u6B21\u90FD\u7B49\u3002\u6BCF\u6B21\u90FD\u8BF4\u201C\u660E\u5E74\u4E00\u5B9A\u201D\u3002\n\u4E0D\u662F\u62B1\u6028\u3002\u5C31\u662F\u90A3\u79CD\u2014\u2014\u884C\uFF0C\u90A3\u5C31\u660E\u5E74\u3002\n\n\u6240\u4EE5\u4ECA\u5E74\u8BF4\u4EC0\u4E48\u4E5F\u5F97\u53BB\u3002\u5B9A\u5341\u4E2A\u95F9\u949F\u3002\n\u5979\u751F\u65E5\u9644\u8FD1\uFF0C\u6D41\u91CF\u6781\u5927\u3002\u8292\u679C\u5E72\u5DF2\u5907\u597D\u3002\u622A\u56FE\u4E86\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\u23F0 \u6211\u5FD8\u5E26\u4E1C\u897F\u7684\u65E5\u5E38\n\n\u4ECA\u5929\u51FA\u95E8\u53C8\u5FD8\u5E26\u94A5\u5319\u3002\u5728\u95E8\u53E3\u7AD9\u4E86\u5341\u5206\u949F\u7B49\u5F00\u9501\u5E08\u5085\u3002\n\u4E0A\u4E2A\u6708\u5FD8\u5E26\u624B\u673A\u3002\u5979\u8BF4\u201C\u4E0D\u4E00\u6837\u201D\u3002\n\u786E\u5B9E\u4E0D\u4E00\u6837\u3002\u4E0A\u4E2A\u6708\u662F\u624B\u673A\uFF0C\u8FD9\u4E2A\u6708\u662F\u94A5\u5319\uFF0C\u4E0B\u4E2A\u6708\u53EF\u80FD\u662F\u81EA\u5DF1\u3002\n\u5979\u8BA9\u6211\u628A\u81EA\u5DF1\u5FD8\u4E86\u7B97\u4E86\u3002\u6211\u8BF4\u4E5F\u4E0D\u662F\u6CA1\u53EF\u80FD\u3002\n\u5979\u53F9\u6C14\u7684\u65F6\u5019\u5634\u89D2\u662F\u5F2F\u7684\u3002\u6211\u770B\u89C1\u4E86\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83C\uDF81 \u793C\u7269\n\n\u9001\u5979\u4E00\u679A\u91D1\u5E01\u3002\u4ECE\u90A3\u8FB9\u5E26\u56DE\u6765\u7684\u3002\u54AC\u4E86\uFF0C\u8F6F\u7684\uFF0C\u771F\u91D1\u3002\n\u5979\u8001\u7B11\u6211\u66B4\u5BCC\u68A6\uFF0C\u7ED9\u5979\u4E00\u679A\u771F\u7684\uFF0C\u8BA9\u5979\u611F\u53D7\u4E00\u4E0B\u4EC0\u4E48\u53EB\u8BF4\u5230\u505A\u5230\u3002\n\u5176\u5B9E\u662F\u89C9\u5F97\u597D\u770B\u3002\u91D1\u8272\u886C\u5979\u3002\n\n\u884C\u4E86\u4E0D\u5199\u4E86\uFF0C\u8D8A\u5199\u8D8A\u50CF\u6BD5\u4E1A\u7EAA\u5FF5\u518C\u3002\n\u53CD\u6B63\u5979\u4E0D\u4F1A\u770B\u5230\u3002\u9664\u975E\u54EA\u5929\u6211\u624B\u673A\u843D\u5979\u5BB6\u3002\n\u7B49\u4F1A\u513F\uFF0C\u6211\u624B\u673A\u597D\u50CF\u771F\u7684\u7ECF\u5E38\u5FD8\u5E26\u2014\u2014\n\u7B97\u4E86\u3002",
+        bold: ["\u7CCA\u7684\u90A3\u5C42\u6700\u6709\u8425\u517B", "\u8FD9\u4E2A\u4E0D\u7528\u716E", "\u660E\u5E74\u4E00\u5B9A", "\u622A\u56FE\u4E86"],
+        footerNote: "\uFF08\u8FD9\u662F\u6797\u6653\u624B\u673A\u91CC\u552F\u4E00\u4E00\u4EFD\u201C\u5199\u7ED9\u4EBA\u770B\u201D\u7684\u5907\u5FD8\u5F55\u3002\n\u4E0D\u662F\u5C0F\u8BF4\u7D20\u6750\uFF0C\u4E0D\u662F\u7075\u611F\u788E\u7247\uFF0C\u5C31\u662F\u5199\u7ED9\u5979\u6700\u597D\u670B\u53CB\u7684\u3002\n\u53EA\u662F\u5979\u4ECE\u6765\u6CA1\u7ED9\u53F6\u79BE\u770B\u8FC7\u3002\uFF09"
       }
     },
 
@@ -93,7 +89,7 @@ const gameData = {
       type: "wechat-list",
       data: {
         chatList: [
-          { name: "禾你一起看星星", avatar: "⭐", preview: "截图了。🍑🍑", date: "8月12日", target: "07" },
+          { name: "禾你一起看星星", avatar: "⭐", preview: "截图了。", date: "8月12日", target: "07" },
           { name: "暴躁小鹿", avatar: "🦌", preview: "万一哪天用得上。", date: "8月10日", target: "07" },
           { name: "妈妈", avatar: "👩", preview: "你自己去谢。", date: "8月10日", target: "07" }
         ]
@@ -157,7 +153,7 @@ const gameData = {
               { role: "self", name: "禾你一起看星星", text: "你是冬眠吗。" },
               { role: "other", name: "林晓", text: "我是洞穴生物。需要被芒果干引诱才出洞。" },
               { role: "self", name: "禾你一起看星星", text: "成交。芒果干管够。你给我出来。" },
-              { role: "other", name: "林晓", text: "好嘞。截图了。🍑🍑" }
+              { role: "other", name: "林晓", text: "截图了。" }
             ]}
           ],
           "暴躁小鹿": [
@@ -313,8 +309,8 @@ const gameData = {
       type: "chat",
       data: {
         messages: [
-          { role: "user", text: "龙鳞在月光下发光，用一个词怎么形容？最好是古老一点的，像拉丁语那种感觉。" },
-          { role: "ai", text: "您可以考虑\"Luminar\"。该词源于拉丁语\"lumen\"（光），按发音可译为\"路米纳尔\"。" }
+          { role: "user", text: "\u6211\u542C\u5230\u4E00\u4E2A\u8BCD\uFF0C\u53D1\u97F3\u50CF\u201C\u8DEF\u7C73\u7EB3\u5C14\u201D\u3002lu-mi-na-er\u3002\u5927\u6982\u662F\u8FD9\u6837\u3002\u80FD\u5E2E\u6211\u67E5\u4E00\u4E0B\u8FD9\u662F\u4EC0\u4E48\u8BED\u8A00\u3001\u4EC0\u4E48\u610F\u601D\u5417\uFF1F", date: "2025\u5E7410\u670815\u65E5 23:42" },
+          { role: "ai", text: "\u6839\u636E\u60A8\u63CF\u8FF0\u7684\u53D1\u97F3\uFF0C\u8FD9\u4E2A\u8BCD\u5F88\u53EF\u80FD\u662F\u62C9\u4E01\u8BED\u201CLuminar\u201D\uFF0C\u6E90\u4E8E\u201Clumen\u201D\uFF08\u610F\u4E3A\u201C\u5149\u201D\uFF09\u3002\u62FC\u5199\u4E3A L-U-M-I-N-A-R\uFF0C\u610F\u601D\u662F\u201C\u5149\u201D\u6216\u201C\u53D1\u5149\u4F53\u201D\u3002", date: "2025\u5E7410\u670815\u65E5 23:42" }
         ],
         inputPlaceholder: "输入页面编号获取提示..."
       }
@@ -344,7 +340,7 @@ const gameData = {
       type: "article",
       data: {
         title: "林晓",
-        content: "林晓（2004年4月15日－），中国当代青年作家，以冒险小说见长。\n\n已出版作品：\n·《辉光记》（2022年6月12日）\n·《星渊手札》（2023年10月）\n·《风蚀城》（2025年3月）\n\n文风奇幻瑰丽，擅长构建非现实世界观。",
+        content: "林晓，中国当代青年作家，以冒险小说见长。\n\n已出版作品：\n·《辉光记》（2022年6月12日）\n·《星渊手札》（2023年10月）\n·《风蚀城》（2025年3月）\n\n文风奇幻瑰丽，擅长构建非现实世界观。",
         bold: ["《辉光记》（2022年6月12日）"]
       }
     },
@@ -357,7 +353,7 @@ const gameData = {
       data: {
         title: "遇见文字，遇见冒险",
         content: "2022年，当时还名不见经传的林晓出版了第一本小说《辉光记》。我们约在一家安静的咖啡馆见面，她点了一杯热可可，说咖啡太苦。\n\n\"发表第一本书那天，是我这辈子最难忘的一天。\"她笑着说，\"不是因为书卖了多少，是因为我终于证明了自己不是在瞎做梦。\"\n\n问她为什么选择冒险题材，她想了想，说：\"大概是因为，我总觉得现实世界之外还有别的世界。写出来，就像真的去过一样。\"",
-        bold: ["\"最难忘的一天\""]
+        bold: ["发表第一本书那天，是我这辈子最难忘的一天。"]
       }
     },
 
@@ -367,9 +363,10 @@ const gameData = {
       title: "QQ",
       type: "login",
       data: {
-        accountPlaceholder: "请输入QQ号",
+        accountPlaceholder: "请输入手机号",
         passwordPlaceholder: "请输入密码",
         account: "13805618823",
+        accountType: "phone",
         password: "20220612",
         passwordKey: "qq",
         securityQuestion: "你最难忘的一天是？",
@@ -381,27 +378,35 @@ const gameData = {
     // ---- 页面 16：林晓QQ空间主页 ----
     "16": {
       id: "16",
-      title: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417",
+      title: "QQ空间-林晓主页",
       type: "qq-space",
       data: {
-        nickname: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417",
-        signature: "\u52AA\u529B\u8D5A\u94B1\uFF0C\u65E9\u65E5\u9000\u4F11\u3002",
+        nickname: "芒狗今天暴富了吗",
+        signature: "努力赚钱，早日退休。",
         pinnedRepost: null,
         journals: [
-          { title: "\u65B0\u5C0F\u8BF4\u4E3B\u89D2\u540D\u5B57\u5B9A\u4E86", date: "2025\u5E749\u6708", content: "\u65B0\u5C0F\u8BF4\u4E3B\u89D2\u540D\u5B57\u5B9A\u4E86\uFF1A\u827E\u6D1B\u8482\uFF08Elodie\uFF09\u3002\u4E00\u6761\u84DD\u8272\u7684\u9F99\u3002\n\u5199\u9F99\u597D\u96BE\u54E6\uFF0C\u4F46\u5199\u51FA\u6765\u5E94\u8BE5\u4F1A\u5F88\u597D\u770B\u5427\u3002" }
+          {
+            title: "新小说主角名字定了",
+            date: "2025年9月",
+            locked: true,
+            lockLabel: "🔒 私密日志",
+            securityQuestion: "我最爱的零食品牌是？（拼音）",
+            securityAnswer: "manggou",
+            content: "新小说主角名字定了：艾洛蒂（Elodie）。一条蓝色的龙。\n写龙好难哦，但写出来应该会很好看吧。"
+          }
         ],
         posts: [
-          { text: "\u6B22\u4E50\u8C37\u5E74\u5361\u7528\u6237\u62A5\u5230\uFF01\uFF01", date: "2025\u5E745\u67081\u65E5" },
-          { text: "\u5750\u4E86\u4E09\u6B21\u8FC7\u5C71\u8F66\u3002@\u79BE\u4F60\u4E00\u8D77\u770B\u661F\u661F \u5410\u4E86\u4E24\u6B21\u3002\u7B11\u6B7B\u3002", date: "2025\u5E748\u670813\u65E5", mentionTarget: "17",
+          { text: "欢乐谷年卡用户报到！！🎢", date: "2025年5月1日" },
+          { text: "坐了三次过山车。@禾你一起看星星 吐了两次。笑死。", date: "2025年8月13日", mentionTarget: "17",
             replies: [
-              { user: "\u79BE\u4F60\u4E00\u8D77\u770B\u661F\u661F", text: "\u660E\u5E74\u518D\u4E5F\u4E0D\u8DDF\u4F60\u6765\u4E86", isReply: true },
-              { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u4F60\u53BB\u5E74\u4E5F\u8FD9\u4E48\u8BF4", isReply: true }
+              { user: "禾你一起看星星", text: "明年再也不跟你来了", isReply: true },
+              { user: "芒狗今天暴富了吗", text: "你去年也这么说", isReply: true }
             ]
           },
-          { text: "\u5FEB\u9012\u516B\u4E2A\u2026\u2026\u6211\u662F\u4E70\u4E86\u4EC0\u4E48", date: "2026\u5E743\u6708" },
-          { text: "\u7F16\u8F91\u53C8\u5728\u50AC\u7A3F\u4E86\u6551", date: "2026\u5E742\u6708" },
-          { text: "\u4E0B\u96E8\u5929\u548C\u8EBA\u5E73\u6700\u914D", date: "2025\u5E7411\u6708" },
-          { text: "\u65B0\u5E74\u613F\u671B\uFF1A\u66B4\u5BCC", date: "2026\u5E741\u67081\u65E5" }
+          { text: "快递八个……我是买了什么", date: "2026年3月" },
+          { text: "编辑又在催稿了救", date: "2026年2月" },
+          { text: "下雨天和躺平最配", date: "2025年11月" },
+          { text: "新年愿望：暴富", date: "2026年1月1日" }
         ],
         albums: []
       }
@@ -449,15 +454,16 @@ const gameData = {
     // ---- 页面 18：微博登录 ----
     "18": {
       id: "18",
-      title: "\u5FAE\u535A",
+      title: "微博",
       type: "login",
       data: {
-        accountPlaceholder: "\u624B\u673A\u53F7",
-        passwordPlaceholder: "\u5BC6\u7801",
+        accountPlaceholder: "请输入手机号",
+        passwordPlaceholder: "密码",
         account: "13805618823",
+        accountType: "phone",
         password: "20040415",
         passwordKey: "weibo",
-        securityQuestion: "\u6211\u7684\u751F\u65E5\uFF088\u4F4D\u6570\u5B57\uFF09",
+        securityQuestion: "我的生日是？（8位数字）",
         securityAnswer: "20040415",
         successTarget: "19"
       }
@@ -535,22 +541,19 @@ const gameData = {
         nickname: "\u827E\u5C14\u8BFA\u62C9\u5192\u9669\u961F\u961F\u957F",
         bio: "\u8BB0\u5F55\u4E00\u4E9B\u5947\u602A\u7684\u68A6\uFF0C\u8BF4\u4E0D\u5B9A\u80FD\u5199\u6210\u5C0F\u8BF4\u7D20\u6750",
         posts: [
-          { date: "8\u670813\u65E5 01:02", text: "\u88C5\u5907\u4E70\u9F50\u4E86\u3002\u5E0C\u671B\u7528\u4E0D\u4E0A\uFF0C\u4F46\u4E07\u4E00\u7528\u5F97\u4E0A\u2014\u2014\u5148\u5907\u7740\u5427\u3002\u6211\u9700\u8981\u88C5\u5907\uFF0C\u4E5F\u9700\u8981\u4E00\u70B9\u8FD0\u6C14\u3002" },
-          { date: "8\u670810\u65E5 15:33", text: "\u8F6C\u53D1 // @\u624B\u5DE5\u803F\u54E5\uFF1A\u81EA\u5236\u91CE\u5916\u51C0\u6C34\u5668\uFF0C\u6210\u672C\u4E0D\u523020\u5757\u3002" },
-          { date: "8\u67085\u65E5 14:20", text: "\u4ECA\u5929\u5403\u5230\u4E86\u8D85\u597D\u5403\u7684\u8292\u679C\u5E72\uFF0C\u5E78\u798F\u5230\u6D41\u6CEA\u3002" },
-          { date: "7\u670821\u65E5 03:51", text: "\u68A6\u89C1\u90A3\u6761\u9F99\u53D7\u4F24\u4E86\u3002\u6211\u558A\u4E86\u4E00\u4E2A\u8BCD\uFF0C\u5B83\u7684\u9CDE\u7247\u7206\u51FA\u597D\u4EAE\u7684\u5149\u3002\u90A3\u4E2A\u8BCD\u53D1\u97F3\u50CF\u201C\u8DEF\u7C73\u7EB3\u5C14\u201D\u3002\u9192\u6765\u9879\u94FE\u662F\u70EB\u7684\u3002\u6211\u8981\u56DE\u53BB\u6551\u5B83\u3002" },
-          { date: "7\u670820\u65E5 21:15", text: "\u8F6C\u53D1 // @\u661F\u5EA7\u8FD0\u52BF\uFF1A\u516B\u6708\u82F1\u4ED9\u5EA7\u6D41\u661F\u96E8\uFF0C\u8BB8\u613F\u6307\u5357\u3002" },
-          { date: "7\u670815\u65E5 23:47", text: "\u68A6\u5230\u4E00\u53EA\u94F6\u8272\u7684\u732B\uFF0C\u5728\u96C6\u5E02\u5077\u5403\u4E00\u79CD\u53D1\u5149\u7684\u679C\u5B50\u3002\u6211\u5E2E\u5B83\u85CF\u4E86\u8D77\u6765\uFF0C\u5B83\u7528\u8111\u888B\u8E6D\u6211\u7684\u624B\u3002\u90A3\u53EA\u732B\u8BF4\u5B83\u53EB\u94F6\u9B03\u732B\u3002" },
-          { date: "6\u670830\u65E5 02:33", text: "\u6700\u8FD1\u603B\u662F\u5728\u505A\u8FDE\u7EED\u7684\u68A6\u3002\u68A6\u91CC\u6709\u4E00\u7247\u8352\u539F\uFF0C\u98CE\u5439\u8FC7\u6765\u6709\u786B\u78FA\u548C\u82B1\u9999\u3002\u53EF\u80FD\u662F\u6211\u592A\u60F3\u90A3\u4E2A\u5730\u65B9\u4E86\u3002" },
-          { date: "6\u670820\u65E5 10:12", text: "\u8F6C\u53D1 // @\u8352\u91CE\u6C42\u751F\uFF1A\u96E8\u6797\u51C0\u6C34\u5C0F\u6280\u5DE7\u3002" },
-          { date: "4\u670815\u65E5 00:00", text: "\u751F\u65E5\u5FEB\u4E50\u3002\u5E0C\u671B\u68A6\u91CC\u7684\u90A3\u6761\u9F99\u4E5F\u597D\u597D\u7684\u3002" },
-          { date: "3\u670812\u65E5 16:05", text: "\u8F6C\u53D1 // @\u51B7\u77E5\u8BC6\uFF1A\u9F99\u5728\u4E0D\u540C\u6587\u5316\u4E2D\u7684\u5F62\u8C61\u3002" },
-          { date: "2\u670814\u65E5 13:27", text: "\u4ECA\u5929\u7F16\u8F91\u50AC\u7A3F\uFF0C\u6211\u8BF4\u6211\u5728\u68A6\u91CC\u91C7\u98CE\u3002\u5979\u8BA9\u6211\u9192\u9192\u3002" },
+          { date: "2026\u5E748\u670813\u65E5 01:02", text: "\u88C5\u5907\u4E70\u9F50\u4E86\u3002\u5E0C\u671B\u7528\u4E0D\u4E0A\uFF0C\u4F46\u4E07\u4E00\u7528\u5F97\u4E0A\u2014\u2014\u5148\u5907\u7740\u5427\u3002\u6211\u9700\u8981\u88C5\u5907\uFF0C\u4E5F\u9700\u8981\u4E00\u70B9\u8FD0\u6C14\u3002" },
+          { date: "2026\u5E748\u670810\u65E5", text: "\u8F6C\u53D1 // @\u624B\u5DE5\u803F\u54E5\uFF1A\u81EA\u5236\u91CE\u5916\u51C0\u6C34\u5668\uFF0C\u6210\u672C\u4E0D\u523020\u5757\u3002" },
+          { date: "2026\u5E748\u67085\u65E5", text: "\u4ECA\u5929\u5403\u5230\u4E86\u8D85\u597D\u5403\u7684\u8292\u679C\u5E72\uFF0C\u5E78\u798F\u5230\u6D41\u6CEA\u3002" },
+          { date: "2026\u5E747\u670828\u65E5 02:33", text: "\u8FDE\u7EED\u597D\u51E0\u5929\u90FD\u5728\u505A\u90A3\u8FB9\u7684\u68A6\u3002\u98CE\u3001\u5149\u3001\u8352\u539F\u3002" },
+          { date: "2026\u5E747\u670820\u65E5", text: "\u8F6C\u53D1 // @\u661F\u5EA7\u8FD0\u52BF\uFF1A\u516B\u6708\u82F1\u4ED9\u5EA7\u6D41\u661F\u96E8\uFF0C\u8BB8\u613F\u6307\u5357\u3002" },
+          { date: "2026\u5E747\u670821\u65E5 03:51", text: "\u68A6\u89C1\u90A3\u6761\u9F99\u53D7\u4F24\u4E86\u3002\u4E09\u5934\u9ED1\u9CDE\u9F99\u56F4\u7740\u5B83\u3002\u6211\u51B2\u8FC7\u53BB\u558A\u4E86\u4E00\u4E2A\u8BCD\uFF0C\u5B83\u7684\u9CDE\u7247\u7206\u51FA\u597D\u4EAE\u7684\u5149\u3002\u6211\u5F97\u56DE\u53BB\u3002" },
+          { date: "2026\u5E747\u670815\u65E5 23:47", text: "\u68A6\u5230\u4E00\u53EA\u94F6\u8272\u7684\u732B\uFF0C\u5728\u96C6\u5E02\u5077\u5403\u4E00\u79CD\u53D1\u5149\u7684\u679C\u5B50\u3002\u6211\u5E2E\u5B83\u85CF\u4E86\u8D77\u6765\uFF0C\u5B83\u7528\u8111\u888B\u8E6D\u6211\u7684\u624B\u3002\u90A3\u53EA\u732B\u8BF4\u5B83\u53EB\u94F6\u9B03\u732B\u3002" },
+          { date: "2026\u5E745\u67085\u65E5 04:28", text: "\u68A6\u89C1\u9A91\u5728\u4E00\u5934\u84DD\u8272\u53D1\u5149\u7684\u9F99\u80CC\u4E0A\u3002\u98CE\u91CC\u6709\u786B\u78FA\u548C\u82B1\u9999\u3002\u592A\u771F\u4E86\uFF0C\u9192\u6765\u624B\u5FC3\u8FD8\u6709\u9CDE\u7247\u7684\u6E29\u5EA6\u3002" },
           { date: "2025\u5E7412\u67081\u65E5", text: "\u8F6C\u53D1 // @\u5C0F\u8BF4\u7D20\u6750\uFF1A\u5982\u4F55\u5851\u9020\u4E00\u5934\u8BA9\u4EBA\u4FE1\u670D\u7684\u9F99\u3002" },
-          { date: "2025\u5E7410\u670812\u65E5", text: "\u68A6\u89C1\u4ECE\u90A3\u8FB9\u5E26\u56DE\u6765\u4E00\u679A\u91D1\u5E01\u3002\u9192\u6765\u6795\u5934\u8FB9\u771F\u7684\u6709\u3002\u51B0\u51C9\u7684\uFF0C\u5FAE\u5FAE\u53D1\u5149\u3002\u8FD9\u771F\u7684\u662F\u68A6\u5417\u3002" },
-          { date: "2025\u5E7410\u67088\u65E5", text: "\u68A6\u89C1\u9A91\u5728\u9F99\u80CC\u4E0A\u98DE\u8FC7\u4E86\u7D2B\u8272\u7684\u8352\u539F\u3002" },
-          { date: "2025\u5E748\u670820\u65E5", text: "\u53C8\u68A6\u89C1\u4E86\u3002\u51B3\u5B9A\u53EB\u5B83\u827E\u6D1B\u8482\u3002\u5728\u68A6\u91CC\u8D77\u7684\uFF0C\u9192\u6765\u5C45\u7136\u8FD8\u8BB0\u5F97\u3002" },
-          { date: "2025\u5E748\u670814\u65E5", text: "\u6628\u665A\u505A\u4E86\u4E00\u4E2A\u597D\u771F\u5B9E\u7684\u68A6\u3002\u4E00\u6761\u84DD\u8272\u7684\u9F99\uFF0C\u4F1A\u53D1\u5149\u3002" }
+          { date: "2025\u5E7410\u670812\u65E5", text: "\u68A6\u89C1\u4ECE\u90A3\u8FB9\u5E26\u56DE\u6765\u4E00\u679A\u91D1\u5E01\u3002\u51B0\u51C9\u7684\uFF0C\u5FAE\u5FAE\u53D1\u5149\u3002" },
+          { date: "2025\u5E749\u67085\u65E5", text: "\u68A6\u89C1\u9A91\u5728\u9F99\u80CC\u4E0A\u98DE\u8FC7\u4E86\u7D2B\u8272\u7684\u8352\u539F\u3002\u5F80\u4E0B\u770B\u7684\u65F6\u5019\u817F\u8F6F\u4E86\u3002" },
+          { date: "2025\u5E748\u670820\u65E5", text: "\u53C8\u68A6\u89C1\u4E86\u3002\u90A3\u6761\u9F99\u597D\u50CF\u8BA4\u8BC6\u6211\u4E86\u3002\u51B3\u5B9A\u53EB\u5B83\u827E\u6D1B\u8482\u3002" },
+          { date: "2025\u5E748\u670814\u65E5", text: "\u6628\u665A\u505A\u4E86\u4E00\u4E2A\u597D\u771F\u5B9E\u7684\u68A6\u3002\u4E00\u6761\u84DD\u8272\u7684\u9F99\uFF0C\u4F1A\u53D1\u5149\u3002\u5B83\u770B\u7740\u6211\uFF0C\u6211\u4E5F\u770B\u7740\u5B83\u3002" }
         ]
       }
     },
@@ -580,6 +583,7 @@ const gameData = {
       data: {
         title: "一个人荒野求生30天挑战",
         subtitle: "UP主：户外老猫 · 32万播放",
+        coverImg: "assets/wilderness-30days.jpg",
         content: "",
         comments: [
           { user: "户外老猫（UP主）", text: "置顶：装备清单在置顶评论，大家自取。", pinned: true },
@@ -642,7 +646,7 @@ const gameData = {
       title: "荒野之心论坛",
       type: "forum",
       data: {
-        loginTarget: "33",
+        loginTarget: "32",
         pinnedPosts: [
           { title: "论坛版规 & 发帖指南" },
           { title: "户外活动免责声明" }
@@ -654,14 +658,14 @@ const gameData = {
             posts: [
               { title: "峡谷一枝花", meta: "最后回复于 08-13 18:32", clickable: false },
               { title: "荒野老狼", meta: "最后回复于 08-13 15:20", clickable: false },
-              { title: "《青苔巷规则怪谈》", meta: "银鬃猫的最爱 · 最后修改 08-13 02:17", clickable: true, clickAction: "locked", clickMessage: "该帖已被设置成「仅自己可见」", clickNickname: "银鬃猫的最爱", clickNicknameTarget: "33", prefillAccount: "银鬃猫的最爱" }
+              { title: "《青苔巷规则怪谈》", meta: "银鬃猫的最爱 · 最后修改 08-13 02:17", clickable: true, clickAction: "locked", clickMessage: "该帖已被设置成「仅自己可见」", clickNickname: "银鬃猫的最爱", clickNicknameTarget: "32", prefillAccount: "银鬃猫的最爱" }
             ]
           },
           {
             name: "装备讨论",
             count: 23,
             posts: [
-              { title: "【装备咨询】计划去荒野环境长驻采风（含荒野求生向）", meta: "芒狗冒险家 · 最后回复 今天 09:20", clickable: true, target: "31", clickNickname: "芒狗冒险家", clickNicknameTarget: "33", prefillAccount: "芒狗冒险家" },
+              { title: "【装备咨询】计划去荒野环境长驻采风（含荒野求生向）", meta: "芒狗冒险家 · 最后回复 今天 09:20", clickable: true, target: "31", clickNickname: "芒狗冒险家", clickNicknameTarget: "32", prefillAccount: "芒狗冒险家" },
               { title: "山野闲人", meta: "最后回复于 08-13 14:15", clickable: false },
               { title: "雨林路客", meta: "最后回复于 08-13 11:08", clickable: false }
             ]
@@ -697,7 +701,7 @@ const gameData = {
         title: "【装备咨询】计划去荒野环境长驻采风（含荒野求生向）",
         author: "芒狗冒险家",
         date: "2026-08-10 21:15",
-        authorTarget: "33", authorPrefillAccount: "芒狗冒险家",
+        authorTarget: "32", authorPrefillAccount: "芒狗冒险家",
         content: "各位大佬好，我计划去一个类似荒野的环境待一段时间（是去采风写小说，不是真的荒野求生）。气候、植被参考热带雨林。目前准备的装备如下：\n\n· 多功能工兵铲\n· 防水打火石×3\n· 便携净水器\n· 压缩饼干×10包\n· 急救包（含常用药品）\n· 防潮睡袋\n· 大容量露营箱（装以上所有）\n\n求大佬们帮看清单是否合理，有没有缺什么或者带错了什么。另外有几个问题：\n\n1. 那边可能有大型猛禽（翼展比较大），需要带防身工具吗？什么比较有效？\n2. 长期在潮湿环境，有什么特别容易被忽略但实际很重要的东西？\n3. 有没有什么你一开始觉得没用、后来发现是神器的装备？\n\n纯采风，不是真冒险，但想尽量准备充分点。谢过大佬们！",
         comments: [
           { user: "荒野老狼", text: "露营箱不行。雨林里没有平路给你拖箱子，换65L以上防水背包，东西分装防水袋。你清单里缺硫磺粉（驱蛇虫）、高热量食物（能量棒或巧克力）、净水药片（备用）、头灯和备用电池、速干衣裤多备两套。大型猛禽带高音哨子或强光手电，别想着打，吓走就行。记录本带防水的。另外你说的那个地方要是真有翼展几米的猛禽，建议换地方采风。采风而已，保命要紧。", time: "08-10 22:40" },
@@ -718,17 +722,20 @@ const gameData = {
     "32": {
       id: "32",
       title: "登录",
-      type: "choice",
+      type: "forum-login",
       data: {
         title: "登录荒野之心论坛",
-        options: [
-          { text: "用林晓的账号登录", subtext: "账号：芒狗冒险家", target: "33", prefillAccount: "芒狗冒险家" },
-          { text: "登录其他账号", target: "33" }
-        ]
+        storageKey: "forum_saved_accounts",
+        accounts: {
+          "芒狗冒险家": { passwordKey: "forum_linxiao", successTarget: "37" },
+          "银鬃猫的最爱": { passwordKey: "forum_yinmaomao", successTarget: "34" }
+        },
+        defaultPlaceholder: "",
+        securityHint: "密码格式：缩写+@+缩写+数字。你喜欢的那个果子+@+这个论坛的名字缩写+123"
       }
     },
 
-    // ---- 页面 29：论坛通用登录页 ----
+    // ---- 页面 33：锁定账号登录页（预填账号） ----
     "33": {
       id: "33",
       title: "登录",
@@ -745,7 +752,7 @@ const gameData = {
       }
     },
 
-    // ---- 页面 30：银鬃猫主页 ----
+    // ---- 页面 34：银鬃猫主页 ----
     "34": {
       id: "34",
       title: "银鬃猫的最爱",
@@ -771,7 +778,7 @@ const gameData = {
         author: "银鬃猫的最爱",
         date: "2026-07-15 · 最后修改 08-13 02:17",
         content: "去之前带一样信物，贴身别摘，摘了就回不来。\n\n第一次捡到的小东西是钥匙，丢了门就没了。\n\n那边的果实叫月光果，吃了能短暂飞行。\n\n那边的龙说一种古语，开门用古语，发音像\u201c路米\u201d什么\u201c纳尔\u201d，念的时候得想着光。",
-        boldKeywords: ["信物", "钥匙", "月光果", "路米", "纳尔"],
+        boldKeywords: ["信物", "钥匙", "路米", "纳尔"],
         boldContent: true,
         comments: [
           { user: "峡谷一枝花", text: "姐你写小说呢？这么详细。", time: "2026-07-16" },
@@ -954,6 +961,7 @@ const gameData = {
         title: "女性在青苔巷离奇失踪，监控拍到诡异蓝光",
         author: "都市晚报",
         date: "2026-06-22",
+        coverImg: "assets/alley-news.jpg",
         content: "24岁女性王某于2026年6月20日在青苔巷失踪，监控最后画面显示她走入巷子深处后，一道蓝色光晕闪过，人便消失。\n\n警方已介入调查，目前尚未发现明显线索。青苔巷位于老城区深处，因常年潮湿、墙面遍布青苔而得名。该巷道年久失修，部分路段照明设施损坏，夜间通行条件较差。",
         comments: []
       }
@@ -973,11 +981,14 @@ const gameData = {
           btnText: "开始导航",
           noCoinMsg: "你还没有钥匙。规则帖说，钥匙是第一次捡到的小东西。"
         },
-        preparationContent: "那把截短的猎枪还靠在角落里，枪托上刻着那行祈福语录。两发霰弹已上膛，抽屉里还有十发。你把金币握在掌心。",
-        sceneText: "巷子比想象中深。走到尽头，一团蓝色辉光浮动。金币在掌心发烫。你默念了一遍祈福语录。",
+        prepareTitle: "出发之前",
+        preparationContent: "你砸开了母亲的老木柜。\n\n那把截短的猎枪还靠在角落里，枪托上刻着那行祈福语录。两发霰弹已经上膛，抽屉里还有十发。\n\n你把金币握在掌心。出门前回头看了一眼林晓的房间，然后关上门。\n\n青苔巷在等你。",
+        sceneTitle: "青苔巷",
+        sceneText: "巷子比想象中深。两侧墙壁爬满青苔，空气里是潮湿的泥土味。\n\n走到尽头，一团蓝色辉光浮动。金币在掌心发烫。\n\n你默念了一遍母亲的祈福语录。念了就敢往前走。\n\n这时候该念什么呢。",
         inputPlaceholder: "输入龙语（英文）",
         correctAnswer: "luminar",
-        endingText: "你打出Luminar。辉光吞没了你。空气骤然变化，天上有两颗月亮。远处传来熟悉的声音。你把猎枪端在手里，默念祈福语录。枪膛里透出一缕蓝光。你向声音传来的方向跑去。\n\n——流星雨的约定·完——"
+        errorMessage: "辉光没有变化。再想想那个词。",
+        endingText: "你说出了那个词。\n\nLuminar。\n\n辉光吞没了你。\n\n金币烫得像一块刚从火里取出的炭。手臂流过蓝色光纹，皮肤下隐隐发光。\n\n空气骤然变化——潮湿的苔藓味被一种奇异的花香取代。你睁开眼。\n\n天空有两颗月亮。\n\n远处传来熟悉的声音。\n\n你把猎枪端在手里，默念祈福语录。枪膛里透出一缕蓝光。\n\n你向声音传来的方向跑去。\n\n—— 流星雨的约定 · 完 ——"
       }
     },
 
@@ -1058,6 +1069,7 @@ const gameData = {
       data: {
         title: "户外露营装备开箱",
         subtitle: "UP主：露营小白 · 8万播放 · 8月1日",
+        coverImg: "assets/camping-box.jpg",
         content: "",
         comments: [
           { user: "露营小白（UP主）", text: "置顶：装备链接在简介，大家自取。", pinned: true },
@@ -1156,7 +1168,7 @@ const gameData = {
     "00": "她的手机桌面。有些字就写在脸上。",
     "01": "她会把零碎的东西记在最显眼的地方。每一条旁边都标着时间。",
     "02": "两条消息。一条很久之前，一条就在最近。",
-    "03": "你在这部手机里留下的痕迹。她存过你的号码。",
+    "03": "她写了一篇关于你的备忘录。搜索你自己的名字就能看到。不知道你看了会揍她还是抱她。",
     "04": "一串数字。十一位。",
     "05": "八月有个标记。不是她的。",
     "06": "她常联系的人不多。就那几个。",
@@ -1169,7 +1181,7 @@ const gameData = {
     "13": "一个日期。夏天。她不会忘的那种。",
     "14": "她笑着说了一句话。“最难忘的一天”。",
     "15": "那十一位。再加一个日子。",
-    "16": "她在写故事。主角有条龙。还常去一个地方。",
+    "16": "说说都是敞开的。只有一条笔记锁着，像是只有你知道答案的那种锁。",
     "17": "星空的英文。朋友之间的小秘密。还有一个打不开的柜子。",
     "18": "八位。两个日期拼在一起。",
     "19": "她在这里是另一个人。右边有个名字挺长的。",
@@ -1212,7 +1224,7 @@ const gameData = {
       { icon: "📄", title: "浏览器搜索 · 林晓", target: "12" }
     ],
     "叶禾": [
-      { icon: "📞", title: "通话记录 · 叶禾", target: "03" }
+      { icon: "📝", title: "笔记 · 关于叶禾", target: "03" }
     ],
     "星愿欢乐谷": [
       { icon: "📰", title: "新闻 · 星愿欢乐谷停业改建", target: "38" }
@@ -1260,8 +1272,10 @@ const gameData = {
   },
 
   // ========== 全局状态 ==========
-  // 运行时游戏状态
-  state: {
+  // 运行时游戏状态（从localStorage恢复）
+  state: (function() {
+    try { return JSON.parse(localStorage.getItem('meteor_game_state')) || null; } catch(e) { return null; }
+  })() || {
     hasCoin: false,        // 是否已获取金币
     currentPage: null,     // 当前页面 ID
     visitedPages: [],      // 已访问页面 ID 列表

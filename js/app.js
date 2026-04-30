@@ -148,13 +148,20 @@
       var track = document.createElement('div');
       track.style.cssText = 'display:flex;height:100%;transition:transform 0.3s ease;';
 
-      photos.forEach(function(photo) {
+      var slides = [];
+      photos.forEach(function(photo, idx) {
         var slide = document.createElement('div');
         slide.style.cssText = 'min-width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;';
 
         var img = document.createElement('img');
-        img.src = photo.src || '';
         img.style.cssText = 'max-width:100%;max-height:70vh;object-fit:contain;user-select:none;-webkit-user-drag:none;transform-origin:center center;transition:transform 0.15s ease;';
+        // 懒加载：只加载当前和相邻的
+        if (Math.abs(idx - startIndex) <= 1) {
+          img.src = photo.src || '';
+        } else {
+          img.alt = photo.desc || '';
+          img.style.background = '#111';
+        }
         slide.appendChild(img);
 
         // 照片信息卡片
@@ -183,6 +190,7 @@
 
         slide.appendChild(infoCard);
         track.appendChild(slide);
+        slides.push({ slide: slide, img: img, src: photo.src || '' });
       });
 
       slideWrap.appendChild(track);
@@ -218,6 +226,12 @@
         moveX = 0;
         track.style.transform = 'translateX(' + (-currentIndex * slideWrap.offsetWidth) + 'px)';
         counter.textContent = (currentIndex + 1) + ' / ' + photos.length;
+        // 懒加载：加载当前和相邻图片
+        for (var i = Math.max(0, currentIndex - 1); i <= Math.min(photos.length - 1, currentIndex + 1); i++) {
+          if (slides[i] && !slides[i].img.src) {
+            slides[i].img.src = slides[i].src;
+          }
+        }
       });
 
       // 双击放大
@@ -265,12 +279,12 @@
     modal.style.cssText = 'background:#fff;border-radius:14px;padding:20px;width:260px;max-width:80vw;text-align:center;animation:scaleIn 0.2s ease-out;';
 
     var msg = document.createElement('div');
-    msg.style.cssText = 'font-size:16px;color:#3A3A3A;margin-bottom:20px;line-height:1.5;';
+    msg.style.cssText = 'font-size:16px;color:#6B5340;margin-bottom:20px;line-height:1.5;';
     msg.textContent = message;
     modal.appendChild(msg);
 
     var btn = document.createElement('div');
-    btn.style.cssText = 'display:inline-block;background:#86E0C1;color:#fff;font-size:15px;font-weight:600;padding:10px 40px;border-radius:14px;cursor:pointer;';
+    btn.style.cssText = 'display:inline-block;background:#5B9BD5;color:#fff;font-size:15px;font-weight:600;padding:10px 40px;border-radius:14px;cursor:pointer;';
     btn.textContent = '\u786E\u5B9A';
     btn.addEventListener('click', function() { overlay.remove(); });
     modal.appendChild(btn);
@@ -362,6 +376,13 @@
     }
   };
 
+  // ========== 3.5 StateSaver 状态持久化 ==========
+  const StateSaver = {
+    save() {
+      try { localStorage.setItem('meteor_game_state', JSON.stringify(window.gameData.state)); } catch(e) {}
+    }
+  };
+
   // ========== 4. Router 路由系统 ==========
   const Router = {
     currentPage: null,
@@ -378,6 +399,12 @@
       // 保存临时参数供渲染器使用
       window.gameData.state._navParams = params;
 
+      // 重置目标页面的内部导航标志（确保从外部进入时phase被重置）
+      const targetPage = window.gameData.pages[pageId];
+      if (targetPage && targetPage.data) {
+        targetPage.data._internalNav = false;
+      }
+
       // 1. 记录当前页到 previousPage
       state.previousPage = state.currentPage;
 
@@ -391,15 +418,24 @@
       this.currentPage = pageId;
 
       // 4. 如果页面未访问过，添加到 visitedPages
-      if (!state.visitedPages.includes(pageId)) {
-        state.visitedPages.push(pageId);
+      // 对于特殊路由（07_chat_xxx, 02_detail_xxx），记录基础页面ID
+      let visitId = pageId;
+      if (pageId.startsWith('07_chat_')) visitId = '07';
+      if (pageId.startsWith('02_detail')) visitId = '02';
+      if (!state.visitedPages.includes(visitId)) {
+        state.visitedPages.push(visitId);
       }
 
-      // 5. 隐藏主屏幕
+      // 5. 持久化状态
+      StateSaver.save();
       document.getElementById('main-scroll').style.display = 'none';
+      const searchBarEnter = document.getElementById('search-bar');
+      if (searchBarEnter) searchBarEnter.style.display = 'none';
 
       // 6. 渲染页面（聊天详情和短信详情由调用方自行渲染）
-      if (!pageId.startsWith('07_chat_') && !pageId.startsWith('02_detail')) {
+      if (pageId === 'footprints') {
+        renderFootprints();
+      } else if (!pageId.startsWith('07_chat_') && !pageId.startsWith('02_detail')) {
         PageRenderer.render(pageId);
       }
 
@@ -434,6 +470,8 @@
           container2.innerHTML = '';
           // 短信详情无法恢复，回到短信列表
           PageRenderer.render('02');
+        } else if (prevPageId === 'footprints') {
+          renderFootprints();
         } else {
           PageRenderer.render(prevPageId);
         }
@@ -448,23 +486,35 @@
       } else {
         // 栈为空，回到主屏幕
         document.getElementById('main-scroll').style.display = '';
+        document.getElementById('page-container').innerHTML = '';
         document.getElementById('page-container').className = '';
         document.getElementById('page-number').style.display = 'none';
+        Search.show();
         this.currentPage = null;
         window.gameData.state.previousPage = null;
+        window.gameData.state.currentPage = null;
       }
     },
 
     /** 返回主屏幕（清空导航栈） */
     goHome() {
       this._navStack = [];
-      if (this.currentPage) {
-        document.getElementById('main-scroll').style.display = '';
-        document.getElementById('page-container').className = '';
-        document.getElementById('page-number').style.display = 'none';
-        this.currentPage = null;
-        window.gameData.state.previousPage = null;
+      document.getElementById('main-scroll').style.display = '';
+      document.getElementById('page-container').innerHTML = '';
+      document.getElementById('page-container').className = '';
+      document.getElementById('page-number').style.display = 'none';
+      // 清除结局动画overlay等残留元素
+      const appEl = document.getElementById('app');
+      if (appEl) {
+        appEl.querySelectorAll('[style*="z-index:9999"]').forEach(el => el.remove());
       }
+      // 隐藏搜索结果面板
+      const searchPanel = document.getElementById('search-history');
+      if (searchPanel) searchPanel.style.display = 'none';
+      Search.show();
+      this.currentPage = null;
+      window.gameData.state.previousPage = null;
+      window.gameData.state.currentPage = null;
     }
   };
 
@@ -680,7 +730,7 @@
       content.style.padding = '60px 20px';
       content.innerHTML = `
         <div style="font-size:48px;margin-bottom:16px">\u{1F6A7}</div>
-        <div style="font-size:17px;font-weight:600;color:#1C1C1E;margin-bottom:8px">${page.title}</div>
+        <div style="font-size:17px;font-weight:600;color:#6B5340;margin-bottom:8px">${page.title}</div>
         <div style="font-size:14px;color:#8E8E93">\u9875\u9762\u7F16\u53F7\uFF1A${page.id}</div>
         <div style="font-size:13px;color:#AEAEB2;margin-top:16px">\u8BE5\u9875\u9762\u6B63\u5728\u5EFA\u8BBE\u4E2D...</div>
       `;
@@ -858,7 +908,7 @@
         }
 
         messages.forEach((msg) => {
-          const isSent = msg.role === 'self' || msg.name === tabName;
+          const isSent = msg.role === 'self' || msg.role === 'user' || msg.name === tabName;
 
           // 微信风格：不显示名字，直接显示气泡
           // 气泡外层容器控制对齐
@@ -878,6 +928,15 @@
           bubble.style.wordBreak = 'break-word';
 
           wrapper.appendChild(bubble);
+
+          // 日期显示
+          if (msg.date) {
+            const dateEl = document.createElement('div');
+            dateEl.style.cssText = 'font-size:11px;color:#999;margin-top:3px;padding:0 4px;';
+            dateEl.textContent = msg.date;
+            wrapper.appendChild(dateEl);
+          }
+
           chatContainer.appendChild(wrapper);
         });
 
@@ -887,9 +946,26 @@
       // 初始渲染消息
       renderMessages(currentTab);
 
+      // 恢复线索对话历史（DeepSeek页面）
+      const hintHistory = window.gameData.state.hintChatHistory || [];
+      if (hintHistory.length > 0 && page.data.inputPlaceholder && page.data.inputPlaceholder.includes('页面编号')) {
+        hintHistory.forEach(msg => {
+          const isSent = msg.role === 'user';
+          const wrapper = document.createElement('div');
+          wrapper.style.cssText = `display:flex;flex-direction:column;align-items:${isSent ? 'flex-end' : 'flex-start'};margin-bottom:12px;`;
+          const bubble = document.createElement('div');
+          bubble.className = 'chat-bubble ' + (isSent ? 'sent' : 'received');
+          bubble.style.cssText = 'max-width:70%;padding:9px 13px;font-size:15px;line-height:1.5;word-break:break-word;';
+          bubble.textContent = msg.text;
+          wrapper.appendChild(bubble);
+          chatContainer.appendChild(wrapper);
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
       // 底部固定输入框区域
       const inputArea = document.createElement('div');
-      inputArea.style.cssText = 'position:sticky;bottom:0;background:#FFFFFF;padding:8px 16px;border-top:0.5px solid #E5E5EA;display:flex;gap:8px;align-items:center;z-index:5;';
+      inputArea.style.cssText = 'position:sticky;bottom:0;background:#F5DEB3;padding:8px 16px;border-top:0.5px solid #E5E5EA;display:flex;gap:8px;align-items:center;z-index:5;';
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -969,7 +1045,7 @@
           wrapper.style.cssText = `display:flex;flex-direction:column;align-items:${isSent ? 'flex-end' : 'flex-start'};margin-bottom:10px;`;
 
           const bubble = document.createElement('div');
-          bubble.style.cssText = `max-width:70%;padding:9px 13px;border-radius:18px;font-size:15px;line-height:1.5;word-break:break-word;background:${isSent ? '#86E0C1' : '#E9E9EB'};color:#1C1C1E;${isSent ? 'border-bottom-right-radius:4px;' : 'border-bottom-left-radius:4px;'}`;
+          bubble.style.cssText = `max-width:70%;padding:9px 13px;border-radius:18px;font-size:15px;line-height:1.5;word-break:break-word;background:${isSent ? '#C7B8A8' : '#E9E9EB'};color:#3A2A1A;${isSent ? 'border-bottom-right-radius:4px;' : 'border-bottom-left-radius:4px;'}`;
 
           // 检查是否包含分享链接
           const hasXiaohongshuLink = msg.text.includes('【小红书链接】');
@@ -1007,10 +1083,10 @@
 
             // 微信风格链接卡片
             const linkCard = document.createElement('div');
-            linkCard.style.cssText = `max-width:70%;margin-top:4px;background:#FFFFFF;border-radius:8px;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.08);${isSent ? 'align-self:flex-end;' : 'align-self:flex-start;'}`;
+            linkCard.style.cssText = `max-width:70%;margin-top:4px;background:#F5DEB3;border-radius:8px;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.08);${isSent ? 'align-self:flex-end;' : 'align-self:flex-start;'}`;
 
             const linkTitle = document.createElement('div');
-            linkTitle.style.cssText = 'padding:10px 12px 4px;font-size:13px;color:#1C1C1E;font-weight:500;line-height:1.4;';
+            linkTitle.style.cssText = 'padding:10px 12px 4px;font-size:13px;color:#6B5340;font-weight:500;line-height:1.4;';
             linkTitle.textContent = info.title;
 
             const linkDesc = document.createElement('div');
@@ -1064,7 +1140,7 @@
       voiceBtn.style.cssText = 'width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#8E8E93;flex-shrink:0;';
       voiceBtn.textContent = '🎙';
       const inputBox = document.createElement('div');
-      inputBox.style.cssText = 'flex:1;height:36px;background:#FFFFFF;border-radius:4px;display:flex;align-items:center;padding:0 10px;font-size:14px;color:#C7C7CC;';
+      inputBox.style.cssText = 'flex:1;height:36px;background:#F5DEB3;border-radius:4px;display:flex;align-items:center;padding:0 10px;font-size:14px;color:#C7C7CC;';
       inputBox.textContent = '输入消息...';
       const moreBtn = document.createElement('div');
       moreBtn.style.cssText = 'width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#8E8E93;flex-shrink:0;';
@@ -1269,7 +1345,7 @@
 
       // 应用标题
       const appTitle = document.createElement('div');
-      appTitle.style.cssText = 'text-align:center;font-size:22px;font-weight:700;color:#1C1C1E;margin-bottom:32px;';
+      appTitle.style.cssText = 'text-align:center;font-size:22px;font-weight:700;color:#6B5340;margin-bottom:32px;';
       appTitle.textContent = page.title;
       form.appendChild(appTitle);
 
@@ -1279,16 +1355,27 @@
 
       const accountLabel = document.createElement('label');
       accountLabel.style.cssText = 'font-size:13px;color:#8E8E93;display:block;margin-bottom:6px;';
-      accountLabel.textContent = '账号';
+      accountLabel.textContent = page.data.accountType === 'phone' ? '手机号' : '账号';
 
       const accountInput = document.createElement('input');
-      accountInput.type = 'text';
+      accountInput.type = page.data.accountType === 'phone' ? 'tel' : 'text';
       accountInput.className = 'form-input';
       accountInput.placeholder = page.data.accountPlaceholder || '\u8BF7\u8F93\u5165\u8D26\u53F7';
       accountInput.id = 'login-account';
+      accountInput.maxLength = page.data.accountType === 'phone' ? 11 : undefined;
 
-      // 如果有预填账号，设为只读
-      if (page.data.account) {
+      // 手机号类型：不预填，检查是否有已保存的正确手机号
+      if (page.data.accountType === 'phone') {
+        const savedKey = 'saved_account_' + page.id;
+        const savedAccount = window.gameData.state[savedKey];
+        if (savedAccount) {
+          accountInput.value = savedAccount;
+          accountInput.readOnly = true;
+          accountInput.style.backgroundColor = '#F2F2F7';
+          accountInput.style.color = '#8E8E93';
+        }
+      } else if (page.data.account) {
+        // 非手机号：如果有预填账号，设为只读
         accountInput.value = page.data.account;
         accountInput.readOnly = true;
         accountInput.style.backgroundColor = '#F2F2F7';
@@ -1319,6 +1406,12 @@
       passwordInput.placeholder = page.data.passwordPlaceholder || '请输入密码';
       passwordInput.id = 'login-password';
 
+      // 如果之前已保存密码，自动预填
+      const savedPwdKey = 'saved_pwd_' + page.id;
+      if (window.gameData.state[savedPwdKey]) {
+        passwordInput.value = window.gameData.state[savedPwdKey];
+      }
+
       passwordGroup.appendChild(passwordLabel);
       passwordGroup.appendChild(passwordInput);
       form.appendChild(passwordGroup);
@@ -1338,6 +1431,22 @@
           return;
         }
 
+        // 手机号验证
+        if (page.data.accountType === 'phone') {
+          if (!/^1\d{10}$/.test(account)) {
+            Toast.show('手机号格式错误');
+            return;
+          }
+          if (account !== page.data.account) {
+            Toast.show('手机号错误');
+            return;
+          }
+          // 手机号正确，保存到state
+          const savedKey = 'saved_account_' + page.id;
+          window.gameData.state[savedKey] = account;
+          StateSaver.save();
+        }
+
         // 根据页面 ID 查找对应的密码规则
         const passwordKey = page.data.passwordKey;
 
@@ -1345,6 +1454,10 @@
           const rule = window.gameData.passwords[passwordKey];
           if (rule && PasswordValidator.validate(passwordKey, password)) {
             Toast.show('登录成功');
+            // 保存密码，下次自动预填
+            const pwdKey = 'saved_pwd_' + page.id;
+            window.gameData.state[pwdKey] = password;
+            StateSaver.save();
             // 登录成功后的跳转逻辑
             const successTarget = page.data.successTarget;
             if (successTarget) {
@@ -1430,7 +1543,7 @@
 
       // 浏览器地址栏
       const addressBar = document.createElement('div');
-      addressBar.style.cssText = 'flex-shrink:0;padding:6px 16px;background:#FFFFFF;';
+      addressBar.style.cssText = 'flex-shrink:0;padding:6px 16px;background:#F5DEB3;';
       const urlBox = document.createElement('div');
       urlBox.style.cssText = 'display:flex;align-items:center;height:36px;background:#F2F2F7;border-radius:10px;padding:0 10px;gap:6px;';
       const lockIcon = document.createElement('span');
@@ -1440,7 +1553,7 @@
       urlText.style.cssText = 'font-size:13px;color:#8E8E93;flex-shrink:0;white-space:nowrap;';
       urlText.textContent = d.url || 'www.baidu.com';
       const queryText = document.createElement('span');
-      queryText.style.cssText = 'font-size:14px;color:#1C1C1E;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      queryText.style.cssText = 'font-size:14px;color:#6B5340;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
       queryText.textContent = d.query || '';
       const clearBtn = document.createElement('span');
       clearBtn.style.cssText = 'font-size:16px;color:#8E8E93;flex-shrink:0;cursor:pointer;padding:4px;';
@@ -1458,7 +1571,7 @@
 
       // 搜索结果列表
       const content = document.createElement('div');
-      content.style.cssText = 'flex:1;overflow-y:auto;background:#FFFFFF;';
+      content.style.cssText = 'flex:1;overflow-y:auto;background:#F5DEB3;';
 
       const results = d.results || [];
       results.forEach(item => {
@@ -1467,7 +1580,7 @@
 
         // 标题
         const titleEl = document.createElement('div');
-        titleEl.style.cssText = 'font-size:17px;color:#1C1C1E;font-weight:500;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;';
+        titleEl.style.cssText = 'font-size:17px;color:#6B5340;font-weight:500;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;';
         const titleText = document.createElement('span');
         titleText.textContent = item.title || '';
         titleEl.appendChild(titleText);
@@ -1517,7 +1630,7 @@
         relatedTags.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
         d.relatedSearches.forEach(tag => {
           const tagEl = document.createElement('span');
-          tagEl.style.cssText = 'font-size:13px;color:#1C1C1E;background:#F2F2F7;padding:4px 10px;border-radius:16px;';
+          tagEl.style.cssText = 'font-size:13px;color:#6B5340;background:#F2F2F7;padding:4px 10px;border-radius:16px;';
           tagEl.textContent = tag;
           relatedTags.appendChild(tagEl);
         });
@@ -1537,7 +1650,7 @@
         trendingTags.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
         d.trendingSearches.forEach(tag => {
           const tagEl = document.createElement('span');
-          tagEl.style.cssText = 'font-size:13px;color:#1C1C1E;background:#F2F2F7;padding:4px 10px;border-radius:16px;';
+          tagEl.style.cssText = 'font-size:13px;color:#6B5340;background:#F2F2F7;padding:4px 10px;border-radius:16px;';
           tagEl.textContent = tag;
           trendingTags.appendChild(tagEl);
         });
@@ -1573,7 +1686,7 @@
 
       // 功能入口区
       const entryCard = document.createElement('div');
-      entryCard.style.cssText = 'margin:12px 16px;background:#FFFFFF;border-radius:12px;padding:16px;display:flex;gap:16px;';
+      entryCard.style.cssText = 'margin:12px 16px;background:#F5DEB3;border-radius:12px;padding:16px;display:flex;gap:16px;';
       (page.data.entries || []).forEach(entry => {
         const btn = document.createElement('div');
         btn.style.cssText = 'flex:1;text-align:center;padding:12px 0;border-radius:8px;cursor:' + (entry.clickable ? 'pointer' : 'default') + ';' + (entry.clickable ? '' : 'opacity:0.5;');
@@ -1581,7 +1694,7 @@
         icon.style.cssText = 'font-size:24px;margin-bottom:6px;';
         icon.textContent = entry.clickable ? '📺' : '📁';
         const label = document.createElement('div');
-        label.style.cssText = 'font-size:13px;color:#1C1C1E;';
+        label.style.cssText = 'font-size:13px;color:#6B5340;';
         label.textContent = entry.text;
         btn.appendChild(icon);
         btn.appendChild(label);
@@ -1594,13 +1707,13 @@
 
       // 推荐视频标题
       const recTitle = document.createElement('div');
-      recTitle.style.cssText = 'padding:20px 16px 12px;font-size:16px;color:#1C1C1E;font-weight:700;';
+      recTitle.style.cssText = 'padding:20px 16px 12px;font-size:16px;color:#6B5340;font-weight:700;';
       recTitle.textContent = '推荐视频';
       content.appendChild(recTitle);
 
       // 推荐视频列表
       const videoList = document.createElement('div');
-      videoList.style.cssText = 'background:#FFFFFF;';
+      videoList.style.cssText = 'background:#F5DEB3;';
       (page.data.videos || []).forEach(video => {
         const row = document.createElement('div');
         row.style.cssText = 'display:flex;padding:12px 16px;gap:12px;border-bottom:0.5px solid #F0F0F0;cursor:default;';
@@ -1612,7 +1725,7 @@
         const info = document.createElement('div');
         info.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;';
         const vTitle = document.createElement('div');
-        vTitle.style.cssText = 'font-size:14px;color:#1C1C1E;font-weight:500;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+        vTitle.style.cssText = 'font-size:14px;color:#6B5340;font-weight:500;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
         vTitle.textContent = video.title;
         const vMeta = document.createElement('div');
         vMeta.style.cssText = 'font-size:12px;color:#8E8E93;margin-top:4px;';
@@ -1636,7 +1749,7 @@
       navBar.style.cssText = 'flex-shrink:0;display:flex;align-items:center;justify-content:space-around;height:50px;background:rgba(255,255,255,0.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:0.5px solid #E5E5EA;';
       (navTabs || []).forEach(tab => {
         const tabEl = document.createElement('div');
-        tabEl.style.cssText = 'text-align:center;font-size:10px;color:' + (tab.active ? '#86E0C1' : '#8E8E93') + ';cursor:' + (tab.target ? 'pointer' : 'default') + ';';
+        tabEl.style.cssText = 'text-align:center;font-size:10px;color:' + (tab.active ? '#5B9BD5' : '#8E8E93') + ';cursor:' + (tab.target ? 'pointer' : 'default') + ';';
         tabEl.textContent = tab.text;
         if (tab.target) {
           tabEl.addEventListener('click', () => Router.navigate(tab.target));
@@ -1652,7 +1765,7 @@
       container.appendChild(this.createHeader(page.title));
 
       const content = document.createElement('div');
-      content.style.cssText = 'flex:1;overflow-y:auto;background:#FFFFFF;';
+      content.style.cssText = 'flex:1;overflow-y:auto;background:#F5DEB3;';
 
       (page.data.videos || []).forEach(video => {
         const row = document.createElement('div');
@@ -1676,7 +1789,7 @@
         const info = document.createElement('div');
         info.style.cssText = 'flex:1;min-width:0;';
         const vTitle = document.createElement('div');
-        vTitle.style.cssText = 'font-size:14px;color:#1C1C1E;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+        vTitle.style.cssText = 'font-size:14px;color:#6B5340;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
         if (video.bold && video.title) {
           let html = video.title;
           video.bold.forEach(b => { html = html.split(b).join('<b style="font-weight:700">' + b + '</b>'); });
@@ -1726,7 +1839,7 @@
 
       // 功能入口区
       const entryCard = document.createElement('div');
-      entryCard.style.cssText = 'margin:12px 16px;background:#FFFFFF;border-radius:12px;padding:16px;display:flex;gap:16px;';
+      entryCard.style.cssText = 'margin:12px 16px;background:#F5DEB3;border-radius:12px;padding:16px;display:flex;gap:16px;';
       (page.data.entries || []).forEach(entry => {
         const btn = document.createElement('div');
         btn.style.cssText = 'flex:1;text-align:center;padding:12px 0;border-radius:8px;cursor:' + (entry.clickable ? 'pointer' : 'default') + ';' + (entry.clickable ? '' : 'opacity:0.5;');
@@ -1734,7 +1847,7 @@
         icon.style.cssText = 'font-size:24px;margin-bottom:6px;';
         icon.textContent = entry.clickable ? '📦' : '📁';
         const label = document.createElement('div');
-        label.style.cssText = 'font-size:13px;color:#1C1C1E;';
+        label.style.cssText = 'font-size:13px;color:#6B5340;';
         label.textContent = entry.text;
         btn.appendChild(icon);
         btn.appendChild(label);
@@ -1747,7 +1860,7 @@
 
       // 推荐商品标题
       const recTitle = document.createElement('div');
-      recTitle.style.cssText = 'padding:20px 16px 10px;font-size:16px;color:#1C1C1E;font-weight:700;';
+      recTitle.style.cssText = 'padding:20px 16px 10px;font-size:16px;color:#6B5340;font-weight:700;';
       recTitle.textContent = '猜你喜欢';
       content.appendChild(recTitle);
 
@@ -1756,14 +1869,14 @@
       recGrid.style.cssText = 'display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px 16px;';
       (page.data.recommendations || []).forEach(rec => {
         const card = document.createElement('div');
-        card.style.cssText = 'background:#FFFFFF;border-radius:10px;overflow:hidden;';
+        card.style.cssText = 'background:#F5DEB3;border-radius:10px;overflow:hidden;';
         const thumb = document.createElement('div');
         thumb.style.cssText = 'width:100%;aspect-ratio:1/1;background:#E8E8E8;';
         card.appendChild(thumb);
         const info = document.createElement('div');
         info.style.cssText = 'padding:8px 10px 10px;';
         const rTitle = document.createElement('div');
-        rTitle.style.cssText = 'font-size:13px;color:#1C1C1E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+        rTitle.style.cssText = 'font-size:13px;color:#6B5340;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
         rTitle.textContent = rec.title;
         const rPrice = document.createElement('div');
         rPrice.style.cssText = 'font-size:14px;color:#FF3B30;font-weight:600;margin-top:4px;';
@@ -1793,7 +1906,7 @@
       ];
       tabs.forEach(tab => {
         const tabEl = document.createElement('div');
-        tabEl.style.cssText = 'text-align:center;font-size:10px;color:' + (tab.active ? '#86E0C1' : '#8E8E93') + ';' + (tab.target ? 'cursor:pointer;' : 'cursor:default;');
+        tabEl.style.cssText = 'text-align:center;font-size:10px;color:' + (tab.active ? '#5B9BD5' : '#8E8E93') + ';' + (tab.target ? 'cursor:pointer;' : 'cursor:default;');
         tabEl.textContent = tab.label;
         if (tab.target) {
           tabEl.addEventListener('click', () => Router.navigate(tab.target));
@@ -1809,7 +1922,7 @@
       container.appendChild(this.createHeader(page.title));
 
       const content = document.createElement('div');
-      content.style.cssText = 'flex:1;overflow-y:auto;background:#FFFFFF;';
+      content.style.cssText = 'flex:1;overflow-y:auto;background:#F5DEB3;';
 
       // 视频播放区
       const videoArea = document.createElement('div');
@@ -1822,7 +1935,7 @@
       const progress = document.createElement('div');
       progress.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.2);';
       const progressFill = document.createElement('div');
-      progressFill.style.cssText = 'width:33%;height:100%;background:#86E0C1;';
+      progressFill.style.cssText = 'width:33%;height:100%;background:#D4A843;';
       progress.appendChild(progressFill);
       videoArea.appendChild(progress);
       content.appendChild(videoArea);
@@ -1831,7 +1944,7 @@
       const infoArea = document.createElement('div');
       infoArea.style.cssText = 'padding:16px;';
       const vTitle = document.createElement('div');
-      vTitle.style.cssText = 'font-size:18px;color:#1C1C1E;font-weight:700;line-height:1.4;';
+      vTitle.style.cssText = 'font-size:18px;color:#6B5340;font-weight:700;line-height:1.4;';
       vTitle.textContent = page.data.videoTitle;
       const vMeta = document.createElement('div');
       vMeta.style.cssText = 'font-size:13px;color:#8E8E93;margin-top:6px;';
@@ -1842,10 +1955,10 @@
       upAvatar.style.cssText = 'width:32px;height:32px;border-radius:50%;background:#E6E2D3;display:flex;align-items:center;justify-content:center;font-size:14px;';
       upAvatar.textContent = '👤';
       const upName = document.createElement('span');
-      upName.style.cssText = 'font-size:14px;color:#1C1C1E;';
+      upName.style.cssText = 'font-size:14px;color:#6B5340;';
       upName.textContent = page.data.upName;
       const followBtn = document.createElement('span');
-      followBtn.style.cssText = 'font-size:12px;color:#86E0C1;border:1px solid #86E0C1;border-radius:14px;padding:2px 12px;margin-left:auto;';
+      followBtn.style.cssText = 'font-size:12px;color:#5B9BD5;border:1px solid #5B9BD5;border-radius:14px;padding:2px 12px;margin-left:auto;';
       followBtn.textContent = '关注';
       upRow.appendChild(upAvatar);
       upRow.appendChild(upName);
@@ -1861,7 +1974,7 @@
 
       // 评论区
       const commentHeader = document.createElement('div');
-      commentHeader.style.cssText = 'padding:12px 16px;font-size:16px;color:#1C1C1E;font-weight:700;border-top:0.5px solid #F0F0F0;';
+      commentHeader.style.cssText = 'padding:12px 16px;font-size:16px;color:#6B5340;font-weight:700;border-top:0.5px solid #F0F0F0;';
       commentHeader.textContent = '评论 230';
       content.appendChild(commentHeader);
 
@@ -1877,12 +1990,12 @@
         }
 
         const userEl = document.createElement('div');
-        userEl.style.cssText = 'font-size:13px;color:#1C1C1E;font-weight:500;display:flex;align-items:center;gap:6px;';
+        userEl.style.cssText = 'font-size:13px;color:#6B5340;font-weight:500;display:flex;align-items:center;gap:6px;';
         userEl.textContent = c.user;
         comment.appendChild(userEl);
 
         const textEl = document.createElement('div');
-        textEl.style.cssText = 'font-size:14px;color:#1C1C1E;margin-top:4px;line-height:1.5;';
+        textEl.style.cssText = 'font-size:14px;color:#6B5340;margin-top:4px;line-height:1.5;';
         // "荒野之心"加粗
         var ct = c.text || '';
         var kw = '荒野之心';
@@ -1944,7 +2057,7 @@
       authorRow.appendChild(authorInfo);
 
       const followBtn = document.createElement('div');
-      followBtn.style.cssText = 'padding:6px 16px;border:1px solid #86E0C1;border-radius:20px;font-size:13px;color:#86E0C1;font-weight:600;cursor:pointer;';
+      followBtn.style.cssText = 'padding:6px 16px;border:1px solid #5B9BD5;border-radius:20px;font-size:13px;color:#5B9BD5;font-weight:600;cursor:pointer;';
       followBtn.textContent = '关注';
       authorRow.appendChild(followBtn);
 
@@ -2040,18 +2153,43 @@
       // 视频占位框（B站视频页）
       if (page.data.subtitle && page.data.subtitle.includes('UP主')) {
         const videoPlaceholder = document.createElement('div');
-        videoPlaceholder.style.cssText = 'width:100%;aspect-ratio:16/9;background:#E6E2D3;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;';
+        videoPlaceholder.style.cssText = 'width:100%;aspect-ratio:16/9;background:#E6E2D3;border-radius:8px;margin-bottom:16px;overflow:hidden;position:relative;';
+        if (page.data.coverImg) {
+          const coverImg = document.createElement('img');
+          coverImg.src = page.data.coverImg;
+          coverImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+          coverImg.alt = '视频封面';
+          videoPlaceholder.appendChild(coverImg);
+        }
         const playIcon = document.createElement('div');
-        playIcon.style.cssText = 'width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
+        playIcon.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
         playIcon.innerHTML = '<div style="width:0;height:0;border-left:18px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px;"></div>';
         videoPlaceholder.appendChild(playIcon);
         card.appendChild(videoPlaceholder);
+      } else if (page.data.coverImg) {
+        // 新闻/文章配图
+        const imgWrap = document.createElement('div');
+        imgWrap.style.cssText = 'width:100%;aspect-ratio:16/9;border-radius:8px;margin-bottom:16px;overflow:hidden;';
+        const coverImg = document.createElement('img');
+        coverImg.src = page.data.coverImg;
+        coverImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        coverImg.alt = '配图';
+        imgWrap.appendChild(coverImg);
+        card.appendChild(imgWrap);
       }
 
       const title = document.createElement('div');
-      title.style.cssText = 'font-size:22px;font-weight:700;color:#3A3A3A;margin-bottom:8px;';
+      title.style.cssText = 'font-size:22px;font-weight:700;color:#6B5340;margin-bottom:8px;';
       title.textContent = page.data.title || '';
       card.appendChild(title);
+
+      // 副标题（如备忘录分类标签）
+      if (page.data.subtitle) {
+        const subtitle = document.createElement('div');
+        subtitle.style.cssText = 'font-size:15px;font-weight:600;color:#007AFF;margin-bottom:16px;padding:8px 12px;background:#F0F5FF;border-radius:8px;';
+        subtitle.textContent = page.data.subtitle;
+        card.appendChild(subtitle);
+      }
 
       if (page.data.author || page.data.date) {
         const meta = document.createElement('div');
@@ -2082,7 +2220,7 @@
       }
 
       const body = document.createElement('div');
-      body.style.cssText = 'font-size:16px;line-height:1.6;color:#3A3A3A;white-space:pre-wrap;';
+      body.style.cssText = 'font-size:16px;line-height:1.6;color:#6B5340;white-space:pre-wrap;';
       if (page.data.boldContent) {
         body.style.fontWeight = '700';
       }
@@ -2097,6 +2235,15 @@
         body.textContent = textContent;
       }
       card.appendChild(body);
+
+      // 底部注释（如备忘录说明）
+      if (page.data.footerNote) {
+        const footer = document.createElement('div');
+        footer.style.cssText = 'font-size:13px;color:#8E8E93;line-height:1.6;margin-top:20px;padding-top:16px;border-top:0.5px solid #E5E5EA;white-space:pre-wrap;font-style:italic;';
+        footer.textContent = page.data.footerNote;
+        card.appendChild(footer);
+      }
+
       content.appendChild(card);
 
       // 评论区
@@ -2105,7 +2252,7 @@
         commentSection.style.cssText = 'background:#fff;border-radius:14px;padding:20px;margin-bottom:12px;';
 
         const commentTitle = document.createElement('div');
-        commentTitle.style.cssText = 'font-size:15px;font-weight:600;color:#3A3A3A;margin-bottom:12px;';
+        commentTitle.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;margin-bottom:12px;';
         commentTitle.textContent = '评论区';
         commentSection.appendChild(commentTitle);
 
@@ -2117,7 +2264,7 @@
           commentHeader.style.cssText = 'display:flex;align-items:center;margin-bottom:6px;';
 
           const userName = document.createElement('span');
-          userName.style.cssText = 'font-size:13px;font-weight:600;color:#3A3A3A;';
+          userName.style.cssText = 'font-size:13px;font-weight:600;color:#6B5340;';
           userName.textContent = comment.user || '';
 
           commentHeader.appendChild(userName);
@@ -2139,7 +2286,7 @@
           commentCard.appendChild(commentHeader);
 
           const commentText = document.createElement('div');
-          commentText.style.cssText = 'font-size:14px;color:#3A3A3A;';
+          commentText.style.cssText = 'font-size:14px;color:#6B5340;';
           // 支持 boldKeywords 加粗（页面级）或 comment.bold（评论级）
           var ct = comment.text || '';
           var keywords = page.data.boldKeywords || [];
@@ -2209,7 +2356,7 @@
         favSection.style.cssText = 'padding:16px;';
 
         const favTitle = document.createElement('div');
-        favTitle.style.cssText = 'font-size:15px;font-weight:600;color:#3A3A3A;margin-bottom:12px;';
+        favTitle.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;margin-bottom:12px;';
         favTitle.textContent = '\u6211\u7684\u6536\u85CF';
         favSection.appendChild(favTitle);
 
@@ -2222,7 +2369,7 @@
           leftCol.style.cssText = 'flex:1;min-width:0;';
 
           const titleEl = document.createElement('div');
-          titleEl.style.cssText = 'font-size:15px;color:#3A3A3A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+          titleEl.style.cssText = 'font-size:15px;color:#6B5340;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
           titleEl.textContent = fav.title || '';
           leftCol.appendChild(titleEl);
 
@@ -2258,7 +2405,7 @@
         draftSection.style.cssText = 'padding:16px;';
 
         var draftTitle = document.createElement('div');
-        draftTitle.style.cssText = 'font-size:15px;font-weight:600;color:#3A3A3A;margin-bottom:12px;';
+        draftTitle.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;margin-bottom:12px;';
         draftTitle.textContent = '\u8349\u7A3F\u7BB1';
         draftSection.appendChild(draftTitle);
 
@@ -2274,7 +2421,7 @@
           rowLeft.style.cssText = 'flex:1;min-width:0;';
 
           var rowTitleEl = document.createElement('div');
-          rowTitleEl.style.cssText = 'font-size:15px;color:#3A3A3A;font-weight:500;';
+          rowTitleEl.style.cssText = 'font-size:15px;color:#6B5340;font-weight:500;';
           rowTitleEl.textContent = draft.title || '';
           rowLeft.appendChild(rowTitleEl);
 
@@ -2299,7 +2446,7 @@
           if (draft.content) {
             var rowContent = document.createElement('div');
             rowContent.className = 'memo-accordion-text';
-            rowContent.style.cssText = 'font-size:14px;color:#3A3A3A;line-height:1.6;white-space:pre-wrap;padding:12px 16px;';
+            rowContent.style.cssText = 'font-size:14px;color:#6B5340;line-height:1.6;white-space:pre-wrap;padding:12px 16px;';
             // 支持 boldKeywords
             if (draft.boldKeywords && draft.boldKeywords.length > 0) {
               var dcText = draft.content;
@@ -2383,7 +2530,7 @@
         pinLeft.appendChild(pinTag);
 
         const pinNickname = document.createElement('span');
-        pinNickname.style.cssText = 'font-size:15px;font-weight:600;color:#3A3A3A;';
+        pinNickname.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;';
         pinNickname.textContent = data.nickname || '';
         pinLeft.appendChild(pinNickname);
 
@@ -2399,7 +2546,7 @@
         // 转发配文（用户自己写的评论）
         if (pr.comment) {
           const pinComment = document.createElement('div');
-          pinComment.style.cssText = 'font-size:15px;color:#1C1C1E;line-height:1.5;margin-bottom:10px;';
+          pinComment.style.cssText = 'font-size:15px;color:#6B5340;line-height:1.5;margin-bottom:10px;';
           pinComment.textContent = pr.comment;
           pinCard.appendChild(pinComment);
         }
@@ -2437,7 +2584,7 @@
         // 科普正文
         if (pr.fullContent) {
           var fullEl = document.createElement('div');
-          fullEl.style.cssText = 'font-size:13px;color:#3A3A3A;line-height:1.7;margin-bottom:10px;white-space:pre-wrap;';
+          fullEl.style.cssText = 'font-size:13px;color:#6B5340;line-height:1.7;margin-bottom:10px;white-space:pre-wrap;';
           // Gemini 加粗
           var fcText = pr.fullContent || '';
           var boldKws = pr.boldKeywords || [];
@@ -2486,7 +2633,7 @@
 
           pr.replies.forEach(function(reply) {
             var rEl = document.createElement('div');
-            rEl.style.cssText = 'font-size:13px;color:#3A3A3A;padding:3px 0;line-height:1.4;' + (reply.isReply ? 'padding-left:12px;' : '');
+            rEl.style.cssText = 'font-size:13px;color:#6B5340;padding:3px 0;line-height:1.4;' + (reply.isReply ? 'padding-left:12px;' : '');
             var userSpan = document.createElement('span');
             userSpan.style.cssText = 'color:#576B95;font-weight:500;';
             userSpan.textContent = reply.user;
@@ -2553,7 +2700,7 @@
 
         var journalLabel = document.createElement('div');
         journalLabel.style.cssText = 'font-size:13px;color:#8E8E93;margin-bottom:12px;font-weight:600;';
-        journalLabel.textContent = '\u65E5\u5FD7';
+        journalLabel.textContent = '日志';
         journalSection.appendChild(journalLabel);
 
         data.journals.forEach(function(journal) {
@@ -2562,35 +2709,150 @@
 
           var jHeader = document.createElement('div');
           jHeader.className = 'memo-accordion-header';
-          jHeader.textContent = journal.title;
-          jHeader.addEventListener('click', function() {
-            var jBody = jItem.querySelector('.memo-accordion-body');
-            var isOpen = jBody.style.maxHeight && jBody.style.maxHeight !== '0px';
-            if (isOpen) {
-              jBody.style.maxHeight = '0px';
-              jHeader.classList.remove('open');
-            } else {
-              jBody.style.maxHeight = jBody.scrollHeight + 'px';
-              jHeader.classList.add('open');
-            }
-          });
+
+          if (journal.locked) {
+            // 私密日志：显示锁图标
+            jHeader.textContent = journal.lockLabel || ('🔒 ' + journal.title);
+            jHeader.addEventListener('click', function() {
+              // 弹出密保验证弹窗
+              var modal = document.getElementById('modal');
+              if (!modal) return;
+              modal.removeAttribute('hidden');
+              modal.style.display = 'flex';
+              modal.style.alignItems = 'center';
+              modal.style.justifyContent = 'center';
+              modal.innerHTML = '';
+
+              var modalContent = document.createElement('div');
+              modalContent.style.cssText = 'background:#fff;border-radius:16px;padding:28px 24px;width:85%;max-width:320px;text-align:center;';
+
+              var modalIcon = document.createElement('div');
+              modalIcon.style.cssText = 'font-size:36px;margin-bottom:12px;';
+              modalIcon.textContent = '🔒';
+              modalContent.appendChild(modalIcon);
+
+              var modalTitle = document.createElement('div');
+              modalTitle.style.cssText = 'font-size:17px;font-weight:700;color:#3C3C43;margin-bottom:6px;';
+              modalTitle.textContent = '私密日志';
+              modalContent.appendChild(modalTitle);
+
+              var modalDesc = document.createElement('div');
+              modalDesc.style.cssText = 'font-size:13px;color:#8E8E93;margin-bottom:20px;';
+              modalDesc.textContent = '查看此日志需要验证身份';
+              modalContent.appendChild(modalDesc);
+
+              var questionLabel = document.createElement('div');
+              questionLabel.style.cssText = 'font-size:14px;color:#3C3C43;font-weight:600;margin-bottom:8px;text-align:left;';
+              questionLabel.textContent = '密保问题：' + (journal.securityQuestion || '');
+              modalContent.appendChild(questionLabel);
+
+              var answerInput = document.createElement('input');
+              answerInput.type = 'text';
+              answerInput.style.cssText = 'width:100%;height:42px;border:1.5px solid #D1D1D6;border-radius:10px;padding:0 14px;font-size:15px;color:#3C3C43;outline:none;box-sizing:border-box;margin-bottom:6px;';
+              answerInput.placeholder = '请输入答案';
+              answerInput.autocomplete = 'off';
+              modalContent.appendChild(answerInput);
+
+              var errMsg = document.createElement('div');
+              errMsg.style.cssText = 'font-size:12px;color:#FF3B30;height:18px;text-align:left;margin-bottom:12px;';
+              modalContent.appendChild(errMsg);
+
+              var confirmBtn = document.createElement('button');
+              confirmBtn.style.cssText = 'width:100%;height:42px;border:none;border-radius:10px;background:#43cea2;color:#fff;font-size:15px;font-weight:600;cursor:pointer;';
+              confirmBtn.textContent = '确认';
+              confirmBtn.addEventListener('click', function() {
+                var val = answerInput.value.trim().toLowerCase();
+                if (val === (journal.securityAnswer || '').toLowerCase()) {
+                  // 验证成功，解锁日志
+                  journal.locked = false;
+                  modal.style.display = 'none';
+                  modal.innerHTML = '';
+                  // 重新渲染日志区域
+                  journalSection.innerHTML = '';
+                  journalLabel = document.createElement('div');
+                  journalLabel.style.cssText = 'font-size:13px;color:#8E8E93;margin-bottom:12px;font-weight:600;';
+                  journalLabel.textContent = '日志';
+                  journalSection.appendChild(journalLabel);
+                  // 重新创建已解锁的日志项
+                  var jItem2 = document.createElement('div');
+                  jItem2.className = 'memo-accordion-item';
+                  var jHeader2 = document.createElement('div');
+                  jHeader2.className = 'memo-accordion-header';
+                  jHeader2.textContent = journal.title;
+                  jHeader2.addEventListener('click', function() {
+                    var body = jItem2.querySelector('.memo-accordion-body');
+                    var isOpen = body.style.maxHeight && body.style.maxHeight !== '0px';
+                    if (isOpen) {
+                      body.style.maxHeight = '0px';
+                      jHeader2.classList.remove('open');
+                    } else {
+                      body.style.maxHeight = body.scrollHeight + 'px';
+                      jHeader2.classList.add('open');
+                    }
+                  });
+                  jItem2.appendChild(jHeader2);
+                  var jBody2 = document.createElement('div');
+                  jBody2.className = 'memo-accordion-body';
+                  jBody2.style.maxHeight = '0px';
+                  var jDate2 = document.createElement('div');
+                  jDate2.style.cssText = 'font-size:12px;color:#8E8E93;margin-bottom:8px;';
+                  jDate2.textContent = journal.date || '';
+                  jBody2.appendChild(jDate2);
+                  var jContent2 = document.createElement('div');
+                  jContent2.className = 'memo-accordion-text';
+                  jContent2.textContent = journal.content || '';
+                  jBody2.appendChild(jContent2);
+                  jItem2.appendChild(jBody2);
+                  journalSection.appendChild(jItem2);
+                } else {
+                  errMsg.textContent = '答案错误';
+                  answerInput.value = '';
+                  answerInput.focus();
+                }
+              });
+              answerInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') confirmBtn.click();
+              });
+              modalContent.appendChild(confirmBtn);
+
+              modal.appendChild(modalContent);
+              setTimeout(function() { answerInput.focus(); }, 100);
+            });
+          } else {
+            // 普通日志
+            jHeader.textContent = journal.title;
+            jHeader.addEventListener('click', function() {
+              var jBody = jItem.querySelector('.memo-accordion-body');
+              var isOpen = jBody.style.maxHeight && jBody.style.maxHeight !== '0px';
+              if (isOpen) {
+                jBody.style.maxHeight = '0px';
+                jHeader.classList.remove('open');
+              } else {
+                jBody.style.maxHeight = jBody.scrollHeight + 'px';
+                jHeader.classList.add('open');
+              }
+            });
+          }
           jItem.appendChild(jHeader);
 
-          var jBody = document.createElement('div');
-          jBody.className = 'memo-accordion-body';
-          jBody.style.maxHeight = '0px';
+          if (!journal.locked) {
+            var jBody = document.createElement('div');
+            jBody.className = 'memo-accordion-body';
+            jBody.style.maxHeight = '0px';
 
-          var jDate = document.createElement('div');
-          jDate.style.cssText = 'font-size:12px;color:#8E8E93;margin-bottom:8px;';
-          jDate.textContent = journal.date || '';
-          jBody.appendChild(jDate);
+            var jDate = document.createElement('div');
+            jDate.style.cssText = 'font-size:12px;color:#8E8E93;margin-bottom:8px;';
+            jDate.textContent = journal.date || '';
+            jBody.appendChild(jDate);
 
-          var jContent = document.createElement('div');
-          jContent.className = 'memo-accordion-text';
-          jContent.textContent = journal.content || '';
-          jBody.appendChild(jContent);
+            var jContent = document.createElement('div');
+            jContent.className = 'memo-accordion-text';
+            jContent.textContent = journal.content || '';
+            jBody.appendChild(jContent);
 
-          jItem.appendChild(jBody);
+            jItem.appendChild(jBody);
+          }
+
           journalSection.appendChild(jItem);
         });
 
@@ -2613,13 +2875,13 @@
 
           // 昵称
           var pUser = document.createElement('div');
-          pUser.style.cssText = 'font-size:14px;font-weight:600;color:#3A3A3A;margin-bottom:4px;';
+          pUser.style.cssText = 'font-size:14px;font-weight:600;color:#6B5340;margin-bottom:4px;';
           pUser.textContent = data.nickname || '';
           pCard.appendChild(pUser);
 
           // 文字内容（支持 @mention 点击）
           var pText = document.createElement('div');
-          pText.style.cssText = 'font-size:15px;color:#1C1C1E;line-height:1.5;margin-bottom:4px;';
+          pText.style.cssText = 'font-size:15px;color:#6B5340;line-height:1.5;margin-bottom:4px;';
           if (post.mentionTarget) {
             // 分割 @mention
             var mentionRegex = /@(\S+)\s/;
@@ -2653,7 +2915,7 @@
           if (post.replies && post.replies.length > 0) {
             post.replies.forEach(function(reply) {
               var rEl = document.createElement('div');
-              rEl.style.cssText = 'font-size:13px;color:#3A3A3A;padding:3px 0;' + (reply.isReply ? 'padding-left:16px;' : '');
+              rEl.style.cssText = 'font-size:13px;color:#6B5340;padding:3px 0;' + (reply.isReply ? 'padding-left:16px;' : '');
               if (reply.bold) rEl.style.fontWeight = '700';
               var rUser = document.createElement('span');
               rUser.style.fontWeight = '600';
@@ -2692,7 +2954,7 @@
           var aInfo = document.createElement('div');
           aInfo.style.cssText = 'flex:1;';
           var aTitle = document.createElement('div');
-          aTitle.style.cssText = 'font-size:15px;font-weight:600;color:#3A3A3A;';
+          aTitle.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;';
           aTitle.textContent = album.title || '';
           aInfo.appendChild(aTitle);
           if (album.caption) {
@@ -2964,7 +3226,7 @@
         leftCol.style.cssText = 'flex:1;min-width:0;';
 
         const title = document.createElement('div');
-        title.style.cssText = 'font-size:16px;color:#1C1C1E;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+        title.style.cssText = 'font-size:16px;color:#6B5340;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
         title.textContent = post.title || '';
         leftCol.appendChild(title);
 
@@ -3050,12 +3312,12 @@
           pCard.style.cssText = 'padding:14px 20px;border-bottom:0.5px solid #F0F0F0;';
 
           var pUser = document.createElement('div');
-          pUser.style.cssText = 'font-size:14px;font-weight:600;color:#3A3A3A;margin-bottom:6px;';
+          pUser.style.cssText = 'font-size:14px;font-weight:600;color:#6B5340;margin-bottom:6px;';
           pUser.textContent = data.nickname || '';
           pCard.appendChild(pUser);
 
           var pText = document.createElement('div');
-          pText.style.cssText = 'font-size:15px;color:#1C1C1E;line-height:1.5;margin-bottom:6px;';
+          pText.style.cssText = 'font-size:15px;color:#6B5340;line-height:1.5;margin-bottom:6px;';
           pText.textContent = post.text;
           pCard.appendChild(pText);
 
@@ -3070,7 +3332,7 @@
             commentBox.style.cssText = 'background:#F7F7F7;border-radius:8px;padding:10px 12px;margin-top:8px;';
             post.comments.forEach(function(c) {
               var cEl = document.createElement('div');
-              cEl.style.cssText = 'font-size:13px;color:#3A3A3A;padding:2px 0;line-height:1.4;' + (c.isReply ? 'padding-left:12px;' : '');
+              cEl.style.cssText = 'font-size:13px;color:#6B5340;padding:2px 0;line-height:1.4;' + (c.isReply ? 'padding-left:12px;' : '');
               var cUser = document.createElement('span');
               cUser.style.cssText = 'color:#576B95;font-weight:500;';
               cUser.textContent = c.user;
@@ -3116,7 +3378,7 @@
           }
 
           var sidebarName = document.createElement('div');
-          sidebarName.style.cssText = 'font-size:15px;color:#3A3A3A;' + (item.bold ? 'font-weight:700;' : '');
+          sidebarName.style.cssText = 'font-size:15px;color:#6B5340;' + (item.bold ? 'font-weight:700;' : '');
           sidebarName.textContent = item.name;
           sidebarRow.appendChild(sidebarName);
 
@@ -3176,7 +3438,7 @@
       lockArea.appendChild(lockIcon);
 
       const lockTitle = document.createElement('div');
-      lockTitle.style.cssText = 'font-size:17px;font-weight:600;color:#1C1C1E;margin-bottom:6px;';
+      lockTitle.style.cssText = 'font-size:17px;font-weight:600;color:#6B5340;margin-bottom:6px;';
       lockTitle.textContent = '\u4F60\u65E0\u6CD5\u67E5\u770B\u8FD9\u4E9B\u5FAE\u535A';
       lockArea.appendChild(lockTitle);
 
@@ -3192,7 +3454,7 @@
       const navBar = container.querySelector('.page-header');
       if (navBar && data.loginTarget) {
         const loginBtn = document.createElement('span');
-        loginBtn.style.cssText = 'font-size:15px;color:#86E0C1;font-weight:600;cursor:pointer;margin-left:auto;';
+        loginBtn.style.cssText = 'font-size:15px;color:#5B9BD5;font-weight:600;cursor:pointer;margin-left:auto;';
         loginBtn.textContent = '\u767B\u5F55';
         loginBtn.addEventListener('click', function() { Router.navigate(data.loginTarget); });
         // 替换右侧占位符
@@ -3214,17 +3476,22 @@
       content.className = 'page-content';
       content.style.padding = '0';
 
-      // 商品图片区（3:2占位）
+      // 商品图片区
       const imgArea = document.createElement('div');
-      imgArea.style.cssText = 'width:100%;aspect-ratio:3/2;background:#F2F2F7;';
+      imgArea.style.cssText = 'width:100%;aspect-ratio:3/2;overflow:hidden;';
+      const productImg = document.createElement('img');
+      productImg.src = 'assets/camping-box.jpg';
+      productImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      productImg.alt = '露营箱';
+      imgArea.appendChild(productImg);
       content.appendChild(imgArea);
 
       // 商品信息区
       const infoArea = document.createElement('div');
-      infoArea.style.cssText = 'padding:16px;background:#FFFFFF;';
+      infoArea.style.cssText = 'padding:16px;background:#F5DEB3;';
 
       const titleEl = document.createElement('div');
-      titleEl.style.cssText = 'font-size:18px;color:#1C1C1E;font-weight:700;line-height:1.4;';
+      titleEl.style.cssText = 'font-size:18px;color:#6B5340;font-weight:700;line-height:1.4;';
       titleEl.textContent = page.data.name;
       infoArea.appendChild(titleEl);
 
@@ -3242,7 +3509,7 @@
       // 规格选择区
       if (page.data.specSelected) {
         const specArea = document.createElement('div');
-        specArea.style.cssText = 'margin:12px 16px;background:#F2F2F7;border-radius:10px;padding:12px;font-size:14px;color:#1C1C1E;';
+        specArea.style.cssText = 'margin:12px 16px;background:#F2F2F7;border-radius:10px;padding:12px;font-size:14px;color:#6B5340;';
         specArea.textContent = '已选：' + page.data.specSelected;
         content.appendChild(specArea);
       }
@@ -3250,12 +3517,12 @@
       // 商品详情
       if (page.data.details && page.data.details.length > 0) {
         const detailTitle = document.createElement('div');
-        detailTitle.style.cssText = 'padding:16px 16px 8px;font-size:16px;color:#1C1C1E;font-weight:700;';
+        detailTitle.style.cssText = 'padding:16px 16px 8px;font-size:16px;color:#6B5340;font-weight:700;';
         detailTitle.textContent = '商品详情';
         content.appendChild(detailTitle);
 
         const detailCard = document.createElement('div');
-        detailCard.style.cssText = 'padding:0 16px 16px;background:#FFFFFF;';
+        detailCard.style.cssText = 'padding:0 16px 16px;background:#F5DEB3;';
         page.data.details.forEach(d => {
           const row = document.createElement('div');
           row.style.cssText = 'display:flex;padding:8px 0;border-bottom:0.5px solid #F0F0F0;font-size:14px;';
@@ -3263,7 +3530,7 @@
           label.style.cssText = 'color:#8E8E93;width:60px;flex-shrink:0;';
           label.textContent = d.label;
           const value = document.createElement('span');
-          value.style.cssText = 'color:#1C1C1E;';
+          value.style.cssText = 'color:#6B5340;';
           value.textContent = d.value;
           row.appendChild(label);
           row.appendChild(value);
@@ -3275,20 +3542,20 @@
       // 买家评价
       if (page.data.reviews && page.data.reviews.length > 0) {
         const reviewTitle = document.createElement('div');
-        reviewTitle.style.cssText = 'padding:16px 16px 8px;font-size:16px;color:#1C1C1E;font-weight:700;';
+        reviewTitle.style.cssText = 'padding:16px 16px 8px;font-size:16px;color:#6B5340;font-weight:700;';
         reviewTitle.textContent = '买家评价';
         content.appendChild(reviewTitle);
 
         const reviewCard = document.createElement('div');
-        reviewCard.style.cssText = 'padding:0 16px 16px;background:#FFFFFF;';
+        reviewCard.style.cssText = 'padding:0 16px 16px;background:#F5DEB3;';
         page.data.reviews.forEach(r => {
           const item = document.createElement('div');
           item.style.cssText = 'padding:12px 0;border-bottom:0.5px solid #F0F0F0;';
           const userEl = document.createElement('div');
-          userEl.style.cssText = 'font-size:14px;color:#1C1C1E;font-weight:500;';
+          userEl.style.cssText = 'font-size:14px;color:#6B5340;font-weight:500;';
           userEl.textContent = r.user;
           const textEl = document.createElement('div');
-          textEl.style.cssText = 'font-size:14px;color:#1C1C1E;margin-top:4px;line-height:1.5;';
+          textEl.style.cssText = 'font-size:14px;color:#6B5340;margin-top:4px;line-height:1.5;';
           textEl.textContent = r.text;
           const likesEl = document.createElement('div');
           likesEl.style.cssText = 'font-size:12px;color:#8E8E93;margin-top:4px;';
@@ -3303,12 +3570,12 @@
 
       // 底部按钮区
       const btnArea = document.createElement('div');
-      btnArea.style.cssText = 'padding:12px 16px;background:#FFFFFF;display:flex;gap:12px;';
+      btnArea.style.cssText = 'padding:12px 16px;background:#F5DEB3;display:flex;gap:12px;';
       const addCartBtn = document.createElement('div');
-      addCartBtn.style.cssText = 'flex:1;height:44px;border-radius:20px;background:#86E0C1;color:#FFFFFF;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;';
+      addCartBtn.style.cssText = 'flex:1;height:44px;border-radius:20px;background:#5B9BD5;color:#FFFFFF;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;';
       addCartBtn.textContent = '加入购物车';
       const buyBtn = document.createElement('div');
-      buyBtn.style.cssText = 'flex:1;height:44px;border-radius:20px;border:1px solid #86E0C1;color:#86E0C1;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;';
+      buyBtn.style.cssText = 'flex:1;height:44px;border-radius:20px;border:1px solid #5B9BD5;color:#5B9BD5;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;';
       buyBtn.textContent = '立即购买';
       btnArea.appendChild(addCartBtn);
       btnArea.appendChild(buyBtn);
@@ -3337,7 +3604,7 @@
       infoCard.style.cssText = 'padding:16px;background:#fff;';
 
       const nameEl = document.createElement('div');
-      nameEl.style.cssText = 'font-size:18px;font-weight:700;color:#1C1C1E;';
+      nameEl.style.cssText = 'font-size:18px;font-weight:700;color:#6B5340;';
       nameEl.textContent = page.data.subtitle || page.data.title || '';
       infoCard.appendChild(nameEl);
 
@@ -3365,7 +3632,7 @@
         label.style.cssText = 'color:#8E8E93;width:70px;flex-shrink:0;';
         label.textContent = info.label;
         var value = document.createElement('span');
-        value.style.cssText = 'color:#1C1C1E;';
+        value.style.cssText = 'color:#6B5340;';
         value.textContent = info.value;
         row.appendChild(label);
         row.appendChild(value);
@@ -3380,7 +3647,7 @@
         recCard.style.cssText = 'padding:16px;background:#fff;margin-top:8px;';
 
         var recTitle = document.createElement('div');
-        recTitle.style.cssText = 'font-size:16px;font-weight:600;color:#1C1C1E;margin-bottom:10px;';
+        recTitle.style.cssText = 'font-size:16px;font-weight:600;color:#6B5340;margin-bottom:10px;';
         recTitle.textContent = '推荐菜';
         recCard.appendChild(recTitle);
 
@@ -3429,7 +3696,7 @@
       const today = 13;
 
       const monthTitle = document.createElement('div');
-      monthTitle.style.cssText = 'text-align:center;font-size:17px;font-weight:600;color:#3A3A3A;padding:16px 0 12px;';
+      monthTitle.style.cssText = 'text-align:center;font-size:17px;font-weight:600;color:#6B5340;padding:16px 0 12px;';
       monthTitle.textContent = year + '年' + month + '月';
       content.appendChild(monthTitle);
 
@@ -3446,8 +3713,15 @@
       const firstDay = new Date(year, month - 1, 1).getDay();
       const daysInMonth = new Date(year, month, 0).getDate();
 
+      // 事件详情区域（显示在日历下方）
+      const eventDetail = document.createElement('div');
+      eventDetail.id = 'calendar-event-detail';
+      eventDetail.style.cssText = 'display:none;padding:16px 20px;border-top:0.5px solid #E5E5EA;background:#fff;min-height:80px;';
+
       const grid = document.createElement('div');
       grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 8px;';
+
+      let selectedCell = null;
 
       for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement('div');
@@ -3456,23 +3730,52 @@
 
       for (let d = 1; d <= daysInMonth; d++) {
         const cell = document.createElement('div');
-        cell.style.cssText = 'position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-size:15px;color:#3A3A3A;border-radius:50%;';
+        cell.style.cssText = 'position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-size:15px;color:#6B5340;border-radius:50%;cursor:pointer;transition:background 0.15s;';
 
         if (d === today) {
-          cell.style.background = '#86E0C1';
+          cell.style.background = '#5B9BD5';
           cell.style.fontWeight = '600';
+          cell.style.color = '#fff';
         }
 
         if (marked[d]) {
           const dot = document.createElement('span');
           dot.style.cssText = 'position:absolute;top:2px;right:2px;width:6px;height:6px;background:#FF3B30;border-radius:50%;';
           cell.appendChild(dot);
-
-          cell.style.cursor = 'pointer';
-          cell.addEventListener('click', () => {
-            Toast.show(marked[d]);
-          });
         }
+
+        cell.addEventListener('click', () => {
+          // 清除之前选中状态
+          if (selectedCell && selectedCell !== cell) {
+            selectedCell.style.outline = 'none';
+          }
+          // 选中当前日期
+          selectedCell = cell;
+          cell.style.outline = '2px solid #5B9BD5';
+          cell.style.outlineOffset = '-2px';
+
+          // 显示事件详情
+          eventDetail.style.display = 'block';
+          eventDetail.innerHTML = '';
+
+          const dateStr = month + '月' + d + '日';
+          const dateLabel = document.createElement('div');
+          dateLabel.style.cssText = 'font-size:15px;font-weight:600;color:#3C3C43;margin-bottom:8px;';
+          dateLabel.textContent = dateStr;
+          eventDetail.appendChild(dateLabel);
+
+          if (marked[d]) {
+            const eventText = document.createElement('div');
+            eventText.style.cssText = 'font-size:14px;color:#6B5340;line-height:1.5;padding:12px 16px;background:#F7F7F7;border-radius:10px;';
+            eventText.textContent = marked[d];
+            eventDetail.appendChild(eventText);
+          } else {
+            const noEvent = document.createElement('div');
+            noEvent.style.cssText = 'font-size:14px;color:#8E8E93;';
+            noEvent.textContent = '暂无日程';
+            eventDetail.appendChild(noEvent);
+          }
+        });
 
         const num = document.createElement('span');
         num.textContent = d;
@@ -3481,6 +3784,7 @@
       }
 
       content.appendChild(grid);
+      content.appendChild(eventDetail);
       container.appendChild(content);
     },
 
@@ -3569,7 +3873,7 @@
 
         if (photo.special) {
           const special = document.createElement('div');
-          special.style.cssText = 'font-size:14px;color:#86E0C1;margin-bottom:6px;';
+          special.style.cssText = 'font-size:14px;color:#5B9BD5;margin-bottom:6px;';
           special.textContent = photo.special;
           infoArea.appendChild(special);
         }
@@ -3615,7 +3919,7 @@
 
       if (page.data.title) {
         const title = document.createElement('div');
-        title.style.cssText = 'font-size:17px;font-weight:600;color:#3A3A3A;margin-bottom:20px;';
+        title.style.cssText = 'font-size:17px;font-weight:600;color:#6B5340;margin-bottom:20px;';
         title.textContent = page.data.title;
         card.appendChild(title);
       }
@@ -3626,7 +3930,7 @@
 
       options.forEach(opt => {
         const btn = document.createElement('div');
-        btn.style.cssText = 'background:#86E0C1;color:#fff;font-size:17px;font-weight:600;text-align:center;line-height:50px;border-radius:14px;height:50px;cursor:pointer;';
+        btn.style.cssText = 'background:#5B9BD5;color:#fff;font-size:17px;font-weight:600;text-align:center;line-height:50px;border-radius:14px;height:50px;cursor:pointer;';
         btn.textContent = opt.text || '';
 
         if (opt.subtext) {
@@ -3693,7 +3997,11 @@
         topRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;';
 
         const senderEl = document.createElement('div');
-        senderEl.style.cssText = 'font-size:17px;color:#1C1C1E;font-weight:400;';
+        senderEl.style.cssText = 'font-size:17px;color:#6B5340;font-weight:400;';
+        // bold数组中的关键词同时加粗发件人名称
+        if (item.bold && item.bold.includes(item.sender)) {
+          senderEl.style.fontWeight = '700';
+        }
         senderEl.textContent = item.sender;
 
         const dateEl = document.createElement('div');
@@ -3745,14 +4053,14 @@
       container.appendChild(this.createHeader(item.sender));
 
       const chatArea = document.createElement('div');
-      chatArea.style.cssText = 'flex:1;overflow-y:auto;background:#FFFFFF;padding:16px;';
+      chatArea.style.cssText = 'flex:1;overflow-y:auto;background:#fff;padding:16px;';
 
       // 对方气泡
       const wrapper = document.createElement('div');
       wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;margin-bottom:8px;';
 
       const bubble = document.createElement('div');
-      bubble.style.cssText = 'max-width:75%;padding:10px 14px;border-radius:18px;font-size:16px;line-height:1.5;word-break:break-word;background:#E9E9EB;color:#1C1C1E;border-bottom-left-radius:4px;';
+      bubble.style.cssText = 'max-width:75%;padding:10px 14px;border-radius:18px;font-size:16px;line-height:1.5;word-break:break-word;background:#E9E9EB;color:#6B5340;border-bottom-left-radius:4px;';
 
       if (item.bold && item.fullText) {
         let html = item.fullText;
@@ -3873,7 +4181,7 @@
             ownName.style.cssText = 'font-size:13px;color:#8E8E93;margin-bottom:4px;';
             ownName.textContent = '本机';
             const ownNumber = document.createElement('div');
-            ownNumber.style.cssText = 'font-size:17px;color:#1C1C1E;font-weight:600;';
+            ownNumber.style.cssText = 'font-size:17px;color:#6B5340;font-weight:600;';
             ownNumber.textContent = page.data.ownNumber;
             const ownLabel = document.createElement('div');
             ownLabel.style.cssText = 'font-size:13px;color:#8E8E93;margin-top:2px;';
@@ -3898,7 +4206,7 @@
             info.style.flex = '1';
 
             const name = document.createElement('div');
-            name.style.cssText = 'font-size:17px;color:#1C1C1E;font-weight:400;';
+            name.style.cssText = 'font-size:17px;color:#6B5340;font-weight:400;';
             name.textContent = contact.name;
 
             const phone = document.createElement('div');
@@ -3971,7 +4279,7 @@
         const items = group.items || [];
         items.forEach(item => {
           const card = document.createElement('div');
-          card.style.cssText = 'background:#FFFFFF;margin:0 12px 8px;border-radius:10px;padding:12px;';
+          card.style.cssText = 'background:#F5DEB3;margin:0 12px 8px;border-radius:10px;padding:12px;';
 
           const row = document.createElement('div');
           row.style.cssText = 'display:flex;align-items:center;gap:10px;';
@@ -3986,7 +4294,7 @@
           info.style.cssText = 'flex:1;min-width:0;';
 
           const nameEl = document.createElement('div');
-          nameEl.style.cssText = 'font-size:14px;color:#1C1C1E;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;' + (item.bold ? 'font-weight:600;' : '');
+          nameEl.style.cssText = 'font-size:14px;color:#6B5340;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;' + (item.bold ? 'font-weight:600;' : '');
           nameEl.textContent = item.name;
 
           const metaRow = document.createElement('div');
@@ -4066,7 +4374,7 @@
         post.appendChild(dateEl);
 
         const textEl = document.createElement('div');
-        textEl.style.cssText = 'font-size:15px;color:#1C1C1E;line-height:1.5;';
+        textEl.style.cssText = 'font-size:15px;color:#6B5340;line-height:1.5;';
         textEl.textContent = item.text || '';
         post.appendChild(textEl);
 
@@ -4112,7 +4420,7 @@
 
         const titleEl = document.createElement('div');
         const isBold = item.clickable && item.bold;
-        titleEl.style.cssText = `font-size:15px;color:#1C1C1E;${isBold ? 'font-weight:600;' : ''}`;
+        titleEl.style.cssText = `font-size:15px;color:#6B5340;${isBold ? 'font-weight:600;' : ''}`;
         titleEl.textContent = item.title;
 
         topRow.appendChild(titleEl);
@@ -4174,7 +4482,7 @@
 
       // 右侧登录按钮
       const loginBtn = document.createElement('span');
-      loginBtn.style.cssText = 'font-size:15px;color:#86E0C1;cursor:pointer;font-weight:500;min-width:40px;text-align:right;';
+      loginBtn.style.cssText = 'font-size:15px;color:#5B9BD5;cursor:pointer;font-weight:500;min-width:40px;text-align:right;';
       loginBtn.textContent = '登录';
       if (page.data.loginTarget) {
         loginBtn.addEventListener('click', () => Router.navigate(page.data.loginTarget));
@@ -4245,11 +4553,11 @@
 
           const dot = document.createElement('span');
           dot.textContent = '\u00B7';
-          dot.style.cssText = 'font-size:16px;color:#1C1C1E;flex-shrink:0;';
+          dot.style.cssText = 'font-size:16px;color:#6B5340;flex-shrink:0;';
           titleRow.appendChild(dot);
 
           const titleText = document.createElement('span');
-          titleText.style.cssText = 'font-size:15px;color:#1C1C1E;flex:1;';
+          titleText.style.cssText = 'font-size:15px;color:#6B5340;flex:1;';
           titleText.textContent = post.title;
           titleRow.appendChild(titleText);
 
@@ -4281,7 +4589,7 @@
                 if (idx > 0) metaEl.appendChild(document.createTextNode(metaStr.substring(0, idx)));
                 const nickSpan = document.createElement('span');
                 nickSpan.textContent = nickname;
-                nickSpan.style.cssText = 'color:#86E0C1;cursor:pointer;font-weight:500;';
+                nickSpan.style.cssText = 'color:#5B9BD5;cursor:pointer;font-weight:500;';
                 nickSpan.addEventListener('click', () => Router.navigate(post.clickNicknameTarget, true, { prefillAccount: post.clickNickname }));
                 metaEl.appendChild(nickSpan);
                 const rest = metaStr.substring(idx + nickname.length);
@@ -4306,7 +4614,7 @@
 
     /**
      * 渲染论坛通用登录页（页面29）
-     * 支持 sessionStorage 账号保存与切换
+     * 支持 localStorage 账号保存与切换
      */
     renderForumLogin(page) {
       const container = document.getElementById('page-container');
@@ -4327,7 +4635,7 @@
       // 读取已保存账号
       let savedAccounts = [];
       try {
-        savedAccounts = JSON.parse(sessionStorage.getItem(storageKey)) || [];
+        savedAccounts = JSON.parse(localStorage.getItem(storageKey)) || [];
       } catch(e) { savedAccounts = []; }
 
       // 确定当前选中账号
@@ -4356,7 +4664,7 @@
 
       // 标题
       const titleLabel = document.createElement('div');
-      titleLabel.style.cssText = 'text-align:center;font-size:20px;font-weight:700;color:#3A3A3A;margin-bottom:24px;';
+      titleLabel.style.cssText = 'text-align:center;font-size:20px;font-weight:700;color:#6B5340;margin-bottom:24px;';
       titleLabel.textContent = data.title || '\u767B\u5F55';
       card.appendChild(titleLabel);
 
@@ -4373,7 +4681,7 @@
 
       const accountDisplay = document.createElement('div');
       accountDisplay.id = 'forum-login-account-display';
-      accountDisplay.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#F2F2F7;border-radius:10px;font-size:15px;color:#3A3A3A;';
+      accountDisplay.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#F2F2F7;border-radius:10px;font-size:15px;color:#6B5340;';
       if (currentAccount) {
         accountDisplay.textContent = currentAccount;
         if (savedAccounts.length > 1) {
@@ -4489,11 +4797,11 @@
 
       function saveAccount(username, password) {
         var list = [];
-        try { list = JSON.parse(sessionStorage.getItem(storageKey)) || []; } catch(e) {}
+        try { list = JSON.parse(localStorage.getItem(storageKey)) || []; } catch(e) {}
         var idx = list.findIndex(function(a) { return a.username === username; });
         var entry = { username: username, password: password, lastLogin: Date.now() };
         if (idx >= 0) { list[idx] = entry; } else { list.push(entry); }
-        sessionStorage.setItem(storageKey, JSON.stringify(list));
+        localStorage.setItem(storageKey, JSON.stringify(list));
       }
 
       function showAccountSwitcher() {
@@ -4504,7 +4812,7 @@
         modal.style.cssText = 'background:#fff;border-radius:20px;padding:20px;width:280px;max-width:85vw;animation:scaleIn 0.2s ease-out;';
 
         var modalTitle = document.createElement('div');
-        modalTitle.style.cssText = 'text-align:center;font-size:17px;font-weight:600;color:#3A3A3A;margin-bottom:16px;';
+        modalTitle.style.cssText = 'text-align:center;font-size:17px;font-weight:600;color:#6B5340;margin-bottom:16px;';
         modalTitle.textContent = '\u9009\u62E9\u8981\u767B\u5F55\u7684\u8D26\u53F7';
         modal.appendChild(modalTitle);
 
@@ -4515,12 +4823,12 @@
           var isSelected = account.username === currentAccount;
           var dot = document.createElement('span');
           dot.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid ' +
-            (isSelected ? '#86E0C1' : '#8E8E93') + ';margin-right:12px;flex-shrink:0;' +
-            (isSelected ? 'background:#86E0C1;' : '');
+            (isSelected ? '#5B9BD5' : '#8E8E93') + ';margin-right:12px;flex-shrink:0;' +
+            (isSelected ? 'background:#5B9BD5;' : '');
           row.appendChild(dot);
 
           var name = document.createElement('span');
-          name.style.cssText = 'font-size:16px;color:#3A3A3A;';
+          name.style.cssText = 'font-size:16px;color:#6B5340;';
           name.textContent = account.username;
           row.appendChild(name);
 
@@ -4669,7 +4977,7 @@
           radio.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid #C7C7CC;margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;';
 
           const label = document.createElement('span');
-          label.style.cssText = 'font-size:15px;color:#1C1C1E;';
+          label.style.cssText = 'font-size:15px;color:#6B5340;';
           label.textContent = item.text || '';
 
           row.appendChild(radio);
@@ -4683,7 +4991,7 @@
         for (let i = 0; i < rows.length; i++) {
           const radio = rows[i].firstChild;
           if (i === selectedIndex) {
-            radio.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid #86E0C1;background:#86E0C1;margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;';
+            radio.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid #5B9BD5;background:#5B9BD5;margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;';
             radio.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:#fff;"></div>';
           } else {
             radio.style.cssText = 'width:22px;height:22px;border-radius:50%;border:2px solid #C7C7CC;margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;';
@@ -4705,7 +5013,13 @@
 
       // 实时搜索（非只读时）
       if (!searchInput.readOnly) {
-        searchInput.addEventListener('input', doSearch);
+        searchInput.addEventListener('input', () => {
+          doSearch();
+          // 实时保存搜索关键词
+          const savedKey = 'saved_search_' + page.id;
+          window.gameData.state[savedKey] = searchInput.value.trim();
+          StateSaver.save();
+        });
       }
 
       // 确认按钮
@@ -4714,20 +5028,30 @@
           Toast.show('请先选择一个地址');
           return;
         }
+        // 保存搜索关键词
+        const savedKey = 'saved_search_' + page.id;
+        window.gameData.state[savedKey] = searchInput.value.trim();
+        StateSaver.save();
+
         const selectedItem = matchedItems[selectedIndex];
-        if (selectedItem.correct) {
-          const target = page.data.correctTarget;
-          if (target) Router.navigate(target);
-        } else {
-          Modal.show('提示', page.data.errorMessage || '选择错误', [
-            { text: '确定', onClick: () => {} }
-          ]);
+        const target = page.data.correctTarget;
+        if (target) {
+          // 传入柜机是否正确的标记
+          Router.navigate(target, true, { correctAddress: !!selectedItem.correct });
         }
       });
 
       // 初始渲染
       if (searchInput.readOnly && searchInput.value) {
         doSearch();
+      } else {
+        // 恢复之前保存的搜索关键词
+        const savedKey = 'saved_search_' + page.id;
+        const savedSearch = window.gameData.state[savedKey];
+        if (savedSearch) {
+          searchInput.value = savedSearch;
+          doSearch();
+        }
       }
 
       container.appendChild(content);
@@ -4743,7 +5067,7 @@
 
       const content = document.createElement('div');
       content.className = 'page-content';
-      content.style.cssText = 'padding:40px 16px;display:flex;flex-direction:column;align-items:center;';
+      content.style.cssText = 'padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 120px);';
 
       // 柜机地址信息
       if (page.data.address) {
@@ -4795,20 +5119,45 @@
       function checkCode() {
         const code = inputs.map(inp => inp.value).join('');
         if (code.length === 6) {
+          const navParams = window.gameData.state._navParams || {};
+          const correctAddress = navParams.correctAddress !== false; // 默认true
           const correctCode = page.data.code || page.data.correctCode;
-          if (correctCode && code.toLowerCase() === correctCode.toLowerCase()) {
+
+          if (correctAddress && correctCode && code.toLowerCase() === correctCode.toLowerCase()) {
             // 正确
             if (page.data.setHasCoin) {
               window.gameData.state.hasCoin = true;
+              StateSaver.save();
             }
-            Modal.show(
-              page.data.successTitle || '验证成功',
-              page.data.successContent || '验证码正确',
-              [{ text: page.data.successBtnText || '确定', onClick: () => {} }]
-            );
+            // 自定义弹窗带图片
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;';
+            const modal = document.createElement('div');
+            modal.style.cssText = 'background:#fff;border-radius:16px;padding:24px 20px 20px;width:280px;text-align:center;';
+            const img = document.createElement('img');
+            img.src = 'assets/coin-gift.jpg';
+            img.style.cssText = 'width:100%;border-radius:10px;margin-bottom:16px;';
+            img.alt = '金币礼物';
+            modal.appendChild(img);
+            const title = document.createElement('div');
+            title.style.cssText = 'font-size:17px;font-weight:600;color:#6B5340;margin-bottom:8px;';
+            title.textContent = page.data.successTitle || '验证成功';
+            modal.appendChild(title);
+            const desc = document.createElement('div');
+            desc.style.cssText = 'font-size:14px;color:#8E8E93;margin-bottom:16px;line-height:1.5;';
+            desc.textContent = page.data.successContent || '验证码正确';
+            modal.appendChild(desc);
+            const btn = document.createElement('button');
+            btn.className = 'form-btn';
+            btn.textContent = page.data.successBtnText || '确定';
+            btn.addEventListener('click', () => { document.body.removeChild(overlay); });
+            modal.appendChild(btn);
+            overlay.appendChild(modal);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) document.body.removeChild(overlay); });
+            document.body.appendChild(overlay);
           } else {
             // 错误
-            Modal.show('提示', page.data.errorMessage || '验证码错误', [
+            Modal.show('提示', '取件码无效', [
               {
                 text: '重新输入',
                 onClick: () => {
@@ -4836,10 +5185,14 @@
       content.className = 'page-content';
       content.style.padding = '0';
 
-      // 地图占位（灰色矩形）
+      // 地图图片
       const mapPlaceholder = document.createElement('div');
-      mapPlaceholder.style.cssText = 'width:100%;height:240px;background:#E5E5EA;display:flex;align-items:center;justify-content:center;color:#AEAEB2;font-size:15px;';
-      mapPlaceholder.textContent = page.data.mapPlaceholder || '地图加载中...';
+      mapPlaceholder.style.cssText = 'width:100%;height:240px;overflow:hidden;';
+      const mapImg = document.createElement('img');
+      mapImg.src = 'assets/map-qingtai.jpg';
+      mapImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      mapImg.alt = '青苔巷地图';
+      mapPlaceholder.appendChild(mapImg);
       content.appendChild(mapPlaceholder);
 
       // 信息卡片
@@ -4847,7 +5200,7 @@
       card.style.cssText = 'margin:12px 16px;padding:16px;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.08);';
 
       const nameEl = document.createElement('div');
-      nameEl.style.cssText = 'font-size:17px;font-weight:600;color:#1C1C1E;margin-bottom:6px;';
+      nameEl.style.cssText = 'font-size:17px;font-weight:600;color:#6B5340;margin-bottom:6px;';
       nameEl.textContent = page.data.name || '';
       card.appendChild(nameEl);
 
@@ -4887,7 +5240,7 @@
       categories.forEach(category => {
         // 分类标题
         const catTitle = document.createElement('div');
-        catTitle.style.cssText = 'font-size:15px;font-weight:600;color:#1C1C1E;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid #E5E5EA;';
+        catTitle.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid #E5E5EA;';
         catTitle.textContent = category.title;
         content.appendChild(catTitle);
 
@@ -4899,7 +5252,7 @@
           row.style.justifyContent = 'space-between';
 
           const enName = document.createElement('div');
-          enName.style.cssText = 'font-size:15px;color:#1C1C1E;';
+          enName.style.cssText = 'font-size:15px;color:#6B5340;';
           enName.textContent = item.en;
 
           const cnName = document.createElement('div');
@@ -4922,13 +5275,22 @@
     renderFinale(page) {
       const container = document.getElementById('page-container');
       const self = this;
+
+      // 每次从外部导航进入时重置为search阶段
+      if (!page.data._internalNav) {
+        page.data.phase = 'search';
+        page.data._internalNav = false;
+      }
+
+      try {
       container.appendChild(this.createHeader(page.title));
 
       const content = document.createElement('div');
       content.className = 'page-content';
-      content.style.padding = '0';
+      content.style.cssText = 'padding:0;background:#fff;';
 
       const phase = page.data.phase || 'search';
+      console.log('[renderFinale] phase:', phase, 'mapCard:', !!page.data.mapCard);
 
       if (phase === 'search') {
         // 搜索结果列表 + 地图卡片
@@ -4941,7 +5303,7 @@
           row.style.borderBottom = '0.5px solid #E6E2D3';
 
           const titleEl = document.createElement('div');
-          titleEl.style.cssText = 'font-size:15px;color:#1C1C1E;font-weight:500;';
+          titleEl.style.cssText = 'font-size:15px;color:#6B5340;font-weight:500;';
           titleEl.textContent = item.title;
           row.appendChild(titleEl);
 
@@ -4963,17 +5325,30 @@
         // 地图卡片
         if (page.data.mapCard) {
           const mapCard = document.createElement('div');
-          mapCard.style.cssText = 'margin:12px 16px;padding:16px;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.08);';
+          mapCard.style.cssText = 'margin:12px 16px;padding:0;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.08);overflow:hidden;';
+
+          // 地图图片
+          const mapImgWrap = document.createElement('div');
+          mapImgWrap.style.cssText = 'width:100%;height:200px;overflow:hidden;';
+          const mapImg = document.createElement('img');
+          mapImg.src = 'assets/map-qingtai.jpg';
+          mapImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+          mapImg.alt = '青苔巷地图';
+          mapImgWrap.appendChild(mapImg);
+          mapCard.appendChild(mapImgWrap);
+
+          const mapInfo = document.createElement('div');
+          mapInfo.style.padding = '16px';
 
           const mapTitle = document.createElement('div');
-          mapTitle.style.cssText = 'font-size:15px;font-weight:600;color:#1C1C1E;margin-bottom:8px;';
+          mapTitle.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;margin-bottom:8px;';
           mapTitle.textContent = page.data.mapCard.title || '';
-          mapCard.appendChild(mapTitle);
+          mapInfo.appendChild(mapTitle);
 
           const mapDesc = document.createElement('div');
           mapDesc.style.cssText = 'font-size:13px;color:#8E8E93;';
           mapDesc.textContent = page.data.mapCard.desc || '';
-          mapCard.appendChild(mapDesc);
+          mapInfo.appendChild(mapDesc);
 
           // 导航按钮
           const navBtn = document.createElement('button');
@@ -4987,8 +5362,10 @@
               page.data.phase = 'prepare';
               page.data.text = page.data.preparationContent || '';
               page.data.buttons = [
+                { text: '返回', primary: false, action: 'goHome' },
                 { text: '前往青苔巷', primary: true, action: 'switch-scene' }
               ];
+              page.data._internalNav = true;
               // 重新渲染
               container.innerHTML = '';
               self.renderFinale(page);
@@ -4998,35 +5375,46 @@
               ]);
             }
           });
-          mapCard.appendChild(navBtn);
+          mapInfo.appendChild(navBtn);
+          mapCard.appendChild(mapInfo);
 
           content.appendChild(mapCard);
         }
       } else if (phase === 'prepare') {
-        // 准备页面：显示文案 + 两个按钮
+        // 准备页面：标题 + 文案 + 按钮
+        if (page.data.prepareTitle) {
+          const titleEl = document.createElement('div');
+          titleEl.style.cssText = 'font-size:22px;font-weight:700;color:#6B5340;text-align:center;padding:24px 16px 12px;';
+          titleEl.textContent = page.data.prepareTitle;
+          content.appendChild(titleEl);
+        }
+
         const textEl = document.createElement('div');
-        textEl.style.cssText = 'font-size:15px;color:#3C3C43;line-height:1.8;padding:20px 16px;text-align:center;';
+        textEl.style.cssText = 'font-size:15px;color:#3C3C43;line-height:1.8;padding:8px 16px 20px;text-align:center;white-space:pre-wrap;';
         textEl.textContent = page.data.text || '';
         content.appendChild(textEl);
 
         const btnContainer = document.createElement('div');
-        btnContainer.style.cssText = 'padding:0 16px;display:flex;gap:12px;';
+        btnContainer.style.cssText = 'padding:0 16px 24px;display:flex;gap:12px;';
 
         const buttons = page.data.buttons || [];
         buttons.forEach(btn => {
           const button = document.createElement('button');
           button.className = 'form-btn';
-          button.style.cssText = `flex:1;${btn.primary ? '' : 'background:#E5E5EA;color:#1C1C1E;'}`;
+          button.style.cssText = `flex:1;${btn.primary ? '' : 'background:#E5E5EA;color:#6B5340;'}`;
           button.textContent = btn.text;
           button.addEventListener('click', () => {
             if (btn.action === 'switch-scene') {
               // 切换到场景阶段
               page.data.phase = 'scene';
               page.data.text = page.data.sceneText || '';
-              page.data.btnText = '确认';
-              page.data.errorMessage = '不对。再想想。';
+              page.data.btnText = '念出龙语';
+              page.data.errorMessage = page.data.errorMessage || '辉光没有变化。再想想那个词。';
+              page.data._internalNav = true;
               container.innerHTML = '';
               self.renderFinale(page);
+            } else if (btn.action === 'goHome') {
+              Router.goHome();
             } else if (btn.target) {
               Router.navigate(btn.target);
             }
@@ -5036,9 +5424,22 @@
 
         content.appendChild(btnContainer);
       } else if (phase === 'scene') {
-        // 场景页面：显示文案 + 输入框 + 按钮
+        // 如果龙语已通过，直接触发结局动画
+        if (window.gameData.state.dragonLanguagePassed) {
+          self.triggerFinaleAnimation(container, page);
+          container.appendChild(content);
+          return;
+        }
+        // 场景页面：标题 + 文案 + 输入框 + 按钮
+        if (page.data.sceneTitle) {
+          const titleEl = document.createElement('div');
+          titleEl.style.cssText = 'font-size:22px;font-weight:700;color:#6B5340;text-align:center;padding:24px 16px 12px;';
+          titleEl.textContent = page.data.sceneTitle;
+          content.appendChild(titleEl);
+        }
+
         const textEl = document.createElement('div');
-        textEl.style.cssText = 'font-size:15px;color:#3C3C43;line-height:1.8;padding:20px 16px;text-align:center;';
+        textEl.style.cssText = 'font-size:15px;color:#3C3C43;line-height:1.8;padding:8px 16px 20px;text-align:center;white-space:pre-wrap;';
         textEl.textContent = page.data.text || '';
         content.appendChild(textEl);
 
@@ -5052,21 +5453,53 @@
         inputGroup.appendChild(input);
         content.appendChild(inputGroup);
 
+        const btnContainer = document.createElement('div');
+        btnContainer.style.cssText = 'padding:0 16px 24px;display:flex;gap:12px;';
+
+        // 返回按钮
+        const backBtn = document.createElement('button');
+        backBtn.className = 'form-btn';
+        backBtn.style.cssText = 'flex:1;background:#E5E5EA;color:#6B5340;';
+        backBtn.textContent = '返回';
+        backBtn.addEventListener('click', () => {
+          page.data.phase = 'prepare';
+          page.data.text = page.data.preparationContent || '';
+          page.data.buttons = [
+            { text: '返回', primary: false, action: 'goHome' },
+            { text: '前往青苔巷', primary: true, action: 'switch-scene' }
+          ];
+          page.data._internalNav = true;
+          container.innerHTML = '';
+          self.renderFinale(page);
+        });
+        btnContainer.appendChild(backBtn);
+
+        // 念出龙语按钮
         const submitBtn = document.createElement('button');
         submitBtn.className = 'form-btn';
-        submitBtn.style.cssText = 'margin:0 16px;';
-        submitBtn.textContent = page.data.btnText || '确认';
+        submitBtn.style.cssText = 'flex:1;';
+        submitBtn.textContent = page.data.btnText || '念出龙语';
         submitBtn.addEventListener('click', () => {
           const val = input.value.trim();
+          if (!val) {
+            Toast.show('请输入龙语');
+            return;
+          }
           const correctAnswer = page.data.correctAnswer || 'luminar';
           if (val.toLowerCase() === correctAnswer.toLowerCase()) {
+            // 保存龙语已通过
+            window.gameData.state.dragonLanguagePassed = true;
+            StateSaver.save();
             // 触发结局动画
             self.triggerFinaleAnimation(container, page);
           } else {
-            Toast.show(page.data.errorMessage || '输入错误');
+            Modal.show('提示', page.data.errorMessage || '辉光没有变化。再想想那个词。', [
+              { text: '确定', onClick: () => { input.value = ''; input.focus(); } }
+            ]);
           }
         });
-        content.appendChild(submitBtn);
+        btnContainer.appendChild(submitBtn);
+        content.appendChild(btnContainer);
 
         // 回车提交
         input.addEventListener('keydown', (e) => {
@@ -5075,6 +5508,10 @@
       }
 
       container.appendChild(content);
+      } catch(e) {
+        console.error('[renderFinale] Error:', e);
+        container.innerHTML = '<div style="padding:20px;color:red;">渲染出错: ' + e.message + '</div>';
+      }
     },
 
     /**
@@ -5085,32 +5522,63 @@
     triggerFinaleAnimation(container, page) {
       container.innerHTML = '';
 
-      const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;opacity:0;transition:opacity 1.5s ease;';
+      const appEl = document.getElementById('app');
 
-      const textEl = document.createElement('div');
-      textEl.style.cssText = 'font-size:20px;color:#fff;text-align:center;line-height:2;opacity:0;transition:opacity 2s ease 1.5s;padding:0 24px;';
-      textEl.textContent = page.data.finaleText || page.data.endingText || '';
+      // ===== 第一页：场景图 =====
+      const page1 = document.createElement('div');
+      page1.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;z-index:9999;opacity:0;transition:opacity 1.5s ease;';
 
-      overlay.appendChild(textEl);
+      const sceneImg = document.createElement('img');
+      sceneImg.src = 'assets/finale-scene.jpg';
+      sceneImg.alt = '结局场景';
+      sceneImg.style.cssText = 'width:100%;flex:1;object-fit:cover;opacity:0;transition:opacity 2s ease 1.5s;';
+      page1.appendChild(sceneImg);
 
-      // 返回主界面按钮
-      const backBtn = document.createElement('button');
-      backBtn.style.cssText = 'margin-top:40px;padding:12px 32px;border:none;border-radius:24px;background:rgba(255,255,255,0.15);color:#fff;font-size:15px;cursor:pointer;opacity:0;transition:opacity 1s ease 4s;';
-      backBtn.textContent = '返回主界面';
-      backBtn.addEventListener('click', () => {
-        document.body.removeChild(overlay);
+      // 继续按钮
+      const continueBtn = document.createElement('button');
+      continueBtn.style.cssText = 'margin:12px auto 28px;padding:10px 32px;border:none;border-radius:20px;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:14px;cursor:pointer;opacity:0;transition:opacity 1s ease 3s;flex-shrink:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);';
+      continueBtn.textContent = '继续';
+      continueBtn.addEventListener('click', () => {
+        // 淡出第一页
+        page1.style.transition = 'opacity 1s ease';
+        page1.style.opacity = '0';
+        setTimeout(() => {
+          page1.remove();
+          // 显示第二页
+          appEl.appendChild(page2);
+          requestAnimationFrame(() => {
+            page2.style.opacity = '1';
+            page2Text.style.opacity = '1';
+            page2Btn.style.opacity = '1';
+          });
+        }, 1000);
+      });
+      page1.appendChild(continueBtn);
+
+      // ===== 第二页：结局文字 =====
+      const page2 = document.createElement('div');
+      page2.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;z-index:9999;opacity:0;transition:opacity 1.5s ease;';
+
+      const page2Text = document.createElement('div');
+      page2Text.style.cssText = 'flex:1;overflow-y:auto;font-size:15px;color:#fff;text-align:left;line-height:1.8;opacity:0;transition:opacity 2s ease 1.5s;padding:32px 24px 16px;white-space:pre-wrap;';
+      page2Text.textContent = page.data.finaleText || page.data.endingText || '';
+      page2.appendChild(page2Text);
+
+      const page2Btn = document.createElement('button');
+      page2Btn.style.cssText = 'margin:8px auto 24px;padding:10px 28px;border:none;border-radius:20px;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);font-size:14px;cursor:pointer;opacity:0;transition:opacity 1s ease 4s;flex-shrink:0;';
+      page2Btn.textContent = '返回主界面';
+      page2Btn.addEventListener('click', () => {
+        page2.remove();
         Router.goHome();
       });
-      overlay.appendChild(backBtn);
+      page2.appendChild(page2Btn);
 
-      document.body.appendChild(overlay);
-
-      // 触发动画
+      // 显示第一页
+      appEl.appendChild(page1);
       requestAnimationFrame(() => {
-        overlay.style.opacity = '1';
-        textEl.style.opacity = '1';
-        backBtn.style.opacity = '1';
+        page1.style.opacity = '1';
+        sceneImg.style.opacity = '1';
+        continueBtn.style.opacity = '1';
       });
     },
 
@@ -5122,6 +5590,7 @@
       const content = document.createElement('div');
       content.className = 'page-content';
       content.style.padding = '0';
+      content.style.background = '#fff';
 
       const chatList = data.chatList || [];
       chatList.forEach(function(item) {
@@ -5138,7 +5607,7 @@
         row.addEventListener('touchend', function() { row.style.backgroundColor = ''; });
 
         const avatar = document.createElement('div');
-        avatar.style.cssText = 'width:48px;height:48px;border-radius:6px;background:#86E0C1;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;';
+        avatar.style.cssText = 'width:48px;height:48px;border-radius:6px;background:#5B9BD5;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;';
         avatar.textContent = item.avatar || '💬';
         row.appendChild(avatar);
 
@@ -5149,7 +5618,7 @@
         topRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;';
 
         const nameEl = document.createElement('div');
-        nameEl.style.cssText = 'font-size:16px;font-weight:600;color:#1C1C1E;';
+        nameEl.style.cssText = 'font-size:16px;font-weight:600;color:#6B5340;';
         nameEl.textContent = item.name || '';
         topRow.appendChild(nameEl);
 
@@ -5232,7 +5701,7 @@
         content.appendChild(lockIcon);
 
         const lockTitle = document.createElement('div');
-        lockTitle.style.cssText = 'font-size:17px;font-weight:600;color:#1C1C1E;margin-bottom:16px;';
+        lockTitle.style.cssText = 'font-size:17px;font-weight:600;color:#6B5340;margin-bottom:16px;';
         lockTitle.textContent = '\u52A0\u5BC6\u65E5\u8BB0';
         content.appendChild(lockTitle);
 
@@ -5251,7 +5720,7 @@
         content.appendChild(hint);
 
         const btn = document.createElement('div');
-        btn.style.cssText = 'width:240px;height:44px;background:#86E0C1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:600;cursor:pointer;';
+        btn.style.cssText = 'width:240px;height:44px;background:#5B9BD5;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:600;cursor:pointer;';
         btn.textContent = '\u89E3\u9501';
         btn.addEventListener('click', function() {
           if (input.value === data.password || input.value.toLowerCase() === data.password.toLowerCase()) {
@@ -5287,7 +5756,7 @@
             entryEl.appendChild(dateEl);
 
             const textEl = document.createElement('div');
-            textEl.style.cssText = 'font-size:15px;color:#1C1C1E;line-height:1.6;';
+            textEl.style.cssText = 'font-size:15px;color:#6B5340;line-height:1.6;';
             textEl.textContent = entry.content || '';
             entryEl.appendChild(textEl);
 
@@ -5302,15 +5771,15 @@
 
   // ========== 6. Search 搜索系统 ==========
   const Search = {
-    /** 显示搜索栏 */
-    show() {
+    /** 显示搜索栏（不弹出历史记录） */
+    show(focus = false) {
       const searchBar = document.getElementById('search-bar');
       if (searchBar) {
-        searchBar.hidden = false;
+        searchBar.style.display = '';
         const input = searchBar.querySelector('input');
         if (input) {
           input.value = '';
-          input.focus();
+          if (focus) input.focus();
         }
       }
     },
@@ -5319,7 +5788,7 @@
     hide() {
       const searchBar = document.getElementById('search-bar');
       if (searchBar) {
-        searchBar.hidden = true;
+        searchBar.style.display = 'none';
       }
     },
 
@@ -5380,7 +5849,7 @@
         icon.textContent = card.icon || '\uD83D\uDCC4';
 
         var title = document.createElement('span');
-        title.style.cssText = 'font-size:14px;color:#1C1C1E;flex:1;';
+        title.style.cssText = 'font-size:14px;color:#6B5340;flex:1;';
         title.textContent = card.title || '';
 
         var arrow = document.createElement('span');
@@ -5415,12 +5884,12 @@
       // 保存搜索历史
       var HISTORY_KEY = 'search_history';
       try {
-        var list = JSON.parse(sessionStorage.getItem(HISTORY_KEY)) || [];
+        var list = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
         var idx = list.indexOf(keyword);
         if (idx >= 0) list.splice(idx, 1);
         list.unshift(keyword);
         if (list.length > 10) list = list.slice(0, 10);
-        sessionStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
       } catch(e) {}
 
       this.hide();
@@ -5430,6 +5899,7 @@
       // 特殊action处理
       if (card.action === 'check-coin') {
         if (!window.gameData.state.hasCoin) {
+          this.show();
           Modal.show('提示', '你还没有钥匙。', [
             { text: '确定', onClick: function() {} }
           ]);
@@ -5497,8 +5967,15 @@
       aiBubble.textContent = replyText;
       aiWrapper.appendChild(aiBubble);
       chatContainer.appendChild(aiWrapper);
-
       chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      // 保存线索对话到state
+      if (!window.gameData.state.hintChatHistory) {
+        window.gameData.state.hintChatHistory = [];
+      }
+      window.gameData.state.hintChatHistory.push({ role: 'user', text: input });
+      window.gameData.state.hintChatHistory.push({ role: 'ai', text: replyText });
+      StateSaver.save();
     }
   };
 
@@ -5551,7 +6028,12 @@
       countEl.textContent = `已访问 ${visited.length} 个页面`;
       content.appendChild(countEl);
 
-      visited.forEach((pageId) => {
+      // 按编号从小到大排序
+      var sorted = visited.slice().sort(function(a, b) {
+        return parseInt(a) - parseInt(b);
+      });
+
+      sorted.forEach((pageId) => {
         const page = window.gameData.pages[pageId];
         if (!page) return;
 
@@ -5583,9 +6065,6 @@
 
     container.appendChild(content);
 
-    // 隐藏主屏幕
-    document.getElementById('main-scroll').style.display = 'none';
-
     // 更新页面编号
     const pageNumber = document.getElementById('page-number');
     if (pageNumber) {
@@ -5603,7 +6082,7 @@
         const pageId = icon.dataset.app;
         if (pageId) {
           if (pageId === 'footprints') {
-            renderFootprints();
+            Router.navigate('footprints');
           } else {
             Router.navigate(pageId);
           }
@@ -5623,13 +6102,13 @@
     const searchInput = document.getElementById('search-input');
     const searchHistory = document.getElementById('search-history');
     if (searchInput && searchHistory) {
-      // 搜索历史 sessionStorage key
+      // 搜索历史 localStorage key
       var HISTORY_KEY = 'search_history';
       var MAX_HISTORY = 10;
 
       // 读取历史
       function getHistory() {
-        try { return JSON.parse(sessionStorage.getItem(HISTORY_KEY)) || []; } catch(e) { return []; }
+        try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e) { return []; }
       }
 
       // 保存历史（去重，最多10条）
@@ -5639,14 +6118,14 @@
         if (idx >= 0) list.splice(idx, 1);
         list.unshift(keyword);
         if (list.length > MAX_HISTORY) list = list.slice(0, MAX_HISTORY);
-        sessionStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
       }
 
       // 删除单条历史
       function removeHistory(keyword) {
         var list = getHistory();
         list = list.filter(function(k) { return k !== keyword; });
-        sessionStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
       }
 
       // 渲染历史下拉
@@ -5663,7 +6142,7 @@
           row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fff;border-radius:8px;margin-bottom:4px;cursor:pointer;';
 
           var text = document.createElement('span');
-          text.style.cssText = 'font-size:14px;color:#3A3A3A;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+          text.style.cssText = 'font-size:14px;color:#6B5340;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
           text.textContent = keyword;
           text.addEventListener('mousedown', function(e) {
             e.preventDefault();
@@ -5820,6 +6299,13 @@
 
   // ========== 12. 应用初始化 ==========
   document.addEventListener('DOMContentLoaded', () => {
+    // 清理可能损坏的localStorage
+    try {
+      const saved = localStorage.getItem('meteor_game_state');
+      if (saved) JSON.parse(saved); // 验证是否有效JSON
+    } catch(e) {
+      localStorage.removeItem('meteor_game_state'); // 损坏则清除
+    }
     initEventListeners();
     initSwipeBack();
     // 初始化状态栏时间
