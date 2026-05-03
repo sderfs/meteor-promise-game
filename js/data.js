@@ -35,7 +35,7 @@ const gameData = {
           },
           {
             title: "✏️ 编辑的修改意见",
-            content: "2026年7月28日 14:30\n\n1. 主角名字太随便了。\n2. 龙的设定再细化一下。\n3. 交稿日期：下个月10号。"
+            content: "2026年7月28日 14:30\n\n1. 第三章节奏太拖了，改。\n2. 反派动机再饱满一点。\n3. 交稿日期：下个月10号。"
           }
         ]
       }
@@ -134,26 +134,26 @@ const gameData = {
         conversations: {
           "禾你一起看星星": [
             { time: "2026年7月28日 09:15", messages: [
-              { role: "other", name: "林晓", text: "今天出门又忘带钥匙。在门口站了十分钟等开锁师傅。" },
-              { role: "self", name: "禾你一起看星星", text: "你上个月不是刚忘过。" },
-              { role: "other", name: "林晓", text: "上个月是忘带手机。不一样。" },
-              { role: "self", name: "禾你一起看星星", text: "……你下次把自己忘家里算了。" },
-              { role: "other", name: "林晓", text: "也不是没可能。" }
+              { role: "self", name: "禾你一起看星星", text: "今天出门又忘带钥匙。在门口站了十分钟等开锁师傅。" },
+              { role: "other", name: "林晓", text: "你上个月不是刚忘过。" },
+              { role: "self", name: "禾你一起看星星", text: "上个月是忘带手机。不一样。" },
+              { role: "other", name: "林晓", text: "……你下次把自己忘家里算了。" },
+              { role: "self", name: "禾你一起看星星", text: "也不是没可能。" }
             ]},
             { time: "2026年8月3日 12:40", messages: [
-              { role: "other", name: "林晓", text: "救命，我今天煮泡面忘了放调料包。" },
-              { role: "self", name: "禾你一起看星星", text: "你怎么不把自己忘了。" },
-              { role: "other", name: "林晓", text: "在努力了。" }
+              { role: "self", name: "禾你一起看星星", text: "救命，我今天煮泡面忘了放调料包。" },
+              { role: "other", name: "林晓", text: "你怎么不把自己忘了。" },
+              { role: "self", name: "禾你一起看星星", text: "在努力了。" }
             ]},
             { time: "2026年7月25日 20:30", messages: [
-              { role: "self", name: "禾你一起看星星", text: "八月英仙座流星雨，八月二十号前后极大。正好我生日那几天。出来看不？" },
-              { role: "other", name: "林晓", text: "看。但我可能起不来。" },
-              { role: "self", name: "禾你一起看星星", text: "流星雨是晚上看的。不用早起。" },
-              { role: "other", name: "林晓", text: "晚上我也起不来。" },
-              { role: "self", name: "禾你一起看星星", text: "你是冬眠吗。" },
-              { role: "other", name: "林晓", text: "我是洞穴生物。需要被芒果干引诱才出洞。" },
-              { role: "self", name: "禾你一起看星星", text: "成交。芒果干管够。你给我出来。" },
-              { role: "other", name: "林晓", text: "截图了。" }
+              { role: "other", name: "林晓", text: "八月英仙座流星雨，八月二十号前后极大。正好我生日那几天。出来看不？" },
+              { role: "self", name: "禾你一起看星星", text: "看。但我可能起不来。" },
+              { role: "other", name: "林晓", text: "流星雨是晚上看的。不用早起。" },
+              { role: "self", name: "禾你一起看星星", text: "晚上我也起不来。" },
+              { role: "other", name: "林晓", text: "你是冬眠吗。" },
+              { role: "self", name: "禾你一起看星星", text: "我是洞穴生物。需要被芒果干引诱才出洞。" },
+              { role: "other", name: "林晓", text: "成交。芒果干管够。你给我出来。" },
+              { role: "self", name: "禾你一起看星星", text: "截图了。" }
             ]}
           ],
           "暴躁小鹿": [
@@ -196,7 +196,7 @@ const gameData = {
             { time: "2026年6月20日 11:15", messages: [
               { role: "other", name: "妈妈", text: "家里那盆绿萝你还浇水吗。" },
               { role: "self", name: "林晓", text: "忘了。它还活着吗。" },
-              { role: "other", name: "妈妈", text: "还活着。禾你一起看星星妈妈上次来帮忙浇了。" },
+              { role: "other", name: "妈妈", text: "还活着。叶禾妈妈上次来帮忙浇了。" },
               { role: "self", name: "林晓", text: "帮我谢谢阿姨。" },
               { role: "other", name: "妈妈", text: "你自己去谢。" }
             ]}
@@ -421,29 +421,29 @@ const gameData = {
         nickname: "\u79BE\u4F60\u4E00\u8D77\u770B\u661F\u661F",
         signature: "\u62AC\u5934\u770B\u661F\u661F\u7684\u65F6\u5019\uFF0C\u70E6\u607C\u90FD\u5F88\u5C0F\u3002",
         pinnedRepost: {
-          title: "\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\u79D1\u666E | 2026\u5E748\u6708\u6781\u5927",
+          title: "\u6BCF\u5C0F\u65F6150\u9897\uFF012026\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\u6216\u8FCE\u53F2\u8BD7\u7EA7\u7206\u53D1",
           comment: "\u548C\u67D0\u4EBA\u7EA6\u4E86\u4E09\u5E74\u90FD\u6CA1\u770B\u6210\u3002",
           date: "2026\u5E747\u6708",
-          fullContent: "\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\uFF08Gemini Meteor Shower\uFF09\u662F\u6BCF\u5E74\u6700\u7A33\u5B9A\u7684\u6D41\u661F\u96E8\u4E4B\u4E00\uFF0C\u6781\u5927\u671F\u901A\u5E38\u572812\u6708\u4E2D\u65EC\uFF0C\u4F462026\u5E74\u53D7\u5929\u6587\u56E0\u7D20\u5F71\u54CD\uFF0C\u9884\u62A5\u663E\u793A8\u6708\u4E5F\u6709\u4E00\u6B21\u5C0F\u89C4\u6A21\u7206\u53D1\u3002\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\u7684\u6BCD\u4F53\u662F\u5C0F\u884C\u661F3200 Phaethon\uFF0C\u8F90\u5C04\u70B9\u4F4D\u4E8E\u53CC\u5B50\u5EA7\uFF08Gemini\uFF09\u9644\u8FD1\u3002\u6D41\u661F\u901F\u5EA6\u4E2D\u7B49\uFF0C\u989C\u8272\u504F\u767D\uFF0C\u5076\u6709\u4EAE\u6D41\u661F\u548C\u706B\u6D41\u661F\u3002\n\n\u89C2\u6D4B\u5EFA\u8BAE\uFF1A\u8FDC\u79BB\u57CE\u5E02\u5149\u6C61\u67D3\uFF0C\u4E0D\u9700\u8981\u4EFB\u4F55\u8BBE\u5907\uFF0C\u8089\u773C\u5373\u53EF\u89C2\u8D4F\u3002\u8EBA\u7740\u770B\uFF0C\u5E26\u591F\u8863\u670D\uFF0C\u5E26\u591F\u96F6\u98DF\u3002\u6700\u4F73\u89C2\u6D4B\u65F6\u95F4\u662F\u51CC\u66682\u70B9\u52305\u70B9\u3002",
-          boldKeywords: ["Gemini"],
+          fullContent: "\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\uFF08Geminids\uFF09\u662F\u5168\u5E74\u6700\u7A33\u5B9A\u7684\u6D41\u661F\u96E8\u4E4B\u4E00\uFF0C\u6D3B\u8DC3\u671F\u4E3A\u6BCF\u5E7412\u67084\u65E5\u81F317\u65E5\uFF0C2026\u5E74\u6781\u5927\u9884\u8BA1\u51FA\u73B0\u572812\u670813-14\u65E5\u3002\u8F90\u5C04\u70B9\u4F4D\u4E8E\u53CC\u5B50\u5EA7\uFF08Gemini\uFF09\u9644\u8FD1\uFF0C\u6D41\u661F\u901F\u5EA6\u4E2D\u7B49\uFF0C\u989C\u8272\u504F\u767D\uFF0C\u5076\u6709\u4EAE\u6D41\u661F\u548C\u706B\u6D41\u661F\u3002\n\n\u4ECA\u5E74\u7684\u89C2\u6D4B\u6761\u4EF6\u5341\u5206\u96BE\u5F97\uFF1A\u6781\u5927\u671F\u95F4\u6070\u9022\u86FE\u7709\u6708\uFF0C\u6708\u5149\u5E72\u6270\u6781\u5C0F\uFF0C\u9884\u8BA1\u6BCF\u5C0F\u65F6\u8D85\u8FC7100\u9897\u6D41\u661F\u7684\u5F3A\u52B2\u6D41\u91CF\u53EF\u6301\u7EED10\u81F312\u5C0F\u65F6\uFF0C\u662F\u5168\u5E74\u6700\u503C\u5F97\u671F\u5F85\u7684\u5929\u8C61\u76DB\u5BB4\u3002\n\n\u89C2\u6D4B\u5EFA\u8BAE\uFF1A\u8FDC\u79BB\u57CE\u5E02\u5149\u6C61\u67D3\uFF0C\u4E0D\u9700\u8981\u4EFB\u4F55\u8BBE\u5907\uFF0C\u8089\u773C\u5373\u53EF\u89C2\u8D4F\u3002\u8EBA\u7740\u770B\uFF0C\u5E26\u591F\u8863\u670D\uFF0C\u5E26\u591F\u96F6\u98DF\u3002\u6700\u4F73\u89C2\u6D4B\u65F6\u95F4\u662F\u51CC\u66682\u70B9\u52305\u70B9\u3002",
+          boldKeywords: ["\uFF08Gemini\uFF09"],
           replies: [
-            { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u90A3\u6211\u4EEC\u5C31\u662F\u53CC\u5B50\u661F" },
+            { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u90A3\u6211\u4EEC\u5C31\u662F\u53CC\u5B50\u661F\u2728" },
             { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u94A5\u5319\u6211\u541E\u4E86 \u8FD9\u8F88\u5B50\u522B\u60F3\u89E3\u7ED1" },
             { user: "\u79BE\u4F60\u4E00\u8D77\u770B\u661F\u661F", text: "\u4F60\u541E\u94A5\u5319\u5E72\u561B\u554A\u4F60", isReply: true }
           ]
         },
         journals: [],
         posts: [
+          { text: "天蝎座心宿二。太亮了！！夏天快来吧。", date: "2026年4月" },
           { text: "\u624B\u673A\u952E\u76D8\u8FD8\u662F\u4E5D\u5BAB\u683C\u597D\u7528\uFF0C\u5168\u952E\u76D8\u624B\u6307\u592A\u7C97\u8001\u662F\u6309\u9519\u3002", date: "2026\u5E743\u6708",
             replies: [
               { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u5C31\u662F\u5C31\u662F\uFF01\uFF01\u800C\u4E14\u4E5D\u5BAB\u683C\u6253\u51FA\u6765\u7684\u6570\u5B57\u8FD8\u80FD\u5F53\u5BC6\u7801\u7528 \u7279\u597D\u4F7F", bold: true },
               { user: "\u79BE\u4F60\u4E00\u8D77\u770B\u661F\u661F", text: "\u4F60\u53C8\u62FF\u8FD9\u62DB\u8BBE\u4EC0\u4E48\u5BC6\u7801\u4E86", isReply: true },
-              { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u79D8\u5BC6\u634F", isReply: true }
+              { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u79D8\u5BC6\u634F\ud83e\udd0f", isReply: true }
             ]
           },
           { text: "\u7BAD\u9986\u5C04\u7BAD\uFF0C\u4ECA\u5929\u624B\u611F\u4E0D\u9519\u3002\u6211\u4E0D\u6253\u5154\u5B50\uFF0C\u6211\u6253\u661F\u661F\u3002", date: "2025\u5E748\u6708" },
-          { text: "\u6BCD\u4EB2\u7684\u730E\u67AA\u4E0E\u7948\u798F\u8BED\u5F55\u3002\u5979\u8BF4\uFF0C\u63E1\u67AA\u7684\u65F6\u5019\u5FC3\u91CC\u5FF5\u4E00\u904D\uFF0C\u5B50\u5F39\u4F1A\u627E\u5230\u56DE\u5BB6\u7684\u8DEF\u3002", date: "2022\u5E74" },
-          { text: "\u5929\u8802\u5EA7\u5FC3\u5BBF\u4E8C\u3002\u7B49\u516B\u6708\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\u3002", date: "2026\u5E744\u6708" }
+          { text: "\u6BCD\u4EB2\u7684\u730E\u67AA\u4E0E\u7948\u798F\u8BED\u5F55\u3002\u5979\u8BF4\uFF0C\u63E1\u67AA\u7684\u65F6\u5019\u5FC3\u91CC\u5FF5\u4E00\u904D\uFF0C\u5B50\u5F39\u4F1A\u627E\u5230\u56DE\u5BB6\u7684\u8DEF\u3002", date: "2022\u5E748\u6708" }
         ],
         albums: [
           { title: "\u300A\u65E7\u7269\u300B", caption: "\u91CC\u9762\u6709\u628A\u730E\u67AA\uFF0C\u6211\u4E5F\u6CA1\u94A5\u5319\u3002", image: "old_cabinet" }
@@ -583,7 +583,7 @@ const gameData = {
       data: {
         title: "一个人荒野求生30天挑战",
         subtitle: "UP主：户外老猫 · 32万播放",
-        coverImg: "assets/wilderness-30days.jpg",
+        coverImg: "assets/wilderness-30days.webp",
         content: "",
         comments: [
           { user: "户外老猫（UP主）", text: "置顶：装备清单在置顶评论，大家自取。", pinned: true },
@@ -961,7 +961,7 @@ const gameData = {
         title: "女性在青苔巷离奇失踪，监控拍到诡异蓝光",
         author: "都市晚报",
         date: "2026-06-22",
-        coverImg: "assets/alley-news.jpg",
+        coverImg: "assets/alley-news.webp",
         content: "24岁女性王某于2026年6月20日在青苔巷失踪，监控最后画面显示她走入巷子深处后，一道蓝色光晕闪过，人便消失。\n\n警方已介入调查，目前尚未发现明显线索。青苔巷位于老城区深处，因常年潮湿、墙面遍布青苔而得名。该巷道年久失修，部分路段照明设施损坏，夜间通行条件较差。",
         comments: []
       }
@@ -1069,7 +1069,7 @@ const gameData = {
       data: {
         title: "户外露营装备开箱",
         subtitle: "UP主：露营小白 · 8万播放 · 8月1日",
-        coverImg: "assets/camping-box.jpg",
+        coverImg: "assets/camping-box.webp",
         content: "",
         comments: [
           { user: "露营小白（UP主）", text: "置顶：装备链接在简介，大家自取。", pinned: true },

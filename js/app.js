@@ -34,7 +34,7 @@
       // 创建遮罩
       var overlay = document.createElement('div');
       overlay.id = 'menu-viewer-overlay';
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease;';
+      overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease;';
 
       // 关闭按钮（左上角）
       var closeBtn = document.createElement('div');
@@ -118,7 +118,7 @@
       var currentIndex = startIndex || 0;
       var overlay = document.createElement('div');
       overlay.id = 'gallery-viewer-overlay';
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:200;display:flex;flex-direction:column;opacity:0;transition:opacity 0.3s ease;';
+      overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:#000;z-index:200;display:flex;flex-direction:column;opacity:0;transition:opacity 0.3s ease;';
 
       // 顶部栏：关闭按钮 + 计数
       var topBar = document.createElement('div');
@@ -273,7 +273,7 @@
   // ========== 1.7 密码提示弹窗（统一） ==========
   function showPasswordHint(message) {
     var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
+    overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
 
     var modal = document.createElement('div');
     modal.style.cssText = 'background:#fff;border-radius:14px;padding:20px;width:260px;max-width:80vw;text-align:center;animation:scaleIn 0.2s ease-out;';
@@ -1473,6 +1473,15 @@
       });
 
       form.appendChild(loginBtn);
+
+      // 账号输入框回车 → 聚焦密码
+      accountInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); passwordInput.focus(); }
+      });
+      // 密码输入框回车 → 触发登录
+      passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); loginBtn.click(); }
+      });
 
       // 可选的"忘记密码？"链接
       const forgotLink = document.createElement('div');
@@ -3480,7 +3489,7 @@
       const imgArea = document.createElement('div');
       imgArea.style.cssText = 'width:100%;aspect-ratio:3/2;overflow:hidden;';
       const productImg = document.createElement('img');
-      productImg.src = 'assets/camping-box.jpg';
+      productImg.src = 'assets/camping-box.webp';
       productImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
       productImg.alt = '露营箱';
       imgArea.appendChild(productImg);
@@ -3839,7 +3848,7 @@
       // 大图模式
       function showLightbox(photo, index) {
         const overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#1C1C1E;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+        overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:#1C1C1E;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;';
 
         const closeHint = document.createElement('div');
         closeHint.style.cssText = 'position:absolute;top:16px;right:16px;font-size:24px;color:rgba(255,255,255,0.7);cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;';
@@ -4772,6 +4781,15 @@
       });
       card.appendChild(loginBtn);
 
+      // 用户名回车 → 聚焦密码
+      usernameInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); passwordInput.focus(); }
+      });
+      // 密码回车 → 触发登录
+      passwordInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); loginBtn.click(); }
+      });
+
       // 忘记密码
       var forgotLink = document.createElement('div');
       forgotLink.style.cssText = 'text-align:center;font-size:14px;color:#007AFF;cursor:pointer;padding:8px 0;text-decoration:underline;';
@@ -4806,7 +4824,7 @@
 
       function showAccountSwitcher() {
         var overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
+        overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;';
 
         var modal = document.createElement('div');
         modal.style.cssText = 'background:#fff;border-radius:20px;padding:20px;width:280px;max-width:85vw;animation:scaleIn 0.2s ease-out;';
@@ -5131,11 +5149,11 @@
             }
             // 自定义弹窗带图片
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;';
+            overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;';
             const modal = document.createElement('div');
             modal.style.cssText = 'background:#fff;border-radius:16px;padding:24px 20px 20px;width:280px;text-align:center;';
             const img = document.createElement('img');
-            img.src = 'assets/coin-gift.jpg';
+            img.src = 'assets/coin-gift.webp';
             img.style.cssText = 'width:100%;border-radius:10px;margin-bottom:16px;';
             img.alt = '金币礼物';
             modal.appendChild(img);
@@ -5189,7 +5207,7 @@
       const mapPlaceholder = document.createElement('div');
       mapPlaceholder.style.cssText = 'width:100%;height:240px;overflow:hidden;';
       const mapImg = document.createElement('img');
-      mapImg.src = 'assets/map-qingtai.jpg';
+      mapImg.src = 'assets/map-qingtai.webp';
       mapImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
       mapImg.alt = '青苔巷地图';
       mapPlaceholder.appendChild(mapImg);
@@ -5331,7 +5349,7 @@
           const mapImgWrap = document.createElement('div');
           mapImgWrap.style.cssText = 'width:100%;height:200px;overflow:hidden;';
           const mapImg = document.createElement('img');
-          mapImg.src = 'assets/map-qingtai.jpg';
+          mapImg.src = 'assets/map-qingtai.webp';
           mapImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
           mapImg.alt = '青苔巷地图';
           mapImgWrap.appendChild(mapImg);
@@ -5529,7 +5547,7 @@
       page1.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:#000;display:flex;flex-direction:column;z-index:9999;opacity:0;transition:opacity 1.5s ease;';
 
       const sceneImg = document.createElement('img');
-      sceneImg.src = 'assets/finale-scene.jpg';
+      sceneImg.src = 'assets/finale-scene.webp';
       sceneImg.alt = '结局场景';
       sceneImg.style.cssText = 'width:100%;flex:1;object-fit:cover;opacity:0;transition:opacity 2s ease 1.5s;';
       page1.appendChild(sceneImg);
@@ -5736,6 +5754,11 @@
           }
         });
         content.appendChild(btn);
+
+        // 回车键触发解锁
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); btn.click(); }
+        });
 
         container.appendChild(content);
       } else {
