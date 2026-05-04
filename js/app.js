@@ -3681,7 +3681,7 @@
         menuBtn.className = 'form-btn';
         menuBtn.textContent = page.data.buttonText;
         menuBtn.addEventListener('click', function() {
-          ShopMenuViewer.show(page.data.menuImage || 'assets/menu.png');
+          Router.navigate('43');
         });
         btnArea.appendChild(menuBtn);
         content.appendChild(btnArea);
@@ -4657,6 +4657,13 @@
         if (found) {
           currentPassword = found.password;
         }
+      } else if (data.defaultAccount) {
+        // 有默认账号（如从论坛登录按钮进入）
+        currentAccount = data.defaultAccount;
+        const found = savedAccounts.find(a => a.username === data.defaultAccount);
+        if (found) {
+          currentPassword = found.password;
+        }
       } else if (savedAccounts.length > 0) {
         savedAccounts.sort((a, b) => (b.lastLogin || 0) - (a.lastLogin || 0));
         currentAccount = savedAccounts[0].username;
@@ -5254,34 +5261,11 @@
       content.style.padding = '12px 16px 40px';
       content.style.zoom = '1';
 
-      const categories = page.data.categories || [];
-      categories.forEach(category => {
-        // 分类标题
-        const catTitle = document.createElement('div');
-        catTitle.style.cssText = 'font-size:15px;font-weight:600;color:#6B5340;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid #E5E5EA;';
-        catTitle.textContent = category.title;
-        content.appendChild(catTitle);
-
-        // 菜单项
-        const items = category.items || [];
-        items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'list-item';
-          row.style.justifyContent = 'space-between';
-
-          const enName = document.createElement('div');
-          enName.style.cssText = 'font-size:15px;color:#6B5340;';
-          enName.textContent = item.en;
-
-          const cnName = document.createElement('div');
-          cnName.style.cssText = 'font-size:13px;color:#8E8E93;';
-          cnName.textContent = item.cn;
-
-          row.appendChild(enName);
-          row.appendChild(cnName);
-          content.appendChild(row);
-        });
-      });
+      const img = document.createElement('img');
+      img.src = page.data.menuImage || 'assets/menu.webp';
+      img.style.cssText = 'width:100%;border-radius:8px;display:block;';
+      img.alt = page.title || '菜单';
+      content.appendChild(img);
 
       container.appendChild(content);
     },
@@ -6051,9 +6035,9 @@
       countEl.textContent = `已访问 ${visited.length} 个页面`;
       content.appendChild(countEl);
 
-      // 按编号从小到大排序
-      var sorted = visited.slice().sort(function(a, b) {
-        return parseInt(a) - parseInt(b);
+      // 按编号从小到大排序（过滤非数字ID）
+      var sorted = visited.filter(function(id) { return /^\d+$/.test(id); }).slice().sort(function(a, b) {
+        return parseInt(a, 10) - parseInt(b, 10);
       });
 
       sorted.forEach((pageId) => {
