@@ -628,6 +628,23 @@
     },
 
     /**
+     * 显示 Toast 提示
+     * @param {string} message - 提示内容
+     * @param {number} duration - 显示时长(ms)，默认 2000
+     */
+    _showToast(message, duration = 2000) {
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:9999;white-space:nowrap;';
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, duration);
+    },
+
+    /**
      * 备忘录渲染（点击展开/收起手风琴模式）
      * @param {Object} page - 页面数据对象
      */
@@ -4073,8 +4090,47 @@
 
       if (item.bold && item.fullText) {
         let html = item.fullText;
-        item.bold.forEach(b => { html = html.split(b).join('<b>' + b + '</b>'); });
+        item.bold.forEach(b => {
+          html = html.split(b).join('<b class="copyable-text" data-copy="' + b + '">' + b + '</b>');
+        });
         bubble.innerHTML = html;
+
+        // 给所有可复制的关键词添加长按事件
+        bubble.querySelectorAll('.copyable-text').forEach(el => {
+          let pressTimer;
+          el.style.cssText = 'font-weight:700;background:rgba(107,83,64,0.1);padding:0 2px;border-radius:2px;cursor:pointer;user-select:none;-webkit-user-select:none;';
+
+          const startPress = (e) => {
+            pressTimer = setTimeout(() => {
+              const text = el.getAttribute('data-copy');
+              if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                  this._showToast('已复制：' + text);
+                }).catch(() => {
+                  // 降级方案
+                  const input = document.createElement('input');
+                  input.value = text;
+                  document.body.appendChild(input);
+                  input.select();
+                  document.execCommand('copy');
+                  document.body.removeChild(input);
+                  this._showToast('已复制：' + text);
+                });
+              }
+            }, 500);
+          };
+
+          const cancelPress = () => {
+            clearTimeout(pressTimer);
+          };
+
+          el.addEventListener('touchstart', startPress, {passive: true});
+          el.addEventListener('touchend', cancelPress);
+          el.addEventListener('touchmove', cancelPress);
+          el.addEventListener('mousedown', startPress);
+          el.addEventListener('mouseup', cancelPress);
+          el.addEventListener('mouseleave', cancelPress);
+        });
       } else {
         bubble.textContent = item.fullText || item.preview || '';
       }

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>流星雨的约定 · 攻略</title>
+<style>
+:root {
+  --color-dark-text: #6B5340;
+  --color-light-text: #A0896E;
+  --color-accent: #5B9BD5;
+  --color-red: #FF3B30;
+  --color-divider: #E6E2D3;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; overflow: hidden; width: 100%; height: 100%; }
+body {
+  font-family: "Zen Maru Gothic", -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  background-color: #2C2C2E; color: var(--color-dark-text); line-height: 1.5;
+  -webkit-font-smoothing: antialiased; overflow: hidden; user-select: none; -webkit-user-select: none;
+  width: 100%; height: 100%; margin: 0; padding: 0; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+}
+html, body { height: calc(var(--vh, 1vh) * 100); }
+#phone-frame { height: calc(var(--vh, 1vh) * 100); }
+::-webkit-scrollbar { display: none; } * { scrollbar-width: none; }
+
+#phone-frame { width: 100%; max-width: 100vw; height: 100%; background: transparent; padding: 0; position: relative; overflow: hidden; }
+@media (min-width: 431px) {
+  body:not(.in-iframe) { display: flex; justify-content: center; align-items: center; background-color: #2C2C2E; }
+  body:not(.in-iframe) #phone-frame { width: 375px; height: 812px; background: #000; border-radius: 50px; padding: 12px; box-shadow: 0 0 0 2px #333, 0 0 0 4px #1a1a1a, 0 20px 60px rgba(0,0,0,0.5); flex-shrink: 0; }
+  body:not(.in-iframe) #app { border-radius: 40px; }
+}
+@media (max-width: 430px) { #phone-frame { width: 100%; background: transparent; padding: 0; } }
+
+#app { width: 100%; max-width: 100vw; height: 100%; overflow: hidden; position: relative; display: flex; flex-direction: column; background-color: #F5F2EB; }
+
+body.in-iframe .status-bar { display: none; }
+body.in-iframe .guide-header { padding-top: 12px; }
+
+/* Status bar */
+.status-bar { height: 44px; padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding-left: 24px; padding-right: 24px; flex-shrink: 0; background: rgba(245,242,235,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); position: relative; z-index: 20; }
+.status-time { font-size: 15px; font-weight: 600; color: #6B5340; }
+.status-icons { display: flex; align-items: center; gap: 5px; }
+
+/* Header */
+.guide-header { padding: 8px 20px 16px; flex-shrink: 0; background: rgba(245,242,235,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.guide-header h1 { font-size: 22px; font-weight: 700; color: #6B5340; margin-bottom: 2px; }
+.guide-header p { font-size: 12px; color: #A0896E; }
+
+/* Tab bar */
+.tab-bar { display: flex; gap: 0; padding: 0 16px; flex-shrink: 0; background: rgba(245,242,235,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--color-divider); }
+.tab-btn { flex: 1; padding: 10px 4px; font-size: 13px; font-weight: 500; color: #A0896E; text-align: center; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab-btn.active { color: #6B5340; border-bottom-color: #6B5340; font-weight: 600; }
+
+/* Content area */
+.guide-content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 0 0 40px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Section styles */
+.section { padding: 20px 20px 0; }
+.section-title { font-size: 17px; font-weight: 700; color: #6B5340; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.section-title .icon { font-size: 18px; }
+.subsection-title { font-size: 15px; font-weight: 600; color: #6B5340; margin: 16px 0 8px; padding-left: 2px; }
+
+/* Card */
+.card { background: #FFFFFF; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.card-header { font-size: 14px; font-weight: 600; color: #6B5340; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.card-header .badge { font-size: 11px; font-weight: 500; color: #FFFFFF; background: #5B9BD5; border-radius: 10px; padding: 1px 8px; }
+.card-header .badge.red { background: #FF6B6B; }
+.card-header .badge.green { background: #34C759; }
+.card-header .badge.orange { background: #FF9500; }
+.card-header .badge.purple { background: #AF52DE; }
+.card-body { font-size: 13px; color: #6B5340; line-height: 1.7; }
+.card-body .label { color: #A0896E; font-size: 12px; margin-bottom: 2px; }
+.card-body .value { font-weight: 600; color: #6B5340; }
+.card-body .code { font-family: 'SF Mono', 'Menlo', 'Consolas', monospace; background: #F0EDE6; padding: 1px 6px; border-radius: 4px; font-size: 13px; color: #C7254E; font-weight: 500; }
+.card-body .path { color: #5B9BD5; font-size: 12px; margin-top: 4px; }
+.card-body .hint { font-size: 12px; color: #A0896E; margin-top: 6px; font-style: italic; }
+
+/* Password table */
+.pw-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #F0EDE6; gap: 10px; }
+.pw-row:last-child { border-bottom: none; }
+.pw-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.pw-info { flex: 1; min-width: 0; }
+.pw-name { font-size: 13px; font-weight: 600; color: #6B5340; }
+.pw-account { font-size: 11px; color: #A0896E; }
+.pw-right { text-align: right; flex-shrink: 0; }
+.pw-value { font-family: 'SF Mono', 'Menlo', 'Consolas', monospace; font-size: 14px; font-weight: 600; color: #C7254E; }
+.pw-clue { font-size: 11px; color: #A0896E; margin-top: 1px; }
+
+/* Page list */
+.page-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #F0EDE6; gap: 12px; }
+.page-item:last-child { border-bottom: none; }
+.page-id { width: 36px; height: 36px; border-radius: 10px; background: #F0EDE6; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #6B5340; flex-shrink: 0; }
+.page-info { flex: 1; min-width: 0; }
+.page-name { font-size: 14px; font-weight: 600; color: #6B5340; }
+.page-from { font-size: 12px; color: #A0896E; margin-top: 1px; }
+.page-arrow { color: #C7C7CC; font-size: 14px; flex-shrink: 0; }
+
+/* Route timeline */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--color-divider); }
+.timeline-item { position: relative; margin-bottom: 16px; }
+.timeline-dot { position: absolute; left: -20px; top: 6px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #5B9BD5; background: #FFFFFF; }
+.timeline-dot.filled { background: #5B9BD5; }
+.timeline-title { font-size: 14px; font-weight: 600; color: #6B5340; margin-bottom: 4px; }
+.timeline-body { font-size: 13px; color: #6B5340; line-height: 1.7; }
+
+/* Search keyword chips */
+.keyword-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.keyword-chip { background: #FFFFFF; border: 1px solid var(--color-divider); border-radius: 20px; padding: 6px 14px; font-size: 13px; color: #6B5340; cursor: default; }
+.keyword-chip .arrow { color: #5B9BD5; margin-left: 4px; }
+
+/* Spoiler */
+.spoiler { background: #F0EDE6; border-radius: 8px; padding: 10px 14px; margin-top: 8px; cursor: pointer; transition: background 0.2s; }
+.spoiler:active { background: #E6E2D3; }
+.spoiler-text { font-size: 13px; color: #6B5340; }
+.spoiler-hidden { filter: blur(5px); user-select: none; transition: filter 0.3s; }
+.spoiler.revealed .spoiler-hidden { filter: none; }
+.spoiler-label { font-size: 11px; color: #A0896E; margin-top: 4px; }
+
+/* Collapsible */
+.collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 12px 0; }
+.collapsible-header .arrow { transition: transform 0.2s; font-size: 12px; color: #A0896E; }
+.collapsible-header.open .arrow { transform: rotate(90deg); }
+.collapsible-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+.collapsible-body.open { max-height: 5000px; }
+
+/* Divider */
+.divider { height: 1px; background: var(--color-divider); margin: 16px 0; }
+
+/* Footer */
+.guide-footer { text-align: center; padding: 20px; font-size: 11px; color: #C7C7CC; }
+</style>
+</head>
+<body>
+<div id="phone-frame">
+<div id="app">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time" id="clock">9:41</span>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><rect x="0" y="4" width="3" height="8" rx="1" fill="#6B5340"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1" fill="#6B5340"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#6B5340"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#6B5340" opacity="0.3"/></svg>
+      <svg width="15" height="12" viewBox="0 0 15 12" fill="none"><path d="M7.5 3C9.4 3 11.1 3.8 12.3 5.1L13.5 3.8C11.9 2.1 9.8 1 7.5 1S3.1 2.1 1.5 3.8L2.7 5.1C3.9 3.8 5.6 3 7.5 3Z" fill="#6B5340"/><path d="M7.5 6C8.6 6 9.7 6.5 10.5 7.3L11.7 6C10.5 4.8 9.1 4 7.5 4S4.5 4.8 3.3 6L4.5 7.3C5.3 6.5 6.4 6 7.5 6Z" fill="#6B5340"/><circle cx="7.5" cy="10" r="1.5" fill="#6B5340"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#6B5340" stroke-width="1" fill="none"/><rect x="22" y="3.5" width="2" height="5" rx="1" fill="#6B5340" opacity="0.4"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="#6B5340"/></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="guide-header">
+    <h1>📖 攻略手册</h1>
+    <p>流星雨的约定 · 全页面路径与密码速查</p>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tab="pages">📑 页面</div>
+    <div class="tab-btn" data-tab="route">🗺️ 路线</div>
+    <div class="tab-btn" data-tab="passwords">🔐 密码</div>
+    <div class="tab-btn" data-tab="search">🔍 搜索</div>
+  </div>
+
+  <!-- Content -->
+  <div class="guide-content">
+
+    <!-- ===== Tab 1: Passwords ===== -->
+    <div class="tab-panel" id="tab-passwords">
+      <div class="section">
+        <div class="section-title"><span class="icon">🔑</span> 登录密码</div>
+        <div class="card">
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#E8F4FD;">💬</div>
+            <div class="pw-info"><div class="pw-name">QQ</div><div class="pw-account">13805618823</div></div>
+            <div class="pw-right"><div class="pw-value">20220612</div><div class="pw-clue">最难忘的一天</div></div>
+          </div>
+
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#FFF3E0;">🐦</div>
+            <div class="pw-info"><div class="pw-name">微博大号</div><div class="pw-account">13805618823</div></div>
+            <div class="pw-right"><div class="pw-value">20040415</div><div class="pw-clue">她的生日</div></div>
+          </div>
+
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#F3E5F5;">🌙</div>
+            <div class="pw-info"><div class="pw-name">微博小号</div><div class="pw-account">艾尔诺拉冒险队队长</div></div>
+            <div class="pw-right"><div class="pw-value">cynthia</div><div class="pw-clue">双月名字</div></div>
+          </div>
+
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#E8F5E9;">🐕</div>
+            <div class="pw-info"><div class="pw-name">论坛 · 芒狗</div><div class="pw-account">芒狗冒险家</div></div>
+            <div class="pw-right"><div class="pw-value">elodie</div><div class="pw-clue">龙的名字</div></div>
+          </div>
+
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#E3F2FD;">🐱</div>
+            <div class="pw-info"><div class="pw-name">论坛 · 银鬃猫</div><div class="pw-account">银鬃猫的最爱</div></div>
+            <div class="pw-right"><div class="pw-value">ygg@hyzx123</div><div class="pw-clue">果子+缩写+123</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span class="icon">🧩</span> 其他密码</div>
+        <div class="card">
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#FFF8E1;">📍</div>
+            <div class="pw-info"><div class="pw-name">易存柜地址</div><div class="pw-account">选择正确柜机</div></div>
+            <div class="pw-right"><div class="pw-value" style="font-size:12px;color:#6B5340;">拾光里18号</div></div>
+          </div>
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#FCE4EC;">📦</div>
+            <div class="pw-info"><div class="pw-name">易存柜取件码</div><div class="pw-account">6位数字</div></div>
+            <div class="pw-right"><div class="pw-value">436464</div><div class="pw-clue">九宫格键盘</div></div>
+          </div>
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#E8EAF6;">📔</div>
+            <div class="pw-info"><div class="pw-name">加密日记</div><div class="pw-account">一种甜的东西</div></div>
+            <div class="pw-right"><div class="pw-value">Brume</div><div class="pw-clue">烘焙店菜单</div></div>
+          </div>
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#E0F7FA;">🐉</div>
+            <div class="pw-info"><div class="pw-name">青苔巷龙语</div><div class="pw-account">结局关键词</div></div>
+            <div class="pw-right"><div class="pw-value">luminar</div><div class="pw-clue">加密日记内容</div></div>
+          </div>
+          <div class="pw-row">
+            <div class="pw-icon" style="background:#FFF3E0;">🔒</div>
+            <div class="pw-info"><div class="pw-name">QQ空间私密日志</div><div class="pw-account">我最爱的零食品牌拼音</div></div>
+            <div class="pw-right"><div class="pw-value">manggou</div><div class="pw-clue">芒果的拼音</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab 2: Pages ===== -->
+    <div class="tab-panel active" id="tab-pages">
+      <div class="section">
+        <div class="section-title"><span class="icon">📑</span> 全部页面（按编号排序）</div>
+        <div class="card" id="pages-all"></div>
+      </div>
+    </div>
+
+    <!-- ===== Tab 3: Route ===== -->
+    <div class="tab-panel" id="tab-route">
+      <div class="section">
+        <div class="section-title"><span class="icon">🗺️</span> 核心解谜路线</div>
+
+        <div class="card">
+          <div class="card-header"><span class="badge">第一阶段</span> 发现基础线索</div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item"><div class="timeline-dot filled"></div><div class="timeline-title">📱 主屏幕各App</div><div class="timeline-body">从备忘录、短信、电话、日历入手，收集日期和号码。短信中有"易存柜"取件通知</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">📅 日历 (05)</div><div class="timeline-body">八月有两个标记：<b>11日</b>（最难忘的一天）和<b>20日</b>（她的生日）</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">📝 备忘录 (01)</div><div class="timeline-body">最后一条提到金币和"手机经常忘带"</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">💬 微信 (07)</div><div class="timeline-body">暴躁小鹿发来小红书、淘宝、B站链接</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="badge orange">第二阶段</span> 解锁社交平台</div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item"><div class="timeline-dot filled"></div><div class="timeline-title">💬 QQ登录 (15)</div><div class="timeline-body">密码 <span class="code">20220612</span>（最难忘的一天）</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">🐦 微博登录 (18)</div><div class="timeline-body">密码 <span class="code">20040415</span>（她的生日）</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="badge purple">第三阶段</span> 深入调查</div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item"><div class="timeline-dot filled"></div><div class="timeline-title">⭐ QQ空间·叶禾 (17)</div><div class="timeline-body">说说提到"九宫格密码"，评论中提到"芒果干"</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">🔒 QQ空间私密日志 (16)</div><div class="timeline-body">密码 <span class="code">manggou</span>（我最爱的零食品牌拼音）</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">📺 B站观看历史 (26)</div><div class="timeline-body">荒野求生视频评论区提到"荒野之心论坛"</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">📕 小红书密码帖 (28)</div><div class="timeline-body">提到"果子+缩写+123"的密码格式</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="badge green">第四阶段</span> 解锁论坛与微博小号</div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item"><div class="timeline-dot filled"></div><div class="timeline-title">🌐 荒野之心论坛 (30)</div><div class="timeline-body">搜索"荒野求生"或"荒野之心"进入</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">🐕 芒狗冒险家 → <span class="code">elodie</span></div><div class="timeline-body">龙的名字（英文），微博小号内容中提到蓝龙</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">🐱 银鬃猫的最爱 → <span class="code">ygg@hyzx123</span></div><div class="timeline-body">芒果干@荒野之心+123</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">📖 银鬃猫主页 (34)</div><div class="timeline-body">两篇帖子：《青苔巷规则怪谈》和《关于门的几个发现》</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">🌙 微博小号 (21)</div><div class="timeline-body">密码 <span class="code">cynthia</span>（双月名字，论坛草稿中提到）</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="badge red">第五阶段</span> 获取金币与解锁结局</div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item"><div class="timeline-dot filled"></div><div class="timeline-title">📦 易存柜 (40) → 选"拾光里18号"</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">🔢 取件码 (41) → <span class="code">436464</span></div><div class="timeline-body">获取金币！九宫格键盘对应数字</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">🐉 青苔巷 (45) → 输入龙语 <span class="code">luminar</span></div><div class="timeline-body">需要先获取金币才能进入</div></div>
+              <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">📔 加密日记 (46) → <span class="code">Brume</span></div><div class="timeline-body">搜索"luminar"进入，密码来自烘焙店菜单</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tab 4: Search ===== -->
+    <div class="tab-panel" id="tab-search">
+      <div class="section">
+        <div class="section-title"><span class="icon">🔍</span> 搜索关键词速查</div>
+        <div class="card">
+          <div class="keyword-grid" id="keyword-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-footer">《流星雨的约定》攻略手册 · 祝你找到所有秘密 ✨</div>
+  </div>
+</div>
+</div>
+
+<script>
+// Iframe detection
+try { if (window.self !== window.top) document.body.classList.add('in-iframe'); } catch(e) { document.body.classList.add('in-iframe'); }
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+updateClock(); setInterval(updateClock, 10000);
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Page data - all in one sorted list
+const allPages = [
+  { id:'01', name:'备忘录', from:'主屏幕应用图标' },
+  { id:'02', name:'短信', from:'主屏幕应用图标' },
+  { id:'03', name:'笔记·关于叶禾', from:'搜索"叶禾"' },
+  { id:'04', name:'电话簿', from:'主屏幕应用图标' },
+  { id:'05', name:'日历', from:'主屏幕应用图标' },
+  { id:'06', name:'微信消息列表', from:'主屏幕 → 微信' },
+  { id:'07', name:'微信聊天', from:'微信 → 点击联系人' },
+  { id:'08', name:'商品详情（露营箱）', from:'淘宝推荐 / 微信链接' },
+  { id:'09', name:'淘宝首页', from:'主屏幕应用图标' },
+  { id:'10', name:'我的订单', from:'淘宝 → 我的订单' },
+  { id:'11', name:'DeepSeek', from:'主屏幕应用图标' },
+  { id:'12', name:'浏览器搜索·林晓', from:'主屏幕 → 浏览器' },
+  { id:'13', name:'林晓（百科）', from:'浏览器搜索结果' },
+  { id:'14', name:'遇见文字，遇见冒险', from:'浏览器搜索结果' },
+  { id:'15', name:'QQ登录', from:'主屏幕 → QQ' },
+  { id:'16', name:'QQ空间·林晓', from:'QQ登录成功' },
+  { id:'17', name:'QQ空间·叶禾', from:'林晓空间 → @禾你一起看星星' },
+  { id:'18', name:'微博登录', from:'主屏幕 → 微博' },
+  { id:'19', name:'微博·林晓大号', from:'微博登录成功' },
+  { id:'20', name:'微博·艾尔诺拉（锁定）', from:'微博大号侧边栏' },
+  { id:'21', name:'微博小号登录', from:'艾尔诺拉 → 登录' },
+  { id:'22', name:'微博·艾尔诺拉（内容）', from:'小号登录成功' },
+  { id:'23', name:'相册', from:'主屏幕应用图标' },
+  { id:'24', name:'户外露营装备开箱', from:'B站观看历史' },
+  { id:'25', name:'bilibili首页', from:'主屏幕应用图标' },
+  { id:'26', name:'B站观看历史', from:'B站 → 观看历史' },
+  { id:'27', name:'荒野求生30天挑战', from:'B站观看历史' },
+  { id:'28', name:'小红书密码帖', from:'微信链接 / B站评论区' },
+  { id:'29', name:'浏览器搜索·荒野求生', from:'搜索"荒野求生"' },
+  { id:'30', name:'荒野之心论坛', from:'浏览器搜索结果' },
+  { id:'31', name:'计划去荒野环境长驻采风', from:'论坛 → 装备咨询帖' },
+  { id:'32', name:'登录·银鬃猫的最爱', from:'论坛 → 点击银鬃猫昵称' },
+  { id:'33', name:'登录·芒狗冒险家', from:'论坛 → 登录按钮/点击芒狗昵称' },
+  { id:'34', name:'银鬃猫·个人主页', from:'论坛登录银鬃猫成功' },
+  { id:'35', name:'青苔巷规则怪谈', from:'银鬃猫主页 → 帖子' },
+  { id:'36', name:'关于门的几个发现', from:'银鬃猫主页 → 帖子' },
+  { id:'37', name:'芒狗冒险家·个人主页', from:'论坛登录芒狗成功' },
+  { id:'38', name:'新闻·星愿欢乐谷停业', from:'搜索"星愿欢乐谷"' },
+  { id:'39', name:'拾光里地图', from:'搜索"拾光里"' },
+  { id:'40', name:'易存柜地址选择', from:'搜索"易存柜"' },
+  { id:'41', name:'取件码输入', from:'易存柜 → 选18号柜机' },
+  { id:'42', name:'森屿烘焙（商家页）', from:'搜索"森屿烘焙"' },
+  { id:'43', name:'菜单（烘焙店）', from:'森屿烘焙 → 查看完整菜单' },
+  { id:'44', name:'新闻·青苔巷失踪事件', from:'搜索"青苔巷"' },
+  { id:'45', name:'青苔巷（结局）', from:'搜索"青苔巷" → 导航（需金币）' },
+  { id:'46', name:'加密日记', from:'搜索"luminar"' },
+].sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+const container = document.getElementById('pages-all');
+allPages.forEach(pg => {
+  container.innerHTML += `
+    <div class="page-item">
+      <div class="page-id">${pg.id}</div>
+      <div class="page-info">
+        <div class="page-name">${pg.name}</div>
+        <div class="page-from">${pg.from}</div>
+      </div>
+      <div class="page-arrow">›</div>
+    </div>`;
+});
+
+// Keywords
+const keywords = [
+  { kw:'林晓', target:'浏览器搜索(12)' },
+  { kw:'叶禾', target:'笔记·关于叶禾(03)' },
+  { kw:'星愿欢乐谷', target:'新闻(38)' },
+  { kw:'拾光里', target:'地图(39)' },
+  { kw:'荒野求生', target:'浏览器搜索(29)' },
+  { kw:'荒野之心', target:'浏览器搜索(29)' },
+  { kw:'易存柜', target:'易存柜(40)' },
+  { kw:'双子座', target:'QQ空间·叶禾(17)' },
+  { kw:'gemini', target:'QQ空间·叶禾(17)' },
+  { kw:'青苔巷', target:'新闻(44)+导航(45)' },
+  { kw:'芒狗', target:'淘宝订单(10)' },
+  { kw:'森屿烘焙', target:'商家页(42)' },
+  { kw:'luminar', target:'加密日记(46)' },
+  { kw:'艾尔诺拉', target:'微博小号(20)' },
+];
+
+const grid = document.getElementById('keyword-grid');
+keywords.forEach(k => {
+  grid.innerHTML += `<div class="keyword-chip">${k.kw}<span class="arrow">→ ${k.target}</span></div>`;
+});
+</script>
+</body>
+</html>
