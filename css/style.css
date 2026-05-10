@@ -945,6 +945,7 @@ html, body { height: calc(var(--vh, 1vh) * 100); }
 @media (min-width: 431px) {
   .page-header {
     padding-top: 50px;
+    height: 94px;
   }
 }
 
@@ -1037,6 +1038,8 @@ html, body { height: calc(var(--vh, 1vh) * 100); }
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease;
+  touch-action: manipulation;
+  -webkit-touch-callout: default;
 }
 
 .memo-accordion-text {
@@ -1045,6 +1048,15 @@ html, body { height: calc(var(--vh, 1vh) * 100); }
   color: #6B5340;
   line-height: 1.7;
   white-space: pre-wrap;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+
+.memo-accordion-text span {
+  -webkit-touch-callout: default;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* ============================================
@@ -1099,7 +1111,7 @@ html, body { height: calc(var(--vh, 1vh) * 100); }
 
 /* Modal - 使用absolute定位避免PC端溢出phone-frame */
 #modal { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; display: none; }
-#modal.show { display: block; }
+#modal.show { display: flex; align-items: center; justify-content: center; }
 #modal .modal-content {
   position: absolute; bottom: 0; width: 100%; background-color: #FFFFFF;
   border-radius: 12px 12px 0 0; padding: 20px; animation: slideUp 0.3s ease;
