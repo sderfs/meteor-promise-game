@@ -5594,14 +5594,13 @@
       accountDisplay.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#F2F2F7;border-radius:10px;font-size:15px;color:#6B5340;';
       if (currentAccount) {
         accountDisplay.textContent = currentAccount;
-        if (savedAccounts.length > 1) {
-          const arrow = document.createElement('span');
-          arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
-          arrow.textContent = '\u25BE';
-          accountDisplay.appendChild(arrow);
-          accountDisplay.style.cursor = 'pointer';
-          accountDisplay.addEventListener('click', function() { showAccountSwitcher(); });
-        }
+        // 始终显示切换箭头，允许玩家修改用户名
+        const arrow = document.createElement('span');
+        arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
+        arrow.textContent = '\u25BE';
+        accountDisplay.appendChild(arrow);
+        accountDisplay.style.cursor = 'pointer';
+        accountDisplay.addEventListener('click', function() { showAccountSwitcher(); });
       }
       accountRow.appendChild(accountDisplay);
       card.appendChild(accountRow);
@@ -5735,7 +5734,13 @@
         modalTitle.textContent = '\u9009\u62E9\u8981\u767B\u5F55\u7684\u8D26\u53F7';
         modal.appendChild(modalTitle);
 
-        savedAccounts.forEach(function(account) {
+        // 构建显示列表：已保存账号 + 当前账号（如果不在已保存列表中）
+        var displayAccounts = savedAccounts.slice();
+        if (currentAccount && !displayAccounts.find(function(a) { return a.username === currentAccount; })) {
+          displayAccounts.unshift({ username: currentAccount, password: currentPassword });
+        }
+
+        displayAccounts.forEach(function(account) {
           var row = document.createElement('div');
           row.style.cssText = 'display:flex;align-items:center;padding:12px 8px;cursor:pointer;border-radius:8px;';
 
