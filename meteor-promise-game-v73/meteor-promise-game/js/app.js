@@ -3318,13 +3318,16 @@
           if (journal.locked && !window.gameData.state['qq_journal_unlocked_' + page.id]) {
             // 私密日志：显示锁图标
             jHeader.textContent = journal.lockLabel || ('🔒 ' + journal.title);
-            jHeader.addEventListener('click', function() {
+            jHeader.addEventListener('click', function(e) {
+              e.stopPropagation();
               // 弹出密保验证弹窗
               var modal = document.getElementById('modal');
               if (!modal) return;
-              modal.hidden = false;
               modal.removeAttribute('hidden');
               modal.classList.add('show');
+              modal.style.display = 'flex';
+              modal.style.alignItems = 'center';
+              modal.style.justifyContent = 'center';
               modal.innerHTML = '';
 
               var modalContent = document.createElement('div');
@@ -3375,6 +3378,7 @@
                   StateSaver.save();
                   modal.classList.remove('show');
                   modal.setAttribute('hidden', '');
+                  modal.style.display = 'none';
                   modal.innerHTML = '';
                   // 重新渲染日志区域
                   journalSection.innerHTML = '';
