@@ -451,12 +451,18 @@
      */
     validate(key, input) {
       const rule = window.gameData.passwords[key];
-      if (!rule) return false;
-      // 支持大小写不敏感的验证
+      if (!rule) { console.log('[PasswordValidator] rule not found for key:', key); return false; }
+      var safeInput = String(input || '').trim();
+      var safePwd = String(rule.password || '');
+      console.log('[PasswordValidator] key=' + key + ' input="' + safeInput + '" expected="' + safePwd + '" caseInsensitive=' + rule.caseInsensitive);
       if (rule.caseInsensitive) {
-        return input.toLowerCase() === rule.password.toLowerCase();
+        var result = safeInput.toLowerCase() === safePwd.toLowerCase();
+        console.log('[PasswordValidator] result=' + result);
+        return result;
       }
-      return input === rule.password;
+      var result = safeInput === safePwd;
+      console.log('[PasswordValidator] result=' + result);
+      return result;
     }
   };
 
@@ -5604,7 +5610,7 @@
         arrow.textContent = '\u25BE';
         accountDisplay.appendChild(arrow);
         accountDisplay.style.cursor = 'pointer';
-        accountDisplay.addEventListener('click', function() { showAccountSwitcher(); });
+        accountDisplay.onclick = function() { showAccountSwitcher(); };
       }
       accountRow.appendChild(accountDisplay);
       card.appendChild(accountRow);
@@ -5804,18 +5810,18 @@
         if (username) {
           accountRow.style.display = 'block';
           accountDisplay.textContent = username;
-          // 移除旧的箭头
-          while (accountDisplay.lastChild && accountDisplay.lastChild !== accountDisplay.firstChild) {
+          // 移除旧箭头（保留文本节点）
+          while (accountDisplay.childNodes.length > 1) {
             accountDisplay.removeChild(accountDisplay.lastChild);
           }
-          if (savedAccounts.length > 1) {
-            var arrow = document.createElement('span');
-            arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
-            arrow.textContent = '\u25BE';
-            accountDisplay.appendChild(arrow);
-            accountDisplay.style.cursor = 'pointer';
-            accountDisplay.onclick = function() { showAccountSwitcher(); };
-          }
+          // 始终显示切换箭头，允许玩家修改用户名
+          var arrow = document.createElement('span');
+          arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
+          arrow.textContent = '\u25BE';
+          accountDisplay.appendChild(arrow);
+          accountDisplay.style.cursor = 'pointer';
+          accountDisplay.onclick = null;
+          accountDisplay.onclick = function() { showAccountSwitcher(); };
           usernameGroup.style.display = 'none';
         } else {
           accountRow.style.display = 'none';
