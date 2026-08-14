@@ -7173,6 +7173,15 @@
     const content = document.createElement('div');
     content.className = 'page-content';
 
+    // 计算可收集页面总数（全部数字ID页面）
+    var allPages = window.gameData.pages;
+    var collectibleIds = Object.keys(allPages).filter(function(id) {
+      return /^\d+$/.test(id);
+    });
+    var totalCollectible = collectibleIds.length;
+    var visitedCollectible = visited.filter(function(id) { return collectibleIds.indexOf(id) >= 0; }).length;
+    var isComplete = (visitedCollectible >= totalCollectible && totalCollectible > 0);
+
     if (visited.length === 0) {
       content.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:#8E8E93;">
@@ -7182,10 +7191,29 @@
         </div>
       `;
     } else {
-      const countEl = document.createElement('div');
-      countEl.style.cssText = 'font-size:13px;color:#8E8E93;margin-bottom:12px;';
-      countEl.textContent = `已访问 ${visited.length} 个页面`;
-      content.appendChild(countEl);
+      // ── 进度条区域 ──
+      var progressWrap = document.createElement('div');
+      progressWrap.style.cssText = 'margin-bottom:16px;';
+      var progressInfo = document.createElement('div');
+      progressInfo.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;';
+      var progressLabel = document.createElement('span');
+      progressLabel.style.cssText = 'font-size:13px;color:#8E8E93;';
+      progressLabel.textContent = isComplete ? '\u2728 全收集！' : '探索进度';
+      var progressCount = document.createElement('span');
+      progressCount.style.cssText = 'font-size:13px;color:' + (isComplete ? '#D4A843' : '#8E8E93') + ';font-weight:600;';
+      progressCount.textContent = visitedCollectible + ' / ' + totalCollectible;
+      progressInfo.appendChild(progressLabel);
+      progressInfo.appendChild(progressCount);
+      progressWrap.appendChild(progressInfo);
+      // 进度条
+      var progressBarOuter = document.createElement('div');
+      progressBarOuter.style.cssText = 'height:6px;background:#E6E2D3;border-radius:3px;overflow:hidden;';
+      var progressBarInner = document.createElement('div');
+      var pct = Math.round(visitedCollectible / totalCollectible * 100);
+      progressBarInner.style.cssText = 'height:100%;width:' + pct + '%;background:' + (isComplete ? '#D4A843' : '#5B9BD5') + ';border-radius:3px;transition:width 0.5s ease;';
+      progressBarOuter.appendChild(progressBarInner);
+      progressWrap.appendChild(progressBarOuter);
+      content.appendChild(progressWrap);
 
       // 按编号从小到大排序（过滤非数字ID）
       var sorted = visited.filter(function(id) { return /^\d+$/.test(id); }).slice().sort(function(a, b) {
