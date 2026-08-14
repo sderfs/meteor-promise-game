@@ -3709,8 +3709,15 @@
           aCard.style.cssText = 'display:flex;align-items:center;padding:12px;border:1px solid #E5E5EA;border-radius:10px;margin-bottom:8px;cursor:pointer;';
 
           var aIcon = document.createElement('div');
-          aIcon.style.cssText = 'width:48px;height:48px;background:#F2F2F7;border-radius:8px;margin-right:12px;display:flex;align-items:center;justify-content:center;font-size:24px;';
-          aIcon.textContent = '\uD83D\uDBC2';
+          aIcon.style.cssText = 'width:48px;height:48px;background:#F2F2F7;border-radius:8px;margin-right:12px;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;';
+          if (album.image) {
+            var aImg = document.createElement('img');
+            aImg.src = album.image;
+            aImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+            aIcon.appendChild(aImg);
+          } else {
+            aIcon.textContent = '\uD83D\uDBC2';
+          }
           aCard.appendChild(aIcon);
 
           var aInfo = document.createElement('div');
