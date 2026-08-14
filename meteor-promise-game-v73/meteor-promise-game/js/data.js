@@ -1155,7 +1155,8 @@ const gameData = {
         navTabs: [
           { text: "首页", active: true, target: null },
           { text: "动态", active: false, target: null },
-          { text: "消息", active: false, target: "26", badge: true, bold: true }
+          { text: "消息", active: false, target: "26", badge: true, bold: true },
+          { text: "观看历史", active: false, target: null }
         ]
       }
     },
