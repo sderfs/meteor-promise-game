@@ -1155,8 +1155,7 @@ const gameData = {
         navTabs: [
           { text: "首页", active: true, target: null },
           { text: "动态", active: false, target: null },
-          { text: "消息", active: false, target: "26", badge: true, bold: true },
-          { text: "观看历史", active: false, target: "47", bold: true }
+          { text: "消息", active: false, target: "26", badge: true, bold: true }
         ]
       }
     },
@@ -1203,26 +1202,7 @@ const gameData = {
       }
     },
 
-    // ---- 页面 47：彩蛋页（隐藏的观看历史） ----
-    "47": {
-      id: "47",
-      title: "观看历史",
-      footprintTitle: "B站 · 观看历史",
-      type: "bilibili-history",
-      data: {
-        videos: [
-          { title: "两分钟教你如何荒野求生", progress: "已看72%", date: "8月12日", bold: ["荒野求生"] },
-          { title: "荒野求生的一百个小妙招", progress: "已看完", date: "8月11日", bold: ["荒野求生"] },
-          { title: "野外净水器实测，荒野求生必备", progress: "已看完", date: "8月10日", bold: ["荒野求生"] },
-          { title: "荒野求生装备红黑榜", progress: "已看45%", date: "8月9日", bold: ["荒野求生"] },
-          { title: "一个人荒野求生30天挑战", progress: "已看完", date: "8月9日", bold: ["荒野求生"], target: "27" },
-          { title: "户外露营装备开箱", progress: "已看完", date: "8月8日" },
-          { title: "新手露营避坑指南", progress: "已看完", date: "8月7日" }
-        ]
-      }
     },
-
-  },
 
   // ========== 密码验证表 ==========
   // 各场景的账号密码及安全问题
@@ -1285,8 +1265,8 @@ const gameData = {
     "23": "打开相册，那个彩色图标里有两张照片很特别。",
     "24": "小鹿分享的视频，没什么特别的线索。",
     "25": "从视频页面点左上角就能到B站首页，但没什么好看的。",
-    "26": "B站首页点观看历史就能看到，有一个视频值得再看看。",
-    "27": "观看历史里有个视频提供了如何求生的线索。",
+    "26": "B站首页顶部有个带红点的消息入口，点开看看。",
+    "27": "B站消息里有一条通知，点开就是那个视频。",
     "28": "微信里小鹿分享的另一个链接，有人在那里说过自己设密码的套路。",
     "29": "搜索那条视频评论里提到的地方。",
     "30": "论坛里有个帖子锁着，发帖人的名字像一只猫。",
@@ -1428,3 +1408,17 @@ const gameData = {
 
 // 暴露到全局
 window.gameData = gameData;
+
+// 清理已删除页面的访问记录
+(function() {
+  var state = window.gameData.state;
+  if (state.visitedPages && state.visitedPages.length > 0) {
+    var filtered = state.visitedPages.filter(function(id) {
+      return window.gameData.pages[id];
+    });
+    if (filtered.length !== state.visitedPages.length) {
+      state.visitedPages = filtered;
+      try { localStorage.setItem('meteor_game_state', JSON.stringify(state)); } catch(e) {}
+    }
+  }
+})();
