@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 《流星雨的约定》游戏核心逻辑
  * IIFE 封装，避免全局污染
  * 数据通过 window.gameData 访问
@@ -451,18 +451,12 @@
      */
     validate(key, input) {
       const rule = window.gameData.passwords[key];
-      if (!rule) { console.log('[PasswordValidator] rule not found for key:', key); return false; }
-      var safeInput = String(input || '').trim();
-      var safePwd = String(rule.password || '');
-      console.log('[PasswordValidator] key=' + key + ' input="' + safeInput + '" expected="' + safePwd + '" caseInsensitive=' + rule.caseInsensitive);
+      if (!rule) return false;
+      // 支持大小写不敏感的验证
       if (rule.caseInsensitive) {
-        var result = safeInput.toLowerCase() === safePwd.toLowerCase();
-        console.log('[PasswordValidator] result=' + result);
-        return result;
+        return input.toLowerCase() === rule.password.toLowerCase();
       }
-      var result = safeInput === safePwd;
-      console.log('[PasswordValidator] result=' + result);
-      return result;
+      return input === rule.password;
     }
   };
 
@@ -484,9 +478,6 @@
      * @param {boolean} pushToStack - 是否压入导航栈（默认true）
      */
     navigate(pageId, pushToStack = true, params = {}) {
-      // 清理闹钟（防止震动不停）
-      if (typeof _cleanupAlarm === 'function') _cleanupAlarm();
-
       const state = window.gameData.state;
 
       // 保存临时参数供渲染器使用
@@ -509,9 +500,6 @@
       // 3. 更新 currentPage
       state.currentPage = pageId;
       this.currentPage = pageId;
-
-      // Analytics: 追踪页面进入
-      Analytics.trackPageEnter(pageId);
 
       // 4. 如果页面未访问过，添加到 visitedPages
       // 对于特殊路由（07_chat_xxx, 02_detail_xxx），记录基础页面ID
@@ -545,16 +533,10 @@
 
     /** 返回上一页（从导航栈弹出一层） */
     back() {
-      // 清理闹钟（防止震动不停）
-      if (typeof _cleanupAlarm === 'function') _cleanupAlarm();
-
       if (this._navStack.length > 0) {
         const prevPageId = this._navStack.pop();
         this.currentPage = prevPageId;
         window.gameData.state.currentPage = prevPageId;
-
-        // Analytics: 追踪返回上一页
-        Analytics.trackPageEnter(prevPageId);
 
         const container = document.getElementById('page-container');
         container.innerHTML = '';
@@ -587,8 +569,6 @@
         }
       } else {
         // 栈为空，回到主屏幕
-        // Analytics: 追踪回到主页
-        Analytics.trackPageExit();
         document.getElementById('main-scroll').style.display = '';
         document.getElementById('page-container').innerHTML = '';
         document.getElementById('page-container').className = '';
@@ -602,18 +582,11 @@
 
     /** 返回主屏幕（清空导航栈） */
     goHome() {
-      // 如果闹钟待触发，不清理（保留计时器）
-      var _alarmPending = window.gameData.state.alarmPending;
-      if (!_alarmPending && typeof _cleanupAlarm === 'function') _cleanupAlarm();
-
       this._navStack = [];
       document.getElementById('main-scroll').style.display = '';
       document.getElementById('page-container').innerHTML = '';
       document.getElementById('page-container').className = '';
       document.getElementById('page-number').style.display = 'none';
-
-      // Analytics: 追踪回到主页
-      Analytics.trackPageExit();
       // 清除结局动画overlay等残留元素
       const appEl = document.getElementById('app');
       if (appEl) {
@@ -626,91 +599,8 @@
       this.currentPage = null;
       window.gameData.state.previousPage = null;
       window.gameData.state.currentPage = null;
-
-      // 闹钟待触发：回主界面后启动闹钟
-      if (_alarmPending) {
-        window.gameData.state.alarmPending = false;
-        StateSaver.save();
-        delayShowAlarm();
-      }
     }
   };
-
-  // ========== 4.5 Analytics 玩家行为分析 ==========
-  var Analytics = {
-    _pageEnterTime: 0,
-    _currentPage: null,
-    _beaconUrl: '/api/beacon',
-    _enabled: true,
-
-    init: function() {
-      this._pageEnterTime = Date.now();
-      // 关闭/刷新页面时发送离开信标
-      var self = this;
-      window.addEventListener('beforeunload', function() {
-        self._sendExitBeacon();
-      });
-      // 页面隐藏时也发送（mobile切换app等场景）
-      window.addEventListener('pagehide', function() {
-        self._sendExitBeacon();
-      });
-    },
-
-    trackPageEnter: function(pageId) {
-      if (!this._enabled) return;
-      var now = Date.now();
-      // 发送前一个页面的离开信标
-      if (this._currentPage && this._pageEnterTime > 0) {
-        var duration = Math.round((now - this._pageEnterTime) / 1000);
-        this._sendBeacon({
-          from: this._currentPage,
-          pageId: pageId,
-          duration: duration
-        });
-      } else {
-        this._sendBeacon({ pageId: pageId });
-      }
-      this._currentPage = pageId;
-      this._pageEnterTime = now;
-    },
-
-    trackPageExit: function() {
-      if (!this._enabled) return;
-      this._sendExitBeacon();
-      this._currentPage = null;
-      this._pageEnterTime = 0;
-    },
-
-    _sendExitBeacon: function() {
-      if (!this._currentPage || this._pageEnterTime <= 0) return;
-      var duration = Math.round((Date.now() - this._pageEnterTime) / 1000);
-      var data = JSON.stringify({
-        from: this._currentPage,
-        duration: duration
-      });
-      try {
-        navigator.sendBeacon(this._beaconUrl, new Blob([data], { type: 'application/json' }));
-      } catch (e) {
-        // fallback: fetch
-        try {
-          fetch(this._beaconUrl, { method: 'POST', body: data, headers: { 'Content-Type': 'application/json' }, keepalive: true });
-        } catch (e2) { /* ignore */ }
-      }
-    },
-
-    _sendBeacon: function(data) {
-      try {
-        navigator.sendBeacon(this._beaconUrl, new Blob([JSON.stringify(data)], { type: 'application/json' }));
-      } catch (e) {
-        try {
-          fetch(this._beaconUrl, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' }, keepalive: true });
-        } catch (e2) { /* ignore */ }
-      }
-    }
-  };
-
-  // 初始化 Analytics
-  Analytics.init();
 
   // ========== 5. PageRenderer 页面渲染器 ==========
   const PageRenderer = {
@@ -737,7 +627,6 @@
         case 'browser-search': this.renderBrowserSearch(page); break;
         case 'bilibili-home': this.renderBilibiliHome(page); break;
         case 'bilibili-video': this.renderBilibiliVideo(page); break;
-        case 'bilibili-message': this.renderBilibiliMessage(page); break;
         case 'bilibili-history': this.renderBilibiliHistory(page); break;
         case 'article': this.renderArticle(page); break;
         case 'profile': this.renderProfile(page); break;
@@ -2033,31 +1922,18 @@
       const navBar = document.createElement('div');
       navBar.style.cssText = 'flex-shrink:0;display:flex;align-items:center;justify-content:space-around;height:50px;background:rgba(255,255,255,0.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:0.5px solid #E5E5EA;';
       (navTabs || []).forEach(tab => {
-        const tabWrap = document.createElement('div');
-        tabWrap.style.cssText = 'position:relative;text-align:center;cursor:' + (tab.target ? 'pointer' : 'default') + ';';
-
         const tabEl = document.createElement('div');
-        var fontWeight = tab.bold ? '700' : '400';
-        tabEl.style.cssText = 'font-size:10px;color:' + (tab.active ? '#5B9BD5' : '#8E8E93') + ';font-weight:' + fontWeight + ';';
+        tabEl.style.cssText = 'text-align:center;font-size:10px;color:' + (tab.active ? '#5B9BD5' : '#8E8E93') + ';cursor:' + (tab.target ? 'pointer' : 'default') + ';';
         tabEl.textContent = tab.text;
-        tabWrap.appendChild(tabEl);
-
-        // 红点提示
-        if (tab.badge && this._hasUnreadMessage(tab.target)) {
-          const badge = document.createElement('div');
-          badge.style.cssText = 'position:absolute;top:-4px;right:-6px;width:8px;height:8px;background:#FF3B30;border-radius:50%;';
-          tabWrap.appendChild(badge);
-        }
-
         if (tab.target) {
-          tabWrap.addEventListener('click', () => Router.navigate(tab.target));
+          tabEl.addEventListener('click', () => Router.navigate(tab.target));
         }
-        navBar.appendChild(tabWrap);
+        navBar.appendChild(tabEl);
       });
       container.appendChild(navBar);
     },
 
-    /** 渲染B站观看历史（彩蛋页） */
+    /** 渲染B站观看历史 */
     renderBilibiliHistory(page) {
       const container = document.getElementById('page-container');
       container.appendChild(this.createHeader(page.title));
@@ -2089,6 +1965,7 @@
         const vTitle = document.createElement('div');
         vTitle.style.cssText = 'font-size:14px;color:#6B5340;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
         if (video.bold && video.title) {
+          // 使用DOM节点构建，支持长按复制
           var titleText = video.title;
           var bolds = [...video.bold];
           var segs = [titleText];
@@ -2112,12 +1989,14 @@
               var span = document.createElement('span');
               span.textContent = s;
               span.style.cssText = 'font-weight:700;user-select:text;-webkit-user-select:text;cursor:default;';
+              // 长按复制
               let pressTimer;
               const doCopy = function() {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                   navigator.clipboard.writeText(s).then(function() {
                     Toast.show('已复制：' + s);
                   }).catch(function() {
+                    // fallback
                     const ta = document.createElement('textarea');
                     ta.value = s;
                     ta.style.position = 'fixed';
@@ -2158,106 +2037,6 @@
       });
 
       container.appendChild(content);
-    },
-
-    /** 渲染B站消息页 */
-    renderBilibiliMessage(page) {
-      const container = document.getElementById('page-container');
-      container.appendChild(this.createHeader(page.title));
-
-      const content = document.createElement('div');
-      content.style.cssText = 'flex:1;overflow-y:auto;background:#F5DEB3;';
-
-      // 通知区域
-      const notifications = page.data.notifications || [];
-      const hasUnread = notifications.some(n => !n.read);
-
-      if (notifications.length > 0) {
-        const notifSection = document.createElement('div');
-        notifSection.style.cssText = 'background:#fff;margin:12px 16px;border-radius:12px;overflow:hidden;';
-
-        notifications.forEach(notif => {
-          const row = document.createElement('div');
-          row.style.cssText = 'display:flex;align-items:flex-start;padding:14px 16px;gap:12px;border-bottom:0.5px solid #F0F0F0;cursor:pointer;position:relative;';
-
-          // 红点
-          if (!notif.read) {
-            const badge = document.createElement('div');
-            badge.style.cssText = 'position:absolute;top:14px;right:14px;width:8px;height:8px;background:#FF3B30;border-radius:50%;';
-            row.appendChild(badge);
-          }
-
-          // 头像
-          const avatar = document.createElement('div');
-          avatar.style.cssText = 'width:40px;height:40px;background:#E6E2D3;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;';
-          avatar.textContent = notif.avatar || '👤';
-          row.appendChild(avatar);
-
-          // 内容
-          const info = document.createElement('div');
-          info.style.cssText = 'flex:1;min-width:0;';
-
-          const topLine = document.createElement('div');
-          topLine.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
-          const userName = document.createElement('span');
-          userName.style.cssText = 'font-size:14px;font-weight:600;color:#6B5340;';
-          userName.textContent = notif.user;
-          const actionText = document.createElement('span');
-          actionText.style.cssText = 'font-size:14px;color:#8E8E93;';
-          actionText.textContent = notif.text;
-          topLine.appendChild(userName);
-          topLine.appendChild(actionText);
-
-          const commentText = document.createElement('div');
-          commentText.style.cssText = 'font-size:13px;color:#6B5340;background:#F5F5F5;padding:8px 12px;border-radius:8px;margin-top:4px;line-height:1.4;';
-          commentText.textContent = '"' + notif.comment + '"';
-
-          const timeText = document.createElement('div');
-          timeText.style.cssText = 'font-size:11px;color:#8E8E93;margin-top:6px;';
-          timeText.textContent = notif.time;
-
-          info.appendChild(topLine);
-          info.appendChild(commentText);
-          info.appendChild(timeText);
-          row.appendChild(info);
-
-          // 点击跳转
-          if (notif.target) {
-            row.addEventListener('click', () => {
-              // 标记为已读
-              notif.read = true;
-              this._saveMessageReadState(page.id);
-              Router.navigate(notif.target);
-            });
-            row.addEventListener('touchstart', () => { row.style.backgroundColor = '#F5F5F5'; });
-            row.addEventListener('touchend', () => { row.style.backgroundColor = ''; });
-          }
-
-          notifSection.appendChild(row);
-        });
-
-        content.appendChild(notifSection);
-      }
-
-      container.appendChild(content);
-    },
-
-    /** 保存消息已读状态 */
-    _saveMessageReadState(pageId) {
-      try {
-        var key = 'msg_read_' + pageId;
-        localStorage.setItem(key, '1');
-      } catch(e) {}
-    },
-
-    /** 检查消息是否有未读 */
-    _hasUnreadMessage(pageId) {
-      try {
-        var key = 'msg_read_' + pageId;
-        return !localStorage.getItem(key);
-      } catch(e) {
-        return true;
-      }
     },
 
     /**
@@ -3364,7 +3143,7 @@
               userSpan.textContent = reply.user;
             }
             rEl.appendChild(userSpan);
-            if (reply.bold) { var rText = document.createElement('strong'); rText.style.cssText = 'color:#4A3728;'; rText.textContent = '：' + reply.text; rEl.appendChild(rText); } else { rEl.appendChild(document.createTextNode('：' + reply.text)); }
+            rEl.appendChild(document.createTextNode('：' + reply.text));
             expandArea.appendChild(rEl);
           });
         }
@@ -3411,16 +3190,13 @@
           if (journal.locked && !window.gameData.state['qq_journal_unlocked_' + page.id]) {
             // 私密日志：显示锁图标
             jHeader.textContent = journal.lockLabel || ('🔒 ' + journal.title);
-            jHeader.addEventListener('click', function(e) {
-              e.stopPropagation();
+            jHeader.addEventListener('click', function() {
               // 弹出密保验证弹窗
               var modal = document.getElementById('modal');
               if (!modal) return;
+              modal.hidden = false;
               modal.removeAttribute('hidden');
               modal.classList.add('show');
-              modal.style.display = 'flex';
-              modal.style.alignItems = 'center';
-              modal.style.justifyContent = 'center';
               modal.innerHTML = '';
 
               var modalContent = document.createElement('div');
@@ -3471,7 +3247,6 @@
                   StateSaver.save();
                   modal.classList.remove('show');
                   modal.setAttribute('hidden', '');
-                  modal.style.display = 'none';
                   modal.innerHTML = '';
                   // 重新渲染日志区域
                   journalSection.innerHTML = '';
@@ -3796,15 +3571,8 @@
           aCard.style.cssText = 'display:flex;align-items:center;padding:12px;border:1px solid #E5E5EA;border-radius:10px;margin-bottom:8px;cursor:pointer;';
 
           var aIcon = document.createElement('div');
-          aIcon.style.cssText = 'width:48px;height:48px;background:#F2F2F7;border-radius:8px;margin-right:12px;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;';
-          if (album.image) {
-            var aImg = document.createElement('img');
-            aImg.src = album.image;
-            aImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            aIcon.appendChild(aImg);
-          } else {
-            aIcon.textContent = '\uD83D\uDBC2';
-          }
+          aIcon.style.cssText = 'width:48px;height:48px;background:#F2F2F7;border-radius:8px;margin-right:12px;display:flex;align-items:center;justify-content:center;font-size:24px;';
+          aIcon.textContent = '\uD83D\uDBC2';
           aCard.appendChild(aIcon);
 
           var aInfo = document.createElement('div');
@@ -5698,13 +5466,14 @@
       accountDisplay.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#F2F2F7;border-radius:10px;font-size:15px;color:#6B5340;';
       if (currentAccount) {
         accountDisplay.textContent = currentAccount;
-        // 始终显示切换箭头，允许玩家修改用户名
-        const arrow = document.createElement('span');
-        arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
-        arrow.textContent = '\u25BE';
-        accountDisplay.appendChild(arrow);
-        accountDisplay.style.cursor = 'pointer';
-        accountDisplay.onclick = function() { showAccountSwitcher(); };
+        if (savedAccounts.length > 1) {
+          const arrow = document.createElement('span');
+          arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
+          arrow.textContent = '\u25BE';
+          accountDisplay.appendChild(arrow);
+          accountDisplay.style.cursor = 'pointer';
+          accountDisplay.addEventListener('click', function() { showAccountSwitcher(); });
+        }
       }
       accountRow.appendChild(accountDisplay);
       card.appendChild(accountRow);
@@ -5838,13 +5607,7 @@
         modalTitle.textContent = '\u9009\u62E9\u8981\u767B\u5F55\u7684\u8D26\u53F7';
         modal.appendChild(modalTitle);
 
-        // 构建显示列表：已保存账号 + 当前账号（如果不在已保存列表中）
-        var displayAccounts = savedAccounts.slice();
-        if (currentAccount && !displayAccounts.find(function(a) { return a.username === currentAccount; })) {
-          displayAccounts.unshift({ username: currentAccount, password: currentPassword });
-        }
-
-        displayAccounts.forEach(function(account) {
+        savedAccounts.forEach(function(account) {
           var row = document.createElement('div');
           row.style.cssText = 'display:flex;align-items:center;padding:12px 8px;cursor:pointer;border-radius:8px;';
 
@@ -5904,18 +5667,18 @@
         if (username) {
           accountRow.style.display = 'block';
           accountDisplay.textContent = username;
-          // 移除旧箭头（保留文本节点）
-          while (accountDisplay.childNodes.length > 1) {
+          // 移除旧的箭头
+          while (accountDisplay.lastChild && accountDisplay.lastChild !== accountDisplay.firstChild) {
             accountDisplay.removeChild(accountDisplay.lastChild);
           }
-          // 始终显示切换箭头，允许玩家修改用户名
-          var arrow = document.createElement('span');
-          arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
-          arrow.textContent = '\u25BE';
-          accountDisplay.appendChild(arrow);
-          accountDisplay.style.cursor = 'pointer';
-          accountDisplay.onclick = null;
-          accountDisplay.onclick = function() { showAccountSwitcher(); };
+          if (savedAccounts.length > 1) {
+            var arrow = document.createElement('span');
+            arrow.style.cssText = 'color:#8E8E93;font-size:18px;cursor:pointer;';
+            arrow.textContent = '\u25BE';
+            accountDisplay.appendChild(arrow);
+            accountDisplay.style.cursor = 'pointer';
+            accountDisplay.onclick = function() { showAccountSwitcher(); };
+          }
           usernameGroup.style.display = 'none';
         } else {
           accountRow.style.display = 'none';
@@ -6194,57 +5957,27 @@
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center;';
             const modal = document.createElement('div');
-            modal.style.cssText = 'background:#fff;border-radius:16px;padding:24px 20px 20px;width:280px;text-align:center;max-height:80vh;overflow-y:auto;';
+            modal.style.cssText = 'background:#fff;border-radius:16px;padding:24px 20px 20px;width:280px;text-align:center;';
             const img = document.createElement('img');
             img.src = 'assets/coin-gift.webp';
             img.style.cssText = 'width:100%;border-radius:10px;margin-bottom:16px;';
             img.alt = '金币礼物';
             modal.appendChild(img);
-
-            // 文字内容容器
-            const textContainer = document.createElement('div');
-            textContainer.style.cssText = 'text-align:left;margin-bottom:16px;';
-
-            const paragraphs = [
-              '柜门弹开了。',
-              '里面很暗。你伸手进去，指尖碰到一个软塌塌的小布袋。',
-              '布袋很轻，抽绳拉开的时候，有什么东西在掌心凉了一下。',
-              '你把它倒出来。',
-              '一枚金币。',
-              '咬过的。软的真金。边缘有她牙齿的痕迹。',
-              '你握紧那枚金币。',
-              '找到她。'
-            ];
-
-            paragraphs.forEach((text, index) => {
-              const p = document.createElement('div');
-              const isLast = index === paragraphs.length - 1;
-              p.style.cssText = isLast
-                ? 'font-size:20px;font-weight:700;color:#3A3A3A;line-height:1.8;margin-bottom:8px;opacity:0;animation:textFadeIn 0.5s ease forwards;'
-                : 'font-size:16px;color:#3A3A3A;line-height:1.8;margin-bottom:8px;opacity:0;animation:textFadeIn 0.5s ease forwards;';
-              p.style.animationDelay = (index * 0.5) + 's';
-              p.textContent = text;
-              textContainer.appendChild(p);
-            });
-
-            modal.appendChild(textContainer);
-
-            // 注入动画样式
-            if (!document.getElementById('coin-text-styles')) {
-              const style = document.createElement('style');
-              style.id = 'coin-text-styles';
-              style.textContent = '@keyframes textFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}';
-              document.head.appendChild(style);
-            }
-
+            const title = document.createElement('div');
+            title.style.cssText = 'font-size:17px;font-weight:600;color:#6B5340;margin-bottom:8px;';
+            title.textContent = page.data.successTitle || '验证成功';
+            modal.appendChild(title);
+            const desc = document.createElement('div');
+            desc.style.cssText = 'font-size:14px;color:#8E8E93;margin-bottom:16px;line-height:1.5;';
+            desc.textContent = page.data.successContent || '验证码正确';
+            modal.appendChild(desc);
             const btn = document.createElement('button');
             btn.className = 'form-btn';
             btn.textContent = page.data.successBtnText || '确定';
-            btn.style.marginTop = '8px';
-            btn.addEventListener('click', () => { document.body.removeChild(overlay); if (!window.gameData.state.timeFrozen) { window.gameData.state.alarmPending = true; StateSaver.save(); } Router.goHome(); });
+            btn.addEventListener('click', () => { document.body.removeChild(overlay); });
             modal.appendChild(btn);
             overlay.appendChild(modal);
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) { document.body.removeChild(overlay); if (!window.gameData.state.timeFrozen) { window.gameData.state.alarmPending = true; StateSaver.save(); } Router.goHome(); } });
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) document.body.removeChild(overlay); });
             document.body.appendChild(overlay);
           } else {
             // 错误
@@ -7027,127 +6760,6 @@
     }
   };
 
-  // ========== 6.5 闹钟弹窗 ==========
-  let _alarmVibTimer = null;
-
-  function showAlarmClock() {
-    // 如果闹钟已经显示或已经触发过，不再重复创建
-    if (document.getElementById('alarm-overlay')) return;
-    if (window.gameData.state.alarmTriggered) return;
-    window.gameData.state.alarmTriggered = true;
-    StateSaver.save();
-    
-    // 更新所有时间显示为12:00
-    var ids = ['#status-time', '#main-time'];
-    for (var i = 0; i < ids.length; i++) {
-      var el = document.querySelector(ids[i]);
-      if (el) el.textContent = '12:00';
-    }
-
-    // 冻结时间为12:00（永久）
-    window.gameData.state.timeFrozen = true;
-    StateSaver.save();
-
-    // 开始振动（移动端）
-    _startVibration();
-
-    // 视觉震动（所有设备）
-    var phoneFrame = document.getElementById('phone-frame');
-    if (phoneFrame) phoneFrame.classList.add('alarm-shaking');
-
-    // 动态创建弹窗（和忘记密码弹窗 showPasswordHint 完全一致的方式）
-    var overlay = document.createElement('div');
-    overlay.id = 'alarm-overlay';
-    overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;';
-
-    var modal = document.createElement('div');
-    modal.style.cssText = 'background:#fff;border-radius:14px;padding:20px;width:260px;max-width:80vw;text-align:center;';
-
-    var iconDiv = document.createElement('div');
-    iconDiv.style.cssText = 'font-size:56px;line-height:1;margin-bottom:12px;';
-    iconDiv.textContent = '\u23F0';
-    modal.appendChild(iconDiv);
-
-    var timeDiv = document.createElement('div');
-    timeDiv.style.cssText = 'font-size:48px;font-weight:300;color:#000;letter-spacing:1px;line-height:1.1;';
-    timeDiv.textContent = '12:00';
-    modal.appendChild(timeDiv);
-
-    var labelDiv = document.createElement('div');
-    labelDiv.style.cssText = 'font-size:17px;color:#8E8E93;margin-top:6px;margin-bottom:20px;';
-    labelDiv.textContent = '\u8D77\u5E8A';
-    modal.appendChild(labelDiv);
-
-    var btnArea = document.createElement('div');
-    btnArea.style.cssText = 'border-top:1px solid #E5E5EA;display:flex;margin:0 -20px -20px -20px;';
-
-    var btnSnooze = document.createElement('div');
-    btnSnooze.style.cssText = 'flex:1;padding:13px 0;font-size:17px;color:#007AFF;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;';
-    btnSnooze.textContent = '\u7A0D\u540E\u63D0\u9192';
-    btnSnooze.addEventListener('click', function() { _removeAlarm(overlay); });
-
-    var btnClose = document.createElement('div');
-    btnClose.style.cssText = 'flex:1;padding:13px 0;font-size:17px;color:#007AFF;border-left:1px solid #E5E5EA;font-weight:600;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;';
-    btnClose.textContent = '\u5173\u95ED';
-    btnClose.addEventListener('click', function() { _removeAlarm(overlay); });
-
-    btnArea.appendChild(btnSnooze);
-    btnArea.appendChild(btnClose);
-    modal.appendChild(btnArea);
-    overlay.appendChild(modal);
-
-    // 点击背景关闭
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) _removeAlarm(overlay); });
-
-    document.body.appendChild(overlay);
-  }
-
-  function _removeAlarm(overlay) {
-    if (_alarmVibTimer) { clearInterval(_alarmVibTimer); _alarmVibTimer = null; }
-    try { if (navigator.vibrate) navigator.vibrate(0); } catch(e) {}
-    // 停止视觉震动
-    var phoneFrame = document.getElementById('phone-frame');
-    if (phoneFrame) phoneFrame.classList.remove('alarm-shaking');
-    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-  }
-
-  // 全局清理闹钟（导航时调用，防止震动不停）
-  function _cleanupAlarm() {
-    // 闹钟待触发时不取消延迟计时器
-    if (!window.gameData.state.alarmPending) {
-      if (_alarmDelayTimer) { clearTimeout(_alarmDelayTimer); _alarmDelayTimer = null; }
-    }
-    if (_alarmVibTimer) { clearInterval(_alarmVibTimer); _alarmVibTimer = null; }
-    try { if (navigator.vibrate) navigator.vibrate(0); } catch(e) {}
-    // 停止视觉震动
-    var phoneFrame = document.getElementById('phone-frame');
-    if (phoneFrame) phoneFrame.classList.remove('alarm-shaking');
-    var alarmOverlay = document.getElementById('alarm-overlay');
-    if (alarmOverlay && alarmOverlay.parentNode) alarmOverlay.parentNode.removeChild(alarmOverlay);
-  }
-
-  // 延迟显示闹钟（给玩家喘息空间）
-  let _alarmDelayTimer = null;
-  function delayShowAlarm() {
-    if (_alarmDelayTimer) { clearTimeout(_alarmDelayTimer); _alarmDelayTimer = null; }
-    _alarmDelayTimer = setTimeout(function() { 
-      _alarmDelayTimer = null;
-      showAlarmClock(); 
-    }, 800);
-  }
-
-  function _startVibration() {
-    if (_alarmVibTimer) { clearInterval(_alarmVibTimer); _alarmVibTimer = null; }
-    try {
-      // 振动模式：振300ms，停700ms，重复10次（共10秒）
-      var pattern = [300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700];
-      if (navigator.vibrate) {
-        navigator.vibrate(pattern);
-        _alarmVibTimer = setInterval(function() { navigator.vibrate(pattern); }, 10000);
-      }
-    } catch(e) {}
-  }
-
   // ========== 7. DeepSeek 提示系统 ==========
   const DeepSeek = {
     /**
@@ -7260,15 +6872,6 @@
     const content = document.createElement('div');
     content.className = 'page-content';
 
-    // 计算可收集页面总数（全部数字ID页面）
-    var allPages = window.gameData.pages;
-    var collectibleIds = Object.keys(allPages).filter(function(id) {
-      return /^\d+$/.test(id);
-    });
-    var totalCollectible = collectibleIds.length;
-    var visitedCollectible = visited.filter(function(id) { return collectibleIds.indexOf(id) >= 0; }).length;
-    var isComplete = (visitedCollectible >= totalCollectible && totalCollectible > 0);
-
     if (visited.length === 0) {
       content.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:#8E8E93;">
@@ -7278,29 +6881,10 @@
         </div>
       `;
     } else {
-      // ── 进度条区域 ──
-      var progressWrap = document.createElement('div');
-      progressWrap.style.cssText = 'margin-bottom:16px;';
-      var progressInfo = document.createElement('div');
-      progressInfo.style.cssText = 'display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;';
-      var progressLabel = document.createElement('span');
-      progressLabel.style.cssText = 'font-size:13px;color:#8E8E93;';
-      progressLabel.textContent = isComplete ? '\u2728 全收集！' : '探索进度';
-      var progressCount = document.createElement('span');
-      progressCount.style.cssText = 'font-size:13px;color:' + (isComplete ? '#D4A843' : '#8E8E93') + ';font-weight:600;';
-      progressCount.textContent = visitedCollectible + ' / ' + totalCollectible;
-      progressInfo.appendChild(progressLabel);
-      progressInfo.appendChild(progressCount);
-      progressWrap.appendChild(progressInfo);
-      // 进度条
-      var progressBarOuter = document.createElement('div');
-      progressBarOuter.style.cssText = 'height:6px;background:#E6E2D3;border-radius:3px;overflow:hidden;';
-      var progressBarInner = document.createElement('div');
-      var pct = Math.round(visitedCollectible / totalCollectible * 100);
-      progressBarInner.style.cssText = 'height:100%;width:' + pct + '%;background:' + (isComplete ? '#D4A843' : '#5B9BD5') + ';border-radius:3px;transition:width 0.5s ease;';
-      progressBarOuter.appendChild(progressBarInner);
-      progressWrap.appendChild(progressBarOuter);
-      content.appendChild(progressWrap);
+      const countEl = document.createElement('div');
+      countEl.style.cssText = 'font-size:13px;color:#8E8E93;margin-bottom:12px;';
+      countEl.textContent = `已访问 ${visited.length} 个页面`;
+      content.appendChild(countEl);
 
       // 按编号从小到大排序（过滤非数字ID）
       var sorted = visited.filter(function(id) { return /^\d+$/.test(id); }).slice().sort(function(a, b) {
@@ -7537,12 +7121,9 @@
    * 更新状态栏时间显示
    */
   function updateTime() {
-    // 闹钟触发后时间冻结为12:00，否则显示游戏内固定时间10:30
-    var t = (window.gameData.state.timeFrozen) ? '12:00' : '10:30';
-    var timeEl = document.getElementById('status-time');
-    if (timeEl) timeEl.textContent = t;
-    var mainTimeEl = document.getElementById('main-time');
-    if (mainTimeEl) mainTimeEl.textContent = t;
+    // 游戏内固定时间：10:30（不使用真实时间）
+    const timeEl = document.getElementById('status-time');
+    if (timeEl) timeEl.textContent = '10:30';
   }
 
   // ========== 11. 左边缘滑动返回手势 ==========

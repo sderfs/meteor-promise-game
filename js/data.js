@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 《流星雨的约定》游戏数据层
  * 集中管理所有页面数据、密码、提示、搜索映射、全局状态和导航关系
  */
@@ -101,7 +101,7 @@ const gameData = {
         chatList: [
           { name: "暴躁小鹿", avatar: "🦌", preview: "我就那几个来回用，记不住复杂的", date: "8月12日", target: "07" },
           { name: "禾你一起看星星", avatar: "⭐", preview: "这个先不说，要留点悬念。", date: "8月11日", target: "07" },
-          { name: "妈妈", avatar: "👩", preview: "好嘞！腊肉焖饭！", date: "7月5日", target: "07" }
+          { name: "妈妈", avatar: "👩", preview: "好嘞！腊肉焖饭！", date: "8月10日", target: "07" }
         ]
       }
     },
@@ -207,17 +207,17 @@ const gameData = {
               { role: "self", name: "林晓", text: "帮我谢谢阿姨。" },
               { role: "other", name: "妈妈", text: "你自己去谢。" }
             ]},
-            { time: "2026年7月5日 20:15", messages: [
-              { role: "other", name: "妈妈", text: "晓晓，吃饭了没？别老吃泡面。" },
-              { role: "self", name: "林晓", text: "吃了麻辣烫。" },
-              { role: "other", name: "妈妈", text: "麻辣烫也算泡面亲戚。下个月我回去，给你带腊肉。" },
-              { role: "self", name: "林晓", text: "好嘞！腊肉焖饭！" }
-            ]},
             { time: "2026年7月28日 14:30", messages: [
               { role: "other", name: "妈妈", text: "你表姐生了，女孩，六斤三两。让你帮忙想名字。" },
               { role: "self", name: "林晓", text: "我起名都是翻字典的。" },
               { role: "other", name: "妈妈", text: "翻字典也比她老公起的\u201c王美丽\u201d强。" },
               { role: "self", name: "林晓", text: "……行，我想想。" }
+            ]},
+            { time: "2026年8月10日 19:30", messages: [
+              { role: "other", name: "妈妈", text: "晓晓，吃饭了没？别老吃泡面。" },
+              { role: "self", name: "林晓", text: "吃了麻辣烫。" },
+              { role: "other", name: "妈妈", text: "麻辣烫也算泡面亲戚。下个月我回去，给你带腊肉。" },
+              { role: "self", name: "林晓", text: "好嘞！腊肉焖饭！" }
             ]}
           ]
         },
@@ -455,10 +455,10 @@ const gameData = {
           comment: "\u548C\u67D0\u4EBA\u7EA6\u4E86\u4E09\u5E74\u90FD\u6CA1\u770B\u6210\u3002",
           date: "2026年7月28日",
           fullContent: "\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\uFF08Geminids\uFF09\u662F\u5168\u5E74\u6700\u7A33\u5B9A\u7684\u6D41\u661F\u96E8\u4E4B\u4E00\uFF0C\u6D3B\u8DC3\u671F\u4E3A\u6BCF\u5E7412\u67084\u65E5\u81F317\u65E5\uFF0C2026\u5E74\u6781\u5927\u9884\u8BA1\u51FA\u73B0\u572812\u670813-14\u65E5\u3002\u8F90\u5C04\u70B9\u4F4D\u4E8E\u53CC\u5B50\u5EA7\uFF08Gemini\uFF09\u9644\u8FD1\uFF0C\u6D41\u661F\u901F\u5EA6\u4E2D\u7B49\uFF0C\u989C\u8272\u504F\u767D\uFF0C\u5076\u6709\u4EAE\u6D41\u661F\u548C\u706B\u6D41\u661F\u3002\n\n\u4ECA\u5E74\u7684\u89C2\u6D4B\u6761\u4EF6\u5341\u5206\u96BE\u5F97\uFF1A\u6781\u5927\u671F\u95F4\u6070\u9022\u86FE\u7709\u6708\uFF0C\u6708\u5149\u5E72\u6270\u6781\u5C0F\uFF0C\u9884\u8BA1\u6BCF\u5C0F\u65F6\u8D85\u8FC7100\u9897\u6D41\u661F\u7684\u5F3A\u52B2\u6D41\u91CF\u53EF\u6301\u7EED10\u81F312\u5C0F\u65F6\uFF0C\u662F\u5168\u5E74\u6700\u503C\u5F97\u671F\u5F85\u7684\u5929\u8C61\u76DB\u5BB4\u3002\n\n\u89C2\u6D4B\u5EFA\u8BAE\uFF1A\u8FDC\u79BB\u57CE\u5E02\u5149\u6C61\u67D3\uFF0C\u4E0D\u9700\u8981\u4EFB\u4F55\u8BBE\u5907\uFF0C\u8089\u773C\u5373\u53EF\u89C2\u8D4F\u3002\u8EBA\u7740\u770B\uFF0C\u5E26\u591F\u8863\u670D\uFF0C\u5E26\u591F\u96F6\u98DF\u3002\u6700\u4F73\u89C2\u6D4B\u65F6\u95F4\u662F\u51CC\u66682\u70B9\u52305\u70B9\u3002",
-          boldKeywords: ["双子座流星雨", "辐射点位于双子座（Gemini）附近"],
+          boldKeywords: [],
           copyKeywords: ["Gemini"],
           replies: [
-            { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u90A3\u6211\u4EEC\u5C31\u662F\u53CC\u5B50\u661F\u2728", bold: true },
+            { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u90A3\u6211\u4EEC\u5C31\u662F\u53CC\u5B50\u661F\u2728" },
             { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u94A5\u5319\u6211\u541E\u4E86 \u8FD9\u8F88\u5B50\u522B\u60F3\u89E3\u7ED1" },
             { user: "\u79BE\u4F60\u4E00\u8D77\u770B\u661F\u661F", text: "\u4F60\u541E\u94A5\u5319\u5E72\u561B\u554A\u4F60", isReply: true, replyTo: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417" }
           ]
@@ -477,7 +477,7 @@ const gameData = {
           { text: "\u6BCD\u4EB2\u7684\u730E\u67AA\u4E0E\u7948\u798F\u8BED\u5F55\u3002\u5979\u8BF4\uFF0C\u63E1\u67AA\u7684\u65F6\u5019\u5FC3\u91CC\u5FF5\u4E00\u904D\uFF0C\u5B50\u5F39\u4F1A\u627E\u5230\u56DE\u5BB6\u7684\u8DEF\u3002", date: "2022\u5E748\u670814\u65E5" }
         ],
         albums: [
-          { title: "\u300A\u65E7\u7269\u300B", caption: "\u91CC\u9762\u6709\u628A\u730E\u67AA\uFF0C\u6211\u4E5F\u6CA1\u94A5\u5319\u3002", image: "assets/cabinet.webp" }
+          { title: "\u300A\u65E7\u7269\u300B", caption: "\u91CC\u9762\u6709\u628A\u730E\u67AA\uFF0C\u6211\u4E5F\u6CA1\u94A5\u5319\u3002", image: "old_cabinet" }
         ]
       }
     },
@@ -599,8 +599,8 @@ const gameData = {
       type: "gallery",
       data: {
         photos: [
-          { id: 5, src: "assets/photos/photo5.webp", desc: "\u5FEB\u9012\u5806", date: "2026\u5E748\u670811\u65E5 16:42:19", location: "\u9633\u5149\u533A" },
           { id: 6, src: "assets/photos/photo6.webp", desc: "\u4E66\u684C", date: "2026\u5E747\u670828\u65E5 02:33:41", location: "\u9633\u5149\u533A" },
+          { id: 5, src: "assets/photos/photo5.webp", desc: "\u5FEB\u9012\u5806", date: "2026\u5E748\u670811\u65E5 16:42:19", location: "\u9633\u5149\u533A" },
           { id: 4, src: "assets/photos/photo4.webp", desc: "\u8292\u679C\u5E72\u5F00\u888B", date: "2026\u5E747\u670823\u65E5 22:15:08", location: "\u9633\u5149\u533A" },
           { id: 3, src: "assets/photos/photo3.webp", desc: "\u591A\u8089\u690D\u7269", date: "2026\u5E746\u670815\u65E5 11:08:34", location: "\u9633\u5149\u533A" },
           { id: 2, src: "assets/photos/photo2.webp", desc: "\u9A91\u9F99\u81EA\u62CD", date: "2025\u5E748\u670813\u65E5 17:41:52", location: "\u672A\u77E5\u5730\u70B9", unknown: true },
@@ -625,8 +625,7 @@ const gameData = {
           { user: "山野闲人", text: "老猫这期真的猛，我三天就不行了。👍892" },
           { user: "户外老猫（UP主）", text: "真正的大神都在荒野之心论坛，那边有狠人分享过更离谱的经历。我就是跟着学的。👍567", bold: ["荒野之心"], isReply: true, replyTo: "山野闲人" },
           { user: "芒狗躺平中", text: "我去康康！！谢谢推荐！！🌙✨ 👍23" },
-          { user: "户外老猫（UP主）", text: "去吧去吧，装备版块干货挺多的。", isReply: true, replyTo: "芒狗躺平中" },
-          { user: "银鬃猫的最爱", text: "我也想去试试！👍1" }
+          { user: "户外老猫（UP主）", text: "去吧去吧，装备版块干货挺多的。", isReply: true, replyTo: "芒狗躺平中" }
         ]
       }
     },
@@ -1144,8 +1143,9 @@ const gameData = {
       type: "bilibili-home",
       data: {
         entries: [
-          { text: "消息", target: "26", clickable: true },
-          { text: "我的收藏", clickable: false }
+          { text: "观看历史", target: "26", clickable: true },
+          { text: "我的收藏", clickable: false },
+          { text: "稍后再看", clickable: false }
         ],
         videos: [
           { title: "户外装备选购指南", author: "户外老猫", views: "12万播放" },
@@ -1155,55 +1155,32 @@ const gameData = {
         navTabs: [
           { text: "首页", active: true, target: null },
           { text: "动态", active: false, target: null },
-          { text: "消息", active: false, target: "26", badge: true, bold: true },
-          { text: "观看历史", active: false, target: null }
+          { text: "历史", active: false, target: "26" },
+          { text: "稍后再看", active: false, target: null }
         ]
       }
     },
 
-    // ---- 页面 26：B站消息页 ----
+    // ---- 页面 26：B站观看历史 ----
     "26": {
       id: "26",
-      title: "消息",
-      footprintTitle: "B站 · 消息",
-      type: "bilibili-message",
+      title: "观看历史",
+      footprintTitle: "B站 · 观看历史",
+      type: "bilibili-history",
       data: {
-        notifications: [
-          {
-            type: "like",
-            user: "荒野老狼",
-            avatar: "🐺",
-            text: "点赞了你的评论",
-            comment: "我也想去试试！",
-            time: "2分钟前",
-            target: "27",
-            read: false
-          },
-          {
-            type: "like",
-            user: "山野闲人",
-            avatar: "🌲",
-            text: "点赞了你的评论",
-            comment: "我去康康！！谢谢推荐！！🌙✨",
-            time: "3小时前",
-            target: null,
-            read: true
-          },
-          {
-            type: "like",
-            user: "户外老猫（UP主）",
-            avatar: "🐱",
-            text: "点赞了你的评论",
-            comment: "买了买了！🏕️",
-            time: "5小时前",
-            target: null,
-            read: true
-          }
+        videos: [
+          { title: "两分钟教你如何荒野求生", progress: "已看72%", date: "8月12日", bold: ["荒野求生"] },
+          { title: "荒野求生的一百个小妙招", progress: "已看完", date: "8月11日", bold: ["荒野求生"] },
+          { title: "野外净水器实测，荒野求生必备", progress: "已看完", date: "8月10日", bold: ["荒野求生"] },
+          { title: "荒野求生装备红黑榜", progress: "已看45%", date: "8月9日", bold: ["荒野求生"] },
+          { title: "一个人荒野求生30天挑战", progress: "已看完", date: "8月9日", bold: ["荒野求生"], target: "27" },
+          { title: "户外露营装备开箱", progress: "已看完", date: "8月8日" },
+          { title: "新手露营避坑指南", progress: "已看完", date: "8月7日" }
         ]
       }
     },
 
-    },
+  },
 
   // ========== 密码验证表 ==========
   // 各场景的账号密码及安全问题
@@ -1260,15 +1237,14 @@ const gameData = {
     "12": "在主屏幕上方搜机主的名字，会看到两篇关于她的文章。",
     "13": "打开百科，写着每一本书的出版日。",
     "14": "点开那篇采访，她在里面笑得很开心。",
-    "17": "林晓的QQ空间里，有一个通往她朋友主页的入口。",
     "19": "登录微博后，她的首页没什么特别的，但右边推荐了一个名字很长的账号。",
     "20": "从她首页右边点进去，那个小号上了锁。",
-    "21": "那个上了锁的小号，点登录就能进，账号已经填好了。",
+    "21": "B站的观看历史里面有她网络冲浪的痕迹，她是否在其他地方隐藏着什么。",
     "23": "打开相册，那个彩色图标里有两张照片很特别。",
     "24": "小鹿分享的视频，没什么特别的线索。",
     "25": "从视频页面点左上角就能到B站首页，但没什么好看的。",
-    "26": "B站首页顶部有个带红点的消息入口，点开看看。",
-    "27": "B站消息里有一条通知，点开就是那个视频。",
+    "26": "B站首页点观看历史就能看到，有一个视频值得再看看。",
+    "27": "观看历史里有个视频提供了如何求生的线索。",
     "28": "微信里小鹿分享的另一个链接，有人在那里说过自己设密码的套路。",
     "29": "搜索那条视频评论里提到的地方。",
     "30": "论坛里有个帖子锁着，发帖人的名字像一只猫。",
@@ -1287,6 +1263,7 @@ const gameData = {
     "11": "她和AI聊过一次，问了一个发音像「路米纳尔」的词。",
     "15": "账号是那串十一位数字，密码是某个夏天的日子。",
     "16": "说说都敞开着，只有一条笔记锁着，答案在每月都买的零食里。",
+    "17": "转发过一篇流星雨科普，评论区聊过九宫格能当密码生成器。",
     "18": "八位数生日，一半在短信里，另一半在桌面上那个倒计时里。",
     "22": "每一条都像小说素材，蓝龙的名字、发光的果子、一只猫、一个词。",
     "32": "密码套路藏在小红书里，她最喜欢的东西和论坛名字缩写。",
@@ -1409,17 +1386,3 @@ const gameData = {
 
 // 暴露到全局
 window.gameData = gameData;
-
-// 清理已删除页面的访问记录
-(function() {
-  var state = window.gameData.state;
-  if (state.visitedPages && state.visitedPages.length > 0) {
-    var filtered = state.visitedPages.filter(function(id) {
-      return window.gameData.pages[id];
-    });
-    if (filtered.length !== state.visitedPages.length) {
-      state.visitedPages = filtered;
-      try { localStorage.setItem('meteor_game_state', JSON.stringify(state)); } catch(e) {}
-    }
-  }
-})();
