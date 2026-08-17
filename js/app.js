@@ -478,6 +478,9 @@
      * @param {boolean} pushToStack - 是否压入导航栈（默认true）
      */
     navigate(pageId, pushToStack = true, params = {}) {
+      // 清理闹钟（防止震动不停）
+      if (typeof _cleanupAlarm === 'function') _cleanupAlarm();
+
       const state = window.gameData.state;
 
       // 保存临时参数供渲染器使用
@@ -500,6 +503,9 @@
       // 3. 更新 currentPage
       state.currentPage = pageId;
       this.currentPage = pageId;
+
+      // Analytics: 追踪页面进入
+      Analytics.trackPageEnter(pageId);
 
       // 4. 如果页面未访问过，添加到 visitedPages
       // 对于特殊路由（07_chat_xxx, 02_detail_xxx），记录基础页面ID
@@ -533,10 +539,16 @@
 
     /** 返回上一页（从导航栈弹出一层） */
     back() {
+      // 清理闹钟（防止震动不停）
+      if (typeof _cleanupAlarm === 'function') _cleanupAlarm();
+
       if (this._navStack.length > 0) {
         const prevPageId = this._navStack.pop();
         this.currentPage = prevPageId;
         window.gameData.state.currentPage = prevPageId;
+
+        // Analytics: 追踪返回上一页
+        Analytics.trackPageEnter(prevPageId);
 
         const container = document.getElementById('page-container');
         container.innerHTML = '';
@@ -569,6 +581,8 @@
         }
       } else {
         // 栈为空，回到主屏幕
+        // Analytics: 追踪回到主页
+        Analytics.trackPageExit();
         document.getElementById('main-scroll').style.display = '';
         document.getElementById('page-container').innerHTML = '';
         document.getElementById('page-container').className = '';
@@ -582,11 +596,17 @@
 
     /** 返回主屏幕（清空导航栈） */
     goHome() {
+      // 如果闹钟待触发，不清理（保留计时器）
+      var _alarmPending = window.gameData.state.alarmPending;
+      if (!_alarmPending && typeof _cleanupAlarm === 'function') _cleanupAlarm();
+
       this._navStack = [];
       document.getElementById('main-scroll').style.display = '';
       document.getElementById('page-container').innerHTML = '';
       document.getElementById('page-container').className = '';
       document.getElementById('page-number').style.display = 'none';
+      // Analytics: 追踪回到主页
+      Analytics.trackPageExit();
       // 清除结局动画overlay等残留元素
       const appEl = document.getElementById('app');
       if (appEl) {
@@ -599,8 +619,87 @@
       this.currentPage = null;
       window.gameData.state.previousPage = null;
       window.gameData.state.currentPage = null;
+
+      // 闹钟待触发：回主界面后启动闹钟
+      if (_alarmPending) {
+        window.gameData.state.alarmPending = false;
+        StateSaver.save();
+        delayShowAlarm();
+      }
     }
   };
+
+  // ========== 4.5 Analytics 玩家行为分析 ==========
+  var Analytics = {
+    _pageEnterTime: 0,
+    _currentPage: null,
+    _beaconUrl: '/api/beacon',
+    _enabled: true,
+
+    init: function() {
+      this._pageEnterTime = Date.now();
+      var self = this;
+      window.addEventListener('beforeunload', function() {
+        self._sendExitBeacon();
+      });
+      window.addEventListener('pagehide', function() {
+        self._sendExitBeacon();
+      });
+    },
+
+    trackPageEnter: function(pageId) {
+      if (!this._enabled) return;
+      var now = Date.now();
+      if (this._currentPage && this._pageEnterTime > 0) {
+        var duration = Math.round((now - this._pageEnterTime) / 1000);
+        this._sendBeacon({
+          from: this._currentPage,
+          pageId: pageId,
+          duration: duration
+        });
+      } else {
+        this._sendBeacon({ pageId: pageId });
+      }
+      this._currentPage = pageId;
+      this._pageEnterTime = now;
+    },
+
+    trackPageExit: function() {
+      if (!this._enabled) return;
+      this._sendExitBeacon();
+      this._currentPage = null;
+      this._pageEnterTime = 0;
+    },
+
+    _sendExitBeacon: function() {
+      if (!this._currentPage || this._pageEnterTime <= 0) return;
+      var duration = Math.round((Date.now() - this._pageEnterTime) / 1000);
+      var data = JSON.stringify({
+        from: this._currentPage,
+        duration: duration
+      });
+      try {
+        navigator.sendBeacon(this._beaconUrl, new Blob([data], { type: 'application/json' }));
+      } catch (e) {
+        try {
+          fetch(this._beaconUrl, { method: 'POST', body: data, headers: { 'Content-Type': 'application/json' }, keepalive: true });
+        } catch (e2) { /* ignore */ }
+      }
+    },
+
+    _sendBeacon: function(data) {
+      try {
+        navigator.sendBeacon(this._beaconUrl, new Blob([JSON.stringify(data)], { type: 'application/json' }));
+      } catch (e) {
+        try {
+          fetch(this._beaconUrl, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' }, keepalive: true });
+        } catch (e2) { /* ignore */ }
+      }
+    }
+  };
+
+  // 初始化 Analytics
+  Analytics.init();
 
   // ========== 5. PageRenderer 页面渲染器 ==========
   const PageRenderer = {
@@ -5974,10 +6073,10 @@
             const btn = document.createElement('button');
             btn.className = 'form-btn';
             btn.textContent = page.data.successBtnText || '确定';
-            btn.addEventListener('click', () => { document.body.removeChild(overlay); });
+            btn.addEventListener('click', () => { document.body.removeChild(overlay); if (!window.gameData.state.timeFrozen) { window.gameData.state.alarmPending = true; StateSaver.save(); } Router.goHome(); });
             modal.appendChild(btn);
             overlay.appendChild(modal);
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) document.body.removeChild(overlay); });
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) { document.body.removeChild(overlay); if (!window.gameData.state.timeFrozen) { window.gameData.state.alarmPending = true; StateSaver.save(); } Router.goHome(); } });
             document.body.appendChild(overlay);
           } else {
             // 错误
@@ -6760,6 +6859,114 @@
     }
   };
 
+  // ========== 6.5 闹钟弹窗 ==========
+  let _alarmVibTimer = null;
+
+  function showAlarmClock() {
+    if (document.getElementById('alarm-overlay')) return;
+    if (window.gameData.state.alarmTriggered) return;
+    window.gameData.state.alarmTriggered = true;
+    StateSaver.save();
+
+    var ids = ['#status-time', '#main-time'];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.querySelector(ids[i]);
+      if (el) el.textContent = '12:00';
+    }
+
+    window.gameData.state.timeFrozen = true;
+    StateSaver.save();
+
+    _startVibration();
+
+    var phoneFrame = document.getElementById('phone-frame');
+    if (phoneFrame) phoneFrame.classList.add('alarm-shaking');
+
+    var overlay = document.createElement('div');
+    overlay.id = 'alarm-overlay';
+    overlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;';
+
+    var modal = document.createElement('div');
+    modal.style.cssText = 'background:#fff;border-radius:14px;padding:20px;width:260px;max-width:80vw;text-align:center;';
+
+    var iconDiv = document.createElement('div');
+    iconDiv.style.cssText = 'font-size:56px;line-height:1;margin-bottom:12px;';
+    iconDiv.textContent = '\u23F0';
+    modal.appendChild(iconDiv);
+
+    var timeDiv = document.createElement('div');
+    timeDiv.style.cssText = 'font-size:48px;font-weight:300;color:#000;letter-spacing:1px;line-height:1.1;';
+    timeDiv.textContent = '12:00';
+    modal.appendChild(timeDiv);
+
+    var labelDiv = document.createElement('div');
+    labelDiv.style.cssText = 'font-size:17px;color:#8E8E93;margin-top:6px;margin-bottom:20px;';
+    labelDiv.textContent = '\u8D77\u5E8A';
+    modal.appendChild(labelDiv);
+
+    var btnArea = document.createElement('div');
+    btnArea.style.cssText = 'border-top:1px solid #E5E5EA;display:flex;margin:0 -20px -20px -20px;';
+
+    var btnSnooze = document.createElement('div');
+    btnSnooze.style.cssText = 'flex:1;padding:13px 0;font-size:17px;color:#007AFF;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+    btnSnooze.textContent = '\u7A0D\u540E\u63D0\u9192';
+    btnSnooze.addEventListener('click', function() { _removeAlarm(overlay); });
+
+    var btnClose = document.createElement('div');
+    btnClose.style.cssText = 'flex:1;padding:13px 0;font-size:17px;color:#007AFF;border-left:1px solid #E5E5EA;font-weight:600;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+    btnClose.textContent = '\u5173\u95ED';
+    btnClose.addEventListener('click', function() { _removeAlarm(overlay); });
+
+    btnArea.appendChild(btnSnooze);
+    btnArea.appendChild(btnClose);
+    modal.appendChild(btnArea);
+    overlay.appendChild(modal);
+
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) _removeAlarm(overlay); });
+
+    document.body.appendChild(overlay);
+  }
+
+  function _removeAlarm(overlay) {
+    if (_alarmVibTimer) { clearInterval(_alarmVibTimer); _alarmVibTimer = null; }
+    try { if (navigator.vibrate) navigator.vibrate(0); } catch(e) {}
+    var phoneFrame = document.getElementById('phone-frame');
+    if (phoneFrame) phoneFrame.classList.remove('alarm-shaking');
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+  }
+
+  function _cleanupAlarm() {
+    if (!window.gameData.state.alarmPending) {
+      if (_alarmDelayTimer) { clearTimeout(_alarmDelayTimer); _alarmDelayTimer = null; }
+    }
+    if (_alarmVibTimer) { clearInterval(_alarmVibTimer); _alarmVibTimer = null; }
+    try { if (navigator.vibrate) navigator.vibrate(0); } catch(e) {}
+    var phoneFrame = document.getElementById('phone-frame');
+    if (phoneFrame) phoneFrame.classList.remove('alarm-shaking');
+    var alarmOverlay = document.getElementById('alarm-overlay');
+    if (alarmOverlay && alarmOverlay.parentNode) alarmOverlay.parentNode.removeChild(alarmOverlay);
+  }
+
+  let _alarmDelayTimer = null;
+  function delayShowAlarm() {
+    if (_alarmDelayTimer) { clearTimeout(_alarmDelayTimer); _alarmDelayTimer = null; }
+    _alarmDelayTimer = setTimeout(function() {
+      _alarmDelayTimer = null;
+      showAlarmClock();
+    }, 800);
+  }
+
+  function _startVibration() {
+    if (_alarmVibTimer) { clearInterval(_alarmVibTimer); _alarmVibTimer = null; }
+    try {
+      var pattern = [300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700, 300, 700];
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+        _alarmVibTimer = setInterval(function() { navigator.vibrate(pattern); }, 10000);
+      }
+    } catch(e) {}
+  }
+
   // ========== 7. DeepSeek 提示系统 ==========
   const DeepSeek = {
     /**
@@ -7121,9 +7328,12 @@
    * 更新状态栏时间显示
    */
   function updateTime() {
-    // 游戏内固定时间：10:30（不使用真实时间）
-    const timeEl = document.getElementById('status-time');
-    if (timeEl) timeEl.textContent = '10:30';
+    // 闹钟触发后时间冻结为12:00，否则显示游戏内固定时间10:30
+    var t = (window.gameData.state.timeFrozen) ? '12:00' : '10:30';
+    var timeEl = document.getElementById('status-time');
+    if (timeEl) timeEl.textContent = t;
+    var mainTimeEl = document.getElementById('main-time');
+    if (mainTimeEl) mainTimeEl.textContent = t;
   }
 
   // ========== 11. 左边缘滑动返回手势 ==========
