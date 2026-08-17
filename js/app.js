@@ -7619,10 +7619,6 @@
     }
     initEventListeners();
     initSwipeBack();
-    // 每次加载时重置闹钟时间状态，确保从10:30开始
-    window.gameData.state.timeFrozen = false;
-    window.gameData.state.alarmTriggered = false;
-    window.gameData.state.alarmPending = false;
     // 初始化状态栏时间
     updateTime();
     // 每分钟更新一次时间
