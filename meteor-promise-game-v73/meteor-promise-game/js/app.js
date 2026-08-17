@@ -510,6 +510,9 @@
       state.currentPage = pageId;
       this.currentPage = pageId;
 
+      // Analytics: 追踪页面进入
+      Analytics.trackPageEnter(pageId);
+
       // 4. 如果页面未访问过，添加到 visitedPages
       // 对于特殊路由（07_chat_xxx, 02_detail_xxx），记录基础页面ID
       let visitId = pageId;
@@ -550,6 +553,9 @@
         this.currentPage = prevPageId;
         window.gameData.state.currentPage = prevPageId;
 
+        // Analytics: 追踪返回上一页
+        Analytics.trackPageEnter(prevPageId);
+
         const container = document.getElementById('page-container');
         container.innerHTML = '';
         container.className = 'page-enter active';
@@ -581,6 +587,8 @@
         }
       } else {
         // 栈为空，回到主屏幕
+        // Analytics: 追踪回到主页
+        Analytics.trackPageExit();
         document.getElementById('main-scroll').style.display = '';
         document.getElementById('page-container').innerHTML = '';
         document.getElementById('page-container').className = '';
@@ -603,6 +611,9 @@
       document.getElementById('page-container').innerHTML = '';
       document.getElementById('page-container').className = '';
       document.getElementById('page-number').style.display = 'none';
+
+      // Analytics: 追踪回到主页
+      Analytics.trackPageExit();
       // 清除结局动画overlay等残留元素
       const appEl = document.getElementById('app');
       if (appEl) {
@@ -624,6 +635,82 @@
       }
     }
   };
+
+  // ========== 4.5 Analytics 玩家行为分析 ==========
+  var Analytics = {
+    _pageEnterTime: 0,
+    _currentPage: null,
+    _beaconUrl: '/api/beacon',
+    _enabled: true,
+
+    init: function() {
+      this._pageEnterTime = Date.now();
+      // 关闭/刷新页面时发送离开信标
+      var self = this;
+      window.addEventListener('beforeunload', function() {
+        self._sendExitBeacon();
+      });
+      // 页面隐藏时也发送（mobile切换app等场景）
+      window.addEventListener('pagehide', function() {
+        self._sendExitBeacon();
+      });
+    },
+
+    trackPageEnter: function(pageId) {
+      if (!this._enabled) return;
+      var now = Date.now();
+      // 发送前一个页面的离开信标
+      if (this._currentPage && this._pageEnterTime > 0) {
+        var duration = Math.round((now - this._pageEnterTime) / 1000);
+        this._sendBeacon({
+          from: this._currentPage,
+          pageId: pageId,
+          duration: duration
+        });
+      } else {
+        this._sendBeacon({ pageId: pageId });
+      }
+      this._currentPage = pageId;
+      this._pageEnterTime = now;
+    },
+
+    trackPageExit: function() {
+      if (!this._enabled) return;
+      this._sendExitBeacon();
+      this._currentPage = null;
+      this._pageEnterTime = 0;
+    },
+
+    _sendExitBeacon: function() {
+      if (!this._currentPage || this._pageEnterTime <= 0) return;
+      var duration = Math.round((Date.now() - this._pageEnterTime) / 1000);
+      var data = JSON.stringify({
+        from: this._currentPage,
+        duration: duration
+      });
+      try {
+        navigator.sendBeacon(this._beaconUrl, new Blob([data], { type: 'application/json' }));
+      } catch (e) {
+        // fallback: fetch
+        try {
+          fetch(this._beaconUrl, { method: 'POST', body: data, headers: { 'Content-Type': 'application/json' }, keepalive: true });
+        } catch (e2) { /* ignore */ }
+      }
+    },
+
+    _sendBeacon: function(data) {
+      try {
+        navigator.sendBeacon(this._beaconUrl, new Blob([JSON.stringify(data)], { type: 'application/json' }));
+      } catch (e) {
+        try {
+          fetch(this._beaconUrl, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' }, keepalive: true });
+        } catch (e2) { /* ignore */ }
+      }
+    }
+  };
+
+  // 初始化 Analytics
+  Analytics.init();
 
   // ========== 5. PageRenderer 页面渲染器 ==========
   const PageRenderer = {
@@ -3277,7 +3364,7 @@
               userSpan.textContent = reply.user;
             }
             rEl.appendChild(userSpan);
-            rEl.appendChild(document.createTextNode('：' + reply.text));
+            if (reply.bold) { var rText = document.createElement('strong'); rText.style.cssText = 'color:#4A3728;'; rText.textContent = '：' + reply.text; rEl.appendChild(rText); } else { rEl.appendChild(document.createTextNode('：' + reply.text)); }
             expandArea.appendChild(rEl);
           });
         }

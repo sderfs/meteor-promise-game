@@ -455,10 +455,10 @@ const gameData = {
           comment: "\u548C\u67D0\u4EBA\u7EA6\u4E86\u4E09\u5E74\u90FD\u6CA1\u770B\u6210\u3002",
           date: "2026年7月28日",
           fullContent: "\u53CC\u5B50\u5EA7\u6D41\u661F\u96E8\uFF08Geminids\uFF09\u662F\u5168\u5E74\u6700\u7A33\u5B9A\u7684\u6D41\u661F\u96E8\u4E4B\u4E00\uFF0C\u6D3B\u8DC3\u671F\u4E3A\u6BCF\u5E7412\u67084\u65E5\u81F317\u65E5\uFF0C2026\u5E74\u6781\u5927\u9884\u8BA1\u51FA\u73B0\u572812\u670813-14\u65E5\u3002\u8F90\u5C04\u70B9\u4F4D\u4E8E\u53CC\u5B50\u5EA7\uFF08Gemini\uFF09\u9644\u8FD1\uFF0C\u6D41\u661F\u901F\u5EA6\u4E2D\u7B49\uFF0C\u989C\u8272\u504F\u767D\uFF0C\u5076\u6709\u4EAE\u6D41\u661F\u548C\u706B\u6D41\u661F\u3002\n\n\u4ECA\u5E74\u7684\u89C2\u6D4B\u6761\u4EF6\u5341\u5206\u96BE\u5F97\uFF1A\u6781\u5927\u671F\u95F4\u6070\u9022\u86FE\u7709\u6708\uFF0C\u6708\u5149\u5E72\u6270\u6781\u5C0F\uFF0C\u9884\u8BA1\u6BCF\u5C0F\u65F6\u8D85\u8FC7100\u9897\u6D41\u661F\u7684\u5F3A\u52B2\u6D41\u91CF\u53EF\u6301\u7EED10\u81F312\u5C0F\u65F6\uFF0C\u662F\u5168\u5E74\u6700\u503C\u5F97\u671F\u5F85\u7684\u5929\u8C61\u76DB\u5BB4\u3002\n\n\u89C2\u6D4B\u5EFA\u8BAE\uFF1A\u8FDC\u79BB\u57CE\u5E02\u5149\u6C61\u67D3\uFF0C\u4E0D\u9700\u8981\u4EFB\u4F55\u8BBE\u5907\uFF0C\u8089\u773C\u5373\u53EF\u89C2\u8D4F\u3002\u8EBA\u7740\u770B\uFF0C\u5E26\u591F\u8863\u670D\uFF0C\u5E26\u591F\u96F6\u98DF\u3002\u6700\u4F73\u89C2\u6D4B\u65F6\u95F4\u662F\u51CC\u66682\u70B9\u52305\u70B9\u3002",
-          boldKeywords: [],
+          boldKeywords: ["双子座流星雨", "辐射点位于双子座（Gemini）附近"],
           copyKeywords: ["Gemini"],
           replies: [
-            { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u90A3\u6211\u4EEC\u5C31\u662F\u53CC\u5B50\u661F\u2728" },
+            { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u90A3\u6211\u4EEC\u5C31\u662F\u53CC\u5B50\u661F\u2728", bold: true },
             { user: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417", text: "\u94A5\u5319\u6211\u541E\u4E86 \u8FD9\u8F88\u5B50\u522B\u60F3\u89E3\u7ED1" },
             { user: "\u79BE\u4F60\u4E00\u8D77\u770B\u661F\u661F", text: "\u4F60\u541E\u94A5\u5319\u5E72\u561B\u554A\u4F60", isReply: true, replyTo: "\u8292\u72D7\u4ECA\u5929\u66B4\u5BCC\u4E86\u5417" }
           ]
@@ -1260,6 +1260,7 @@ const gameData = {
     "12": "在主屏幕上方搜机主的名字，会看到两篇关于她的文章。",
     "13": "打开百科，写着每一本书的出版日。",
     "14": "点开那篇采访，她在里面笑得很开心。",
+    "17": "林晓的QQ空间里，有一个通往她朋友主页的入口。",
     "19": "登录微博后，她的首页没什么特别的，但右边推荐了一个名字很长的账号。",
     "20": "从她首页右边点进去，那个小号上了锁。",
     "21": "那个上了锁的小号，点登录就能进，账号已经填好了。",
@@ -1286,7 +1287,6 @@ const gameData = {
     "11": "她和AI聊过一次，问了一个发音像「路米纳尔」的词。",
     "15": "账号是那串十一位数字，密码是某个夏天的日子。",
     "16": "说说都敞开着，只有一条笔记锁着，答案在每月都买的零食里。",
-    "17": "转发过一篇流星雨科普，评论区聊过九宫格能当密码生成器。",
     "18": "八位数生日，一半在短信里，另一半在桌面上那个倒计时里。",
     "22": "每一条都像小说素材，蓝龙的名字、发光的果子、一只猫、一个词。",
     "32": "密码套路藏在小红书里，她最喜欢的东西和论坛名字缩写。",
