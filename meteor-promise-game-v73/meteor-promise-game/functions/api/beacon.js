@@ -1,3 +1,5 @@
+let memStore = new Map();
+
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
@@ -12,39 +14,54 @@ export async function onRequest(context) {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // POST /api/beacon — receive tracking data
+  const useKV = !!(env && env.ANALYTICS);
+
+  // POST /api/beacon
   if (request.method === 'POST') {
     try {
       const data = await request.json();
       const { pageId, from, duration } = data;
 
-      if (env.ANALYTICS) {
+      if (useKV) {
         if (pageId) await incrementKV(env.ANALYTICS, `visit:${pageId}`);
         if (from) await incrementKV(env.ANALYTICS, `exit:${from}`);
-        if (duration && from) await appendDuration(env.ANALYTICS, from, duration);
+        if (duration && from) await appendDurationKV(env.ANALYTICS, from, duration);
         if (from && pageId) await incrementKV(env.ANALYTICS, `flow:${from}->${pageId}`);
+      } else {
+        if (pageId) memStore.set(`visit:${pageId}`, (memStore.get(`visit:${pageId}`) || 0) + 1);
+        if (from) memStore.set(`exit:${from}`, (memStore.get(`exit:${from}`) || 0) + 1);
+        if (duration && from) {
+          const key = `durations:${from}`;
+          const durs = memStore.get(key) || [];
+          durs.push(duration);
+          if (durs.length > 200) durs.shift();
+          memStore.set(key, durs);
+        }
+        if (from && pageId) memStore.set(`flow:${from}->${pageId}`, (memStore.get(`flow:${from}->${pageId}`) || 0) + 1);
       }
 
       return new Response('ok', { status: 200, headers: corsHeaders });
     } catch (e) {
-      return new Response('bad request', { status: 400, headers: corsHeaders });
+      return new Response('bad request: ' + e.message, { status: 400, headers: corsHeaders });
     }
   }
 
-  // GET /api/beacon — return dashboard
+  // GET /api/beacon
   if (request.method === 'GET') {
-    if (!env.ANALYTICS) {
-      return new Response(renderDashboard({}), {
-        headers: { ...corsHeaders, 'Content-Type': 'text/html;charset=utf-8' }
-      });
+    let stats = {};
+
+    if (useKV) {
+      const list = await env.ANALYTICS.list();
+      for (const key of list.keys) {
+        stats[key.name] = await env.ANALYTICS.get(key.name);
+      }
+    } else {
+      stats = Object.fromEntries(memStore);
     }
 
-    const list = await env.ANALYTICS.list();
-    const stats = {};
-    for (const key of list.keys) {
-      stats[key.name] = await env.ANALYTICS.get(key.name);
-    }
-    return new Response(renderDashboard(stats), {
+    const debug = url.searchParams.get('debug') === '1';
+    const storageMode = useKV ? 'KV 持久存储' : '内存存储（Worker 重启后清空）';
+    return new Response(renderDashboard(stats, storageMode, debug), {
       headers: { ...corsHeaders, 'Content-Type': 'text/html;charset=utf-8' }
     });
   }
@@ -57,7 +74,7 @@ async function incrementKV(kv, key) {
   await kv.put(key, String(parseInt(current || '0') + 1));
 }
 
-async function appendDuration(kv, pageId, duration) {
+async function appendDurationKV(kv, pageId, duration) {
   const key = `durations:${pageId}`;
   let durs = [];
   try {
@@ -68,7 +85,7 @@ async function appendDuration(kv, pageId, duration) {
   await kv.put(key, JSON.stringify(durs));
 }
 
-function renderDashboard(stats) {
+function renderDashboard(stats, storageMode, debug) {
   const visits = {};
   const exits = {};
   const durations = {};
@@ -81,7 +98,7 @@ function renderDashboard(stats) {
       exits[key.replace('exit:', '')] = parseInt(value);
     } else if (key.startsWith('durations:')) {
       try {
-        const durs = JSON.parse(value);
+        const durs = Array.isArray(value) ? value : JSON.parse(value);
         const avg = durs.length ? Math.round(durs.reduce((a, b) => a + b, 0) / durs.length) : 0;
         durations[key.replace('durations:', '')] = { avg, count: durs.length };
       } catch (e) { /* ignore */ }
@@ -124,7 +141,10 @@ td{font-size:0.9rem}
 .bar.purple{background:#c0a0e0}
 .num{font-variant-numeric:tabular-nums;color:#f0c060}
 .rate{color:#e06060}
-.refresh{color:#888;font-size:0.8rem;margin-bottom:16px}
+.refresh{color:#888;font-size:0.8rem;margin-bottom:8px}
+.mode{display:inline-block;padding:2px 10px;border-radius:10px;font-size:0.75rem;margin-bottom:16px}
+.mode.kv{background:#1a3a1a;color:#60e060}
+.mode.mem{background:#3a2a1a;color:#f0a060}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .empty{color:#666;text-align:center;padding:40px}
 @media(max-width:768px){.grid{grid-template-columns:1fr}}
@@ -132,7 +152,8 @@ td{font-size:0.9rem}
 </head>
 <body>
 <h1>🌠 流星雨的约定 — 玩家行为分析</h1>
-<p class="refresh">刷新页面更新数据 | 数据每 60 秒同步一次</p>
+<p class="refresh">刷新页面更新数据</p>
+<p class="mode ${storageMode.includes('KV') ? 'kv' : 'mem'}">存储模式: ${storageMode}</p>
 ${!hasData ? '<div class="empty">暂无数据，等待玩家游戏后自动出现</div>' : `
 <div class="grid">
 <div>
