@@ -642,33 +642,45 @@
     _currentPage: null,
     _beaconUrl: '/api/beacon',
     _enabled: true,
+    _sessionId: '',
+    _batch: [],
+    _flushTimer: null,
 
     init: function() {
       this._pageEnterTime = Date.now();
-      // 关闭/刷新页面时发送离开信标
+      var stored = localStorage.getItem('_as');
+      if (stored) {
+        this._sessionId = stored;
+      } else {
+        this._sessionId = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        localStorage.setItem('_as', this._sessionId);
+      }
       var self = this;
       window.addEventListener('beforeunload', function() {
         self._sendExitBeacon();
+        self._flushNow();
       });
-      // 页面隐藏时也发送（mobile切换app等场景）
       window.addEventListener('pagehide', function() {
         self._sendExitBeacon();
+        self._flushNow();
       });
+      this._flushTimer = setInterval(function() { self._flushBatch(); }, 30000);
     },
 
     trackPageEnter: function(pageId) {
       if (!this._enabled) return;
       var now = Date.now();
-      // 发送前一个页面的离开信标
       if (this._currentPage && this._pageEnterTime > 0) {
         var duration = Math.round((now - this._pageEnterTime) / 1000);
-        this._sendBeacon({
+        this._queue({
+          sid: this._sessionId,
           from: this._currentPage,
           pageId: pageId,
-          duration: duration
+          duration: duration,
+          ts: now
         });
       } else {
-        this._sendBeacon({ pageId: pageId });
+        this._queue({ sid: this._sessionId, pageId: pageId, ts: now });
       }
       this._currentPage = pageId;
       this._pageEnterTime = now;
@@ -684,27 +696,38 @@
     _sendExitBeacon: function() {
       if (!this._currentPage || this._pageEnterTime <= 0) return;
       var duration = Math.round((Date.now() - this._pageEnterTime) / 1000);
-      var data = JSON.stringify({
+      this._queue({
+        sid: this._sessionId,
         from: this._currentPage,
-        duration: duration
+        duration: duration,
+        ts: Date.now()
       });
+    },
+
+    _queue: function(data) {
+      this._batch.push(data);
+      if (this._batch.length >= 10) this._flushBatch();
+    },
+
+    _flushBatch: function() {
+      if (this._batch.length === 0) return;
+      var data = this._batch.slice();
+      this._batch = [];
+      var body = JSON.stringify(data);
       try {
-        navigator.sendBeacon(this._beaconUrl, new Blob([data], { type: 'application/json' }));
+        navigator.sendBeacon(this._beaconUrl, new Blob([body], { type: 'application/json' }));
       } catch (e) {
-        // fallback: fetch
         try {
-          fetch(this._beaconUrl, { method: 'POST', body: data, headers: { 'Content-Type': 'application/json' }, keepalive: true });
+          fetch(this._beaconUrl, { method: 'POST', body: body, headers: { 'Content-Type': 'application/json' }, keepalive: true });
         } catch (e2) { /* ignore */ }
       }
     },
 
-    _sendBeacon: function(data) {
-      try {
-        navigator.sendBeacon(this._beaconUrl, new Blob([JSON.stringify(data)], { type: 'application/json' }));
-      } catch (e) {
-        try {
-          fetch(this._beaconUrl, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' }, keepalive: true });
-        } catch (e2) { /* ignore */ }
+    _flushNow: function() {
+      if (this._flushTimer) { clearInterval(this._flushTimer); this._flushTimer = null; }
+      if (this._batch.length > 0) {
+        var body = JSON.stringify(this._batch);
+        try { navigator.sendBeacon(this._beaconUrl, new Blob([body], { type: 'application/json' })); } catch(e) {}
       }
     }
   };
