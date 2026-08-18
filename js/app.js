@@ -636,10 +636,11 @@
     _beaconUrl: '/api/beacon',
     _enabled: true,
     _sessionId: '',
+    _batch: [],
+    _flushTimer: null,
 
     init: function() {
       this._pageEnterTime = Date.now();
-      // 生成或恢复会话ID（匿名，仅用于区分不同玩家）
       var stored = localStorage.getItem('_as');
       if (stored) {
         this._sessionId = stored;
@@ -648,12 +649,17 @@
         localStorage.setItem('_as', this._sessionId);
       }
       var self = this;
+      // 离开页面时立即发送
       window.addEventListener('beforeunload', function() {
         self._sendExitBeacon();
+        self._flushNow();
       });
       window.addEventListener('pagehide', function() {
         self._sendExitBeacon();
+        self._flushNow();
       });
+      // 每30秒批量发送
+      this._flushTimer = setInterval(function() { self._flushBatch(); }, 30000);
     },
 
     trackPageEnter: function(pageId) {
@@ -661,14 +667,15 @@
       var now = Date.now();
       if (this._currentPage && this._pageEnterTime > 0) {
         var duration = Math.round((now - this._pageEnterTime) / 1000);
-        this._sendBeacon({
+        this._queue({
           sid: this._sessionId,
           from: this._currentPage,
           pageId: pageId,
-          duration: duration
+          duration: duration,
+          ts: now
         });
       } else {
-        this._sendBeacon({ sid: this._sessionId, pageId: pageId });
+        this._queue({ sid: this._sessionId, pageId: pageId, ts: now });
       }
       this._currentPage = pageId;
       this._pageEnterTime = now;
@@ -684,27 +691,40 @@
     _sendExitBeacon: function() {
       if (!this._currentPage || this._pageEnterTime <= 0) return;
       var duration = Math.round((Date.now() - this._pageEnterTime) / 1000);
-      var data = JSON.stringify({
+      this._queue({
         sid: this._sessionId,
         from: this._currentPage,
-        duration: duration
+        duration: duration,
+        ts: Date.now()
       });
+    },
+
+    _queue: function(data) {
+      this._batch.push(data);
+      // 积攒超过 10 条就立即发送
+      if (this._batch.length >= 10) this._flushBatch();
+    },
+
+    _flushBatch: function() {
+      if (this._batch.length === 0) return;
+      var data = this._batch.slice();
+      this._batch = [];
+      var body = JSON.stringify(data);
       try {
-        navigator.sendBeacon(this._beaconUrl, new Blob([data], { type: 'application/json' }));
+        navigator.sendBeacon(this._beaconUrl, new Blob([body], { type: 'application/json' }));
       } catch (e) {
         try {
-          fetch(this._beaconUrl, { method: 'POST', body: data, headers: { 'Content-Type': 'application/json' }, keepalive: true });
+          fetch(this._beaconUrl, { method: 'POST', body: body, headers: { 'Content-Type': 'application/json' }, keepalive: true });
         } catch (e2) { /* ignore */ }
       }
     },
 
-    _sendBeacon: function(data) {
-      try {
-        navigator.sendBeacon(this._beaconUrl, new Blob([JSON.stringify(data)], { type: 'application/json' }));
-      } catch (e) {
-        try {
-          fetch(this._beaconUrl, { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' }, keepalive: true });
-        } catch (e2) { /* ignore */ }
+    _flushNow: function() {
+      if (this._flushTimer) { clearInterval(this._flushTimer); this._flushTimer = null; }
+      // 把当前批次作为最后数据发送
+      if (this._batch.length > 0) {
+        var body = JSON.stringify(this._batch);
+        try { navigator.sendBeacon(this._beaconUrl, new Blob([body], { type: 'application/json' })); } catch(e) {}
       }
     }
   };
