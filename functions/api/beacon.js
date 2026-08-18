@@ -1,4 +1,6 @@
-﻿let memStore = new Map();
+// 内存：所有请求共享（同一 Worker 实例内），零 KV 操作
+let memStore = new Map();
+let lastFlush = 0;
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -16,52 +18,82 @@ export async function onRequest(context) {
 
   const useKV = !!(env && env.ANALYTICS);
 
-  // POST /api/beacon
+  // POST /api/beacon — 只写内存，零 KV 消耗
   if (request.method === 'POST') {
     try {
       const data = await request.json();
       const { pageId, from, duration } = data;
 
-      if (useKV) {
-        if (pageId) await incrementKV(env.ANALYTICS, `visit:${pageId}`);
-        if (from) await incrementKV(env.ANALYTICS, `exit:${from}`);
-        if (duration && from) await appendDurationKV(env.ANALYTICS, from, duration);
-        if (from && pageId) await incrementKV(env.ANALYTICS, `flow:${from}->${pageId}`);
-      } else {
-        if (pageId) memStore.set(`visit:${pageId}`, (memStore.get(`visit:${pageId}`) || 0) + 1);
-        if (from) memStore.set(`exit:${from}`, (memStore.get(`exit:${from}`) || 0) + 1);
-        if (duration && from) {
-          const key = `durations:${from}`;
-          const durs = memStore.get(key) || [];
-          durs.push(duration);
-          if (durs.length > 200) durs.shift();
-          memStore.set(key, durs);
-        }
-        if (from && pageId) memStore.set(`flow:${from}->${pageId}`, (memStore.get(`flow:${from}->${pageId}`) || 0) + 1);
+      if (pageId) memStore.set(`visit:${pageId}`, (memStore.get(`visit:${pageId}`) || 0) + 1);
+      if (from) memStore.set(`exit:${from}`, (memStore.get(`exit:${from}`) || 0) + 1);
+      if (duration && from) {
+        const key = `durations:${from}`;
+        const durs = memStore.get(key) || [];
+        durs.push(duration);
+        if (durs.length > 200) durs.shift();
+        memStore.set(key, durs);
       }
+      if (from && pageId) memStore.set(`flow:${from}->${pageId}`, (memStore.get(`flow:${from}->${pageId}`) || 0) + 1);
 
       return new Response('ok', { status: 200, headers: corsHeaders });
     } catch (e) {
-      return new Response('bad request: ' + e.message, { status: 400, headers: corsHeaders });
+      return new Response('bad request', { status: 400, headers: corsHeaders });
     }
   }
 
-  // GET /api/beacon
+  // GET /api/beacon — 合并内存+KV，然后批量刷新到KV
   if (request.method === 'GET') {
-    let stats = {};
+    let kvStats = {};
 
     if (useKV) {
-      const list = await env.ANALYTICS.list();
-      for (const key of list.keys) {
-        stats[key.name] = await env.ANALYTICS.get(key.name);
-      }
-    } else {
-      stats = Object.fromEntries(memStore);
+      // 从 KV 读取累积数据
+      try {
+        const list = await env.ANALYTICS.list();
+        for (const key of list.keys) {
+          kvStats[key.name] = await env.ANALYTICS.get(key.name);
+        }
+      } catch (e) { /* KV 读取失败则忽略 */ }
     }
 
-    const debug = url.searchParams.get('debug') === '1';
-    const storageMode = useKV ? 'KV 持久存储' : '内存存储（Worker 重启后清空）';
-    return new Response(renderDashboard(stats, storageMode, debug), {
+    // 合并内存数据到 KV 数据
+    const merged = {};
+    for (const [key, value] of [...Object.entries(kvStats), ...memStore.entries()]) {
+      const existing = merged[key];
+      if (existing === undefined) {
+        merged[key] = value;
+      } else {
+        // 合并：数字累加，数组合并
+        if (key.startsWith('durations:')) {
+          const a = Array.isArray(existing) ? existing : (() => { try { return JSON.parse(existing); } catch(e) { return []; } })();
+          const b = Array.isArray(value) ? value : (() => { try { return JSON.parse(value); } catch(e) { return []; } })();
+          merged[key] = [...a, ...b].slice(-200);
+        } else {
+          merged[key] = (parseInt(existing) || 0) + (parseInt(value) || 0);
+        }
+      }
+    }
+
+    // 每隔 5 分钟批量刷新到 KV（一次仪表盘访问最多触发一次刷写）
+    if (useKV && memStore.size > 0 && (Date.now() - lastFlush > 300000)) {
+      lastFlush = Date.now();
+      try {
+        const promises = [];
+        for (const [key, value] of Object.entries(merged)) {
+          promises.push(env.ANALYTICS.put(key, typeof value === 'object' ? JSON.stringify(value) : String(value)));
+        }
+        // 不 await，后台写入
+        context.waitUntil(Promise.all(promises));
+        // 清空内存（已刷新到KV）
+        memStore = new Map();
+      } catch (e) { /* KV 写入失败则忽略 */ }
+    }
+
+    const storageMode = useKV ? 'KV 持久存储（内存缓冲，5分钟批量刷新）' : '内存存储（Worker 重启后清空）';
+    const memCount = memStore.size;
+    const kvCount = Object.keys(kvStats).length;
+    const modeLabel = useKV ? `KV ${kvCount} 键 + 内存 ${memCount} 键` : `内存 ${memCount} 键`;
+
+    return new Response(renderDashboard(merged, storageMode, modeLabel), {
       headers: { ...corsHeaders, 'Content-Type': 'text/html;charset=utf-8' }
     });
   }
@@ -69,23 +101,7 @@ export async function onRequest(context) {
   return new Response('Not found', { status: 404 });
 }
 
-async function incrementKV(kv, key) {
-  const current = await kv.get(key);
-  await kv.put(key, String(parseInt(current || '0') + 1));
-}
-
-async function appendDurationKV(kv, pageId, duration) {
-  const key = `durations:${pageId}`;
-  let durs = [];
-  try {
-    durs = JSON.parse(await kv.get(key) || '[]');
-  } catch (e) { /* ignore */ }
-  durs.push(duration);
-  if (durs.length > 200) durs.shift();
-  await kv.put(key, JSON.stringify(durs));
-}
-
-function renderDashboard(stats, storageMode, debug) {
+function renderDashboard(stats, storageMode, modeLabel) {
   const visits = {};
   const exits = {};
   const durations = {};
@@ -93,9 +109,9 @@ function renderDashboard(stats, storageMode, debug) {
 
   for (const [key, value] of Object.entries(stats)) {
     if (key.startsWith('visit:')) {
-      visits[key.replace('visit:', '')] = parseInt(value);
+      visits[key.replace('visit:', '')] = parseInt(value) || 0;
     } else if (key.startsWith('exit:')) {
-      exits[key.replace('exit:', '')] = parseInt(value);
+      exits[key.replace('exit:', '')] = parseInt(value) || 0;
     } else if (key.startsWith('durations:')) {
       try {
         const durs = Array.isArray(value) ? value : JSON.parse(value);
@@ -103,12 +119,11 @@ function renderDashboard(stats, storageMode, debug) {
         durations[key.replace('durations:', '')] = { avg, count: durs.length };
       } catch (e) { /* ignore */ }
     } else if (key.startsWith('flow:')) {
-      flows[key.replace('flow:', '')] = parseInt(value);
+      flows[key.replace('flow:', '')] = parseInt(value) || 0;
     }
   }
 
   const sortedVisits = Object.entries(visits).sort((a, b) => b[1] - a[1]);
-  const sortedExits = Object.entries(exits).sort((a, b) => b[1] - a[1]);
   const sortedFlows = Object.entries(flows).sort((a, b) => b[1] - a[1]);
 
   const exitRates = {};
@@ -153,7 +168,7 @@ td{font-size:0.9rem}
 <body>
 <h1>🌠 流星雨的约定 — 玩家行为分析</h1>
 <p class="refresh">刷新页面更新数据</p>
-<p class="mode ${storageMode.includes('KV') ? 'kv' : 'mem'}">存储模式: ${storageMode}</p>
+<p class="mode ${storageMode.includes('KV') ? 'kv' : 'mem'}">${modeLabel}</p>
 ${!hasData ? '<div class="empty">暂无数据，等待玩家游戏后自动出现</div>' : `
 <div class="grid">
 <div>
@@ -164,7 +179,7 @@ ${!hasData ? '<div class="empty">暂无数据，等待玩家游戏后自动出�
 ${sortedVisits.slice(0, 15).map(([page, count]) => {
   const max = sortedVisits[0] ? sortedVisits[0][1] : 1;
   const w = Math.round((count / max) * 100);
-  return `<tr><td>${page}</td><td><span class="num">${count}</span><span class="bar" style="width:${w}px"></span></td></tr>`;
+  return '<tr><td>' + page + '</td><td><span class="num">' + count + '</span><span class="bar" style="width:' + w + 'px"></span></td></tr>';
 }).join('')}
 </table>
 </div>
@@ -177,7 +192,7 @@ ${sortedVisits.slice(0, 15).map(([page, count]) => {
 ${sortedExitRates.slice(0, 10).map(([page, rate]) => {
   const maxRate = sortedExitRates[0] ? sortedExitRates[0][1] : 1;
   const w = Math.round((rate / maxRate) * 100);
-  return `<tr><td>${page}</td><td><span class="rate">${rate}%</span><span class="bar red" style="width:${w}px"></span></td><td>${exits[page]}</td></tr>`;
+  return '<tr><td>' + page + '</td><td><span class="rate">' + rate + '%</span><span class="bar red" style="width:' + w + 'px"></span></td><td>' + (exits[page] || 0) + '</td></tr>';
 }).join('')}
 </table>
 </div>
@@ -188,7 +203,7 @@ ${sortedExitRates.slice(0, 10).map(([page, rate]) => {
 <table>
 <tr><th>页面</th><th>平均停留（秒）</th><th>样本数</th></tr>
 ${Object.entries(durations).sort((a, b) => b[1].avg - a[1].avg).slice(0, 15).map(([page, d]) => {
-  return `<tr><td>${page}</td><td><span class="num">${d.avg}</span>s</td><td>${d.count}</td></tr>`;
+  return '<tr><td>' + page + '</td><td><span class="num">' + d.avg + '</span>s</td><td>' + d.count + '</td></tr>';
 }).join('') || '<tr><td colspan="3">暂无数据</td></tr>'}
 </table>
 </div>
@@ -199,7 +214,7 @@ ${Object.entries(durations).sort((a, b) => b[1].avg - a[1].avg).slice(0, 15).map
 ${sortedFlows.slice(0, 20).map(([flow, count]) => {
   const max = sortedFlows[0] ? sortedFlows[0][1] : 1;
   const w = Math.round((count / max) * 100);
-  return `<tr><td>${flow}</td><td><span class="num">${count}</span><span class="bar purple" style="width:${w}px"></span></td></tr>`;
+  return '<tr><td>' + flow + '</td><td><span class="num">' + count + '</span><span class="bar purple" style="width:' + w + 'px"></span></td></tr>';
 }).join('') || '<tr><td colspan="2">暂无数据</td></tr>'}
 </table>
 </div>
