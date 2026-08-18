@@ -635,9 +635,18 @@
     _currentPage: null,
     _beaconUrl: '/api/beacon',
     _enabled: true,
+    _sessionId: '',
 
     init: function() {
       this._pageEnterTime = Date.now();
+      // 生成或恢复会话ID（匿名，仅用于区分不同玩家）
+      var stored = localStorage.getItem('_as');
+      if (stored) {
+        this._sessionId = stored;
+      } else {
+        this._sessionId = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        localStorage.setItem('_as', this._sessionId);
+      }
       var self = this;
       window.addEventListener('beforeunload', function() {
         self._sendExitBeacon();
@@ -653,12 +662,13 @@
       if (this._currentPage && this._pageEnterTime > 0) {
         var duration = Math.round((now - this._pageEnterTime) / 1000);
         this._sendBeacon({
+          sid: this._sessionId,
           from: this._currentPage,
           pageId: pageId,
           duration: duration
         });
       } else {
-        this._sendBeacon({ pageId: pageId });
+        this._sendBeacon({ sid: this._sessionId, pageId: pageId });
       }
       this._currentPage = pageId;
       this._pageEnterTime = now;
@@ -675,6 +685,7 @@
       if (!this._currentPage || this._pageEnterTime <= 0) return;
       var duration = Math.round((Date.now() - this._pageEnterTime) / 1000);
       var data = JSON.stringify({
+        sid: this._sessionId,
         from: this._currentPage,
         duration: duration
       });
