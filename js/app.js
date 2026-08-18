@@ -6081,6 +6081,7 @@
             // 正确
             if (page.data.setHasCoin) {
               window.gameData.state.hasCoin = true;
+              updateTime();
               StateSaver.save();
             }
             // 自定义弹窗带图片
@@ -7359,8 +7360,8 @@
    * 更新状态栏时间显示
    */
   function updateTime() {
-    // 闹钟触发后时间冻结为12:00，否则显示游戏内固定时间10:30
-    var t = (window.gameData.state.timeFrozen) ? '12:00' : '10:30';
+    // 获得金币后时间永久变为12:00（游戏进入下一阶段）
+    var t = (window.gameData.state.hasCoin) ? '12:00' : '10:30';
     var timeEl = document.getElementById('status-time');
     if (timeEl) timeEl.textContent = t;
     var mainTimeEl = document.getElementById('main-time');
