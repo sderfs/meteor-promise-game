@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>攻略 - 页面列表</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans CJK SC', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #F5F2EB; color: #6B5340; line-height: 1.5; padding: 20px; max-width: 375px; }
+h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+h2 { font-size: 17px; font-weight: 700; margin: 20px 0 12px; }
+.card { background: #FFFFFF; border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.page-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #F0EDE6; gap: 12px; }
+.page-item:last-child { border-bottom: none; }
+.page-id { width: 36px; height: 36px; border-radius: 10px; background: #F0EDE6; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.page-info { flex: 1; }
+.page-name { font-size: 14px; font-weight: 600; }
+.page-from { font-size: 12px; color: #A0896E; margin-top: 1px; }
+.footer { text-align: center; padding: 20px; font-size: 11px; color: #C7C7CC; }
+</style>
+</head>
+<body>
+<h1>攻略手册</h1>
+<p style="font-size:12px;color:#A0896E;margin-bottom:20px;">流星雨的约定 · 全页面路径速查</p>
+<h2>全部页面（按编号排序）</h2>
+<div class="card" id="pages"></div>
+<div class="footer">《流星雨的约定》攻略手册 · 祝你找到所有秘密</div>
+<script>
+const allPages = [
+  { id:'01', name:'备忘录', from:'主屏幕应用图标' },
+  { id:'02', name:'短信', from:'主屏幕应用图标' },
+  { id:'03', name:'笔记·关于叶禾', from:'搜索"叶禾"' },
+  { id:'04', name:'电话簿', from:'主屏幕应用图标' },
+  { id:'05', name:'日历', from:'主屏幕应用图标' },
+  { id:'06', name:'微信消息列表', from:'主屏幕 → 微信' },
+  { id:'07', name:'微信聊天', from:'微信 → 点击联系人' },
+  { id:'08', name:'商品详情（露营箱）', from:'淘宝推荐 / 微信链接' },
+  { id:'09', name:'淘宝首页', from:'主屏幕应用图标' },
+  { id:'10', name:'我的订单', from:'淘宝 → 我的订单' },
+  { id:'11', name:'DeepSeek', from:'主屏幕应用图标' },
+  { id:'12', name:'浏览器搜索·林晓', from:'主屏幕 → 浏览器' },
+  { id:'13', name:'林晓（百科）', from:'浏览器搜索结果' },
+  { id:'14', name:'遇见文字，遇见冒险', from:'浏览器搜索结果' },
+  { id:'15', name:'QQ登录', from:'主屏幕 → QQ' },
+  { id:'16', name:'QQ空间·林晓', from:'QQ登录成功' },
+  { id:'17', name:'QQ空间·叶禾', from:'林晓空间 → @禾你一起看星星' },
+  { id:'18', name:'微博登录', from:'主屏幕 → 微博' },
+  { id:'19', name:'微博·林晓大号', from:'微博登录成功' },
+  { id:'20', name:'微博·艾尔诺拉（锁定）', from:'微博大号侧边栏' },
+  { id:'21', name:'微博小号登录', from:'艾尔诺拉 → 登录' },
+  { id:'22', name:'微博·艾尔诺拉（内容）', from:'小号登录成功' },
+  { id:'23', name:'相册', from:'主屏幕应用图标' },
+  { id:'24', name:'户外露营装备开箱', from:'B站观看历史' },
+  { id:'25', name:'bilibili首页', from:'主屏幕应用图标' },
+  { id:'26', name:'B站观看历史', from:'B站 → 观看历史' },
+  { id:'27', name:'荒野求生30天挑战', from:'B站观看历史' },
+  { id:'28', name:'小红书密码帖', from:'微信链接 / B站评论区' },
+  { id:'29', name:'浏览器搜索·荒野求生', from:'搜索"荒野求生"或"荒野之心"' },
+  { id:'30', name:'荒野之心论坛', from:'浏览器搜索结果' },
+  { id:'31', name:'计划去荒野环境长驻采风', from:'论坛 → 装备咨询帖' },
+  { id:'32', name:'登录·银鬃猫的最爱', from:'论坛 → 点击银鬃猫昵称' },
+  { id:'33', name:'登录·芒狗冒险家', from:'论坛 → 登录按钮/点击芒狗昵称' },
+  { id:'34', name:'银鬃猫·个人主页', from:'论坛登录银鬃猫成功' },
+  { id:'35', name:'青苔巷规则怪谈', from:'银鬃猫主页 → 帖子' },
+  { id:'36', name:'关于门的几个发现', from:'银鬃猫主页 → 帖子' },
+  { id:'37', name:'芒狗冒险家·个人主页', from:'论坛登录芒狗成功' },
+  { id:'38', name:'新闻·星愿欢乐谷停业', from:'搜索"星愿欢乐谷"' },
+  { id:'39', name:'拾光里地图', from:'搜索"拾光里"' },
+  { id:'40', name:'易存柜地址选择', from:'搜索"易存柜"' },
+  { id:'41', name:'取件码输入', from:'易存柜 → 选18号柜机' },
+  { id:'42', name:'森屿烘焙（商家页）', from:'搜索"森屿烘焙"' },
+  { id:'43', name:'菜单（烘焙店）', from:'森屿烘焙 → 查看完整菜单' },
+  { id:'44', name:'新闻·青苔巷失踪事件', from:'搜索"青苔巷"' },
+  { id:'45', name:'青苔巷（结局）', from:'搜索"青苔巷" → 导航（需金币）' },
+  { id:'46', name:'加密日记', from:'搜索"luminar"' },
+];
+const container = document.getElementById('pages');
+allPages.forEach(pg => {
+  container.innerHTML += '<div class="page-item"><div class="page-id">'+pg.id+'</div><div class="page-info"><div class="page-name">'+pg.name+'</div><div class="page-from">'+pg.from+'</div></div></div>';
+});
+</script>
+</body>
+</html>

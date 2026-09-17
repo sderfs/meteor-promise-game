@@ -1,72 +1,52 @@
-export async function onRequest(context) {
-  const { request, env } = context;
-  const url = new URL(request.url);
+// 内存存储（Worker 重启后清空）
+let store = new Map();
 
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  };
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
 
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    };
 
-  // POST /api/beacon — receive tracking data
-  if (request.method === 'POST') {
-    try {
-      const data = await request.json();
-      const { pageId, from, duration } = data;
-
-      if (env.ANALYTICS) {
-        if (pageId) await incrementKV(env.ANALYTICS, `visit:${pageId}`);
-        if (from) await incrementKV(env.ANALYTICS, `exit:${from}`);
-        if (duration && from) await appendDuration(env.ANALYTICS, from, duration);
-        if (from && pageId) await incrementKV(env.ANALYTICS, `flow:${from}->${pageId}`);
-      }
-
-      return new Response('ok', { status: 200, headers: corsHeaders });
-    } catch (e) {
-      return new Response('bad request', { status: 400, headers: corsHeaders });
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
     }
-  }
 
-  // GET /api/beacon — return dashboard
-  if (request.method === 'GET') {
-    if (!env.ANALYTICS) {
-      return new Response(renderDashboard({}), {
+    if (url.pathname === '/api/beacon' && request.method === 'POST') {
+      try {
+        const data = await request.json();
+        const { pageId, from, duration } = data;
+
+        if (pageId) store.set(`visit:${pageId}`, (store.get(`visit:${pageId}`) || 0) + 1);
+        if (from) store.set(`exit:${from}`, (store.get(`exit:${from}`) || 0) + 1);
+        if (duration && from) {
+          const key = `durations:${from}`;
+          const durs = store.get(key) || [];
+          durs.push(duration);
+          if (durs.length > 200) durs.shift();
+          store.set(key, durs);
+        }
+        if (from && pageId) store.set(`flow:${from}->${pageId}`, (store.get(`flow:${from}->${pageId}`) || 0) + 1);
+
+        return new Response('ok', { status: 200, headers: corsHeaders });
+      } catch (e) {
+        return new Response('error: ' + e.message, { status: 400, headers: corsHeaders });
+      }
+    }
+
+    if (url.pathname === '/api/beacon' && request.method === 'GET') {
+      const stats = Object.fromEntries(store);
+      return new Response(renderDashboard(stats), {
         headers: { ...corsHeaders, 'Content-Type': 'text/html;charset=utf-8' }
       });
     }
 
-    const list = await env.ANALYTICS.list();
-    const stats = {};
-    for (const key of list.keys) {
-      stats[key.name] = await env.ANALYTICS.get(key.name);
-    }
-    return new Response(renderDashboard(stats), {
-      headers: { ...corsHeaders, 'Content-Type': 'text/html;charset=utf-8' }
-    });
+    return env.ASSETS.fetch(request);
   }
-
-  return new Response('Not found', { status: 404 });
-}
-
-async function incrementKV(kv, key) {
-  const current = await kv.get(key);
-  await kv.put(key, String(parseInt(current || '0') + 1));
-}
-
-async function appendDuration(kv, pageId, duration) {
-  const key = `durations:${pageId}`;
-  let durs = [];
-  try {
-    durs = JSON.parse(await kv.get(key) || '[]');
-  } catch (e) { /* ignore */ }
-  durs.push(duration);
-  if (durs.length > 200) durs.shift();
-  await kv.put(key, JSON.stringify(durs));
-}
+};
 
 function renderDashboard(stats) {
   const visits = {};
@@ -76,22 +56,19 @@ function renderDashboard(stats) {
 
   for (const [key, value] of Object.entries(stats)) {
     if (key.startsWith('visit:')) {
-      visits[key.replace('visit:', '')] = parseInt(value);
+      visits[key.replace('visit:', '')] = value;
     } else if (key.startsWith('exit:')) {
-      exits[key.replace('exit:', '')] = parseInt(value);
+      exits[key.replace('exit:', '')] = value;
     } else if (key.startsWith('durations:')) {
-      try {
-        const durs = JSON.parse(value);
-        const avg = durs.length ? Math.round(durs.reduce((a, b) => a + b, 0) / durs.length) : 0;
-        durations[key.replace('durations:', '')] = { avg, count: durs.length };
-      } catch (e) { /* ignore */ }
+      const durs = Array.isArray(value) ? value : [];
+      const avg = durs.length ? Math.round(durs.reduce((a, b) => a + b, 0) / durs.length) : 0;
+      durations[key.replace('durations:', '')] = { avg, count: durs.length };
     } else if (key.startsWith('flow:')) {
-      flows[key.replace('flow:', '')] = parseInt(value);
+      flows[key.replace('flow:', '')] = value;
     }
   }
 
   const sortedVisits = Object.entries(visits).sort((a, b) => b[1] - a[1]);
-  const sortedExits = Object.entries(exits).sort((a, b) => b[1] - a[1]);
   const sortedFlows = Object.entries(flows).sort((a, b) => b[1] - a[1]);
 
   const exitRates = {};
@@ -132,7 +109,7 @@ td{font-size:0.9rem}
 </head>
 <body>
 <h1>🌠 流星雨的约定 — 玩家行为分析</h1>
-<p class="refresh">刷新页面更新数据 | 数据每 60 秒同步一次</p>
+<p class="refresh">刷新页面更新数据 | 内存存储，Worker 重启后清空</p>
 ${!hasData ? '<div class="empty">暂无数据，等待玩家游戏后自动出现</div>' : `
 <div class="grid">
 <div>

@@ -72,7 +72,7 @@ const gameData = {
       data: {
         title: "笔记 · 生活素材",
         subtitle: "\uD83D\uDCDD 关于叶禾",
-        content: "\uD83C\uDF58 \u7CA5\n\n\u6211\u53D1\u70E7\u90A3\u56DE\uFF0C\u5979\u7FD8\u73ED\u6765\u716E\u7CA5\u3002\n\u7CCA\u4E86\u3002\u9505\u5E95\u90A3\u5C42\u9ED1\u5F97\u53EF\u4EE5\u5F53\u70AD\u7B14\u753B\u7D20\u63CF\u3002\n\u5979\u522E\u4E86\u534A\u5929\uFF0C\u7AEF\u8FC7\u6765\u7684\u65F6\u5019\u8138\u4E0D\u7EA2\u5FC3\u4E0D\u8DF3\uFF1A\n\u201C\u7CCA\u7684\u90A3\u5C42\u6700\u6709\u8425\u517B\u3002\u201D\n\u8BED\u6C14\u8DDF\u5979\u5728\u5929\u6587\u9986\u8BB2\u661F\u5EA7\u4E00\u6837\u6743\u5A01\u3002\n\n\u6211\u5403\u4E86\u3002\u53CD\u6B63\u6211\u6CE1\u9762\u90FD\u80FD\u5FD8\u653E\u8C03\u6599\u5305\uFF0C\u6CA1\u8D44\u683C\u6311\u5254\u3002\n\u800C\u4E14\u7CCA\u7CA5\u6BD4\u6CE1\u9762\u597D\u5403\u3002\u771F\u7684\uFF0C\u4E0D\u662F\u56E0\u4E3A\u611F\u52A8\u624D\u8FD9\u4E48\u8BF4\u7684\u3002\n\u597D\u5427\uFF0C\u6709\u4E00\u70B9\u70B9\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83D\uDDE3\uFE0F \u8BDD\u5C11\n\n\u53F6\u79BE\u8BDD\u5C11\u5230\u4EE4\u4EBA\u53D1\u6307\u3002\n\u6211\u8BF4\u201C\u5FD8\u5E26\u94A5\u5319\u4E86\u201D\uFF0C\u5979\u201C\u55EF\u201D\u4E00\u58F0\uFF0C\u7B2C\u4E8C\u5929\u95E8\u57AB\u4E0B\u9762\u591A\u4E86\u628A\u5907\u7528\u94A5\u5319\u3002\n\u6211\u8BF4\u201C\u6CE1\u9762\u53C8\u5FD8\u653E\u8C03\u6599\u5305\u4E86\u201D\uFF0C\u5979\u5468\u672B\u62CE\u4E86\u888B\u8292\u679C\u5E72\u6765\uFF1A\u201C\u8FD9\u4E2A\u4E0D\u7528\u716E\u3002\u201D\n\u4ECE\u5934\u5230\u5C3E\u6CA1\u63D0\u8C03\u6599\u5305\u7684\u4E8B\u3002\n\n\u5979\u5173\u5FC3\u4EBA\u7684\u65B9\u5F0F\u4E0D\u662F\u5B89\u6170\uFF0C\u662F\u628A\u4F60\u4E0B\u6B21\u53EF\u80FD\u72AF\u8821\u7684\u8DEF\u7ED9\u5835\u4E0A\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83C\uDFF9\uFE0F \u7BAD\u9986\n\n\u5979\u5728\u7BAD\u9986\u8BA4\u771F\u5F97\u8DDF\u62CD\u7EAA\u5F55\u7247\u4F3C\u7684\u3002\n\u7784\u51C6\u7684\u65F6\u5019\u773C\u775B\u90FD\u4E0D\u7728\uFF0C\u7BAD\u98DE\u51FA\u53BB\uFF0C\u9776\u5FC3\u591A\u4E86\u4E2A\u6D1E\u3002\n\u7136\u540E\u8F6C\u5934\u770B\u6211\uFF1A\u201C\u8FD8\u884C\u3002\u201D\n\u6211\u95EE\u6559\u7EC3\u6536\u9EC4\u4EC0\u4E48\u610F\u601D\u3002\u6559\u7EC3\u8BF4\u5C31\u662F\u5F88\u51C6\u3002\n\u6240\u4EE5\u201C\u8FD8\u884C\u201D\u7684\u610F\u601D\u662F\u2014\u2014\n\u201C\u6211\u4ECA\u5929\u51C6\u5F97\u79BB\u8C31\u4F46\u6211\u4E0D\u4E60\u60EF\u5938\u81EA\u5DF1\u6240\u4EE5\u7528\u8FD8\u884C\u4EE3\u66FF\u3002\u201D\n\u53F6\u6C0F\u8C26\u865A\u6CD5\u3002\u884C\u5427\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\u2604\uFE0F \u7EA6\u5B9A\n\n\u6D41\u661F\u96E8\uFF0C\u7EA6\u4E86\u4E09\u5E74\uFF0C\u6211\u9E3D\u4E86\u4E09\u5E74\u3002\n\u7B2C\u4E00\u5E74\u662F\u8D77\u4E0D\u6765\u3002\u7B2C\u4E8C\u5E74\u662F\u95F9\u949F\u6CA1\u54CD\u3002\u7B2C\u4E09\u5E74\u8D76\u7A3F\u5230\u51CC\u6668\u4E09\u70B9\uFF0C\u9192\u8FC7\u6765\u5DF2\u7ECF\u5929\u4EAE\u4E86\u3002\n\u5979\u6BCF\u6B21\u90FD\u7B49\u3002\u6BCF\u6B21\u90FD\u8BF4\u201C\u660E\u5E74\u4E00\u5B9A\u201D\u3002\n\u4E0D\u662F\u62B1\u6028\u3002\u5C31\u662F\u90A3\u79CD\u2014\u2014\u884C\uFF0C\u90A3\u5C31\u660E\u5E74\u3002\n\n\u6240\u4EE5\u4ECA\u5E74\u8BF4\u4EC0\u4E48\u4E5F\u5F97\u53BB\u3002\u5B9A\u5341\u4E2A\u95F9\u949F\u3002\n\u5979\u751F\u65E5\u9644\u8FD1\uFF0C\u6D41\u91CF\u6781\u5927\u3002\u8292\u679C\u5E72\u5DF2\u5907\u597D\u3002\u622A\u56FE\u4E86\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\u23F0 \u6211\u5FD8\u5E26\u4E1C\u897F\u7684\u65E5\u5E38\n\n\u4ECA\u5929\u51FA\u95E8\u53C8\u5FD8\u5E26\u94A5\u5319\u3002\u5728\u95E8\u53E3\u7AD9\u4E86\u5341\u5206\u949F\u7B49\u5F00\u9501\u5E08\u5085\u3002\n\u4E0A\u4E2A\u6708\u5FD8\u5E26\u624B\u673A\u3002\u5979\u8BF4\u201C\u4E0D\u4E00\u6837\u201D\u3002\n\u786E\u5B9E\u4E0D\u4E00\u6837\u3002\u4E0A\u4E2A\u6708\u662F\u624B\u673A\uFF0C\u8FD9\u4E2A\u6708\u662F\u94A5\u5319\uFF0C\u4E0B\u4E2A\u6708\u53EF\u80FD\u662F\u81EA\u5DF1\u3002\n\u5979\u8BA9\u6211\u628A\u81EA\u5DF1\u5FD8\u4E86\u7B97\u4E86\u3002\u6211\u8BF4\u4E5F\u4E0D\u662F\u6CA1\u53EF\u80FD\u3002\n\u5979\u53F9\u6C14\u7684\u65F6\u5019\u5634\u89D2\u662F\u5F2F\u7684\u3002\u6211\u770B\u89C1\u4E86\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83C\uDF81 \u793C\u7269\n\n\u9001\u5979\u4E00\u679A\u91D1\u5E01\u3002\u4ECE\u90A3\u8FB9\u5E26\u56DE\u6765\u7684\u3002\u54AC\u4E86\uFF0C\u8F6F\u7684\uFF0C\u771F\u91D1\u3002\n\u5979\u8001\u7B11\u6211\u66B4\u5BCC\u68A6\uFF0C\u7ED9\u5979\u4E00\u679A\u771F\u7684\uFF0C\u8BA9\u5979\u611F\u53D7\u4E00\u4E0B\u4EC0\u4E48\u53EB\u8BF4\u5230\u505A\u5230\u3002\n\u5176\u5B9E\u662F\u89C9\u5F97\u597D\u770B\u3002\u91D1\u8272\u886C\u5979\u3002",
+        content: "\uD83C\uDF58 \u7CA5\n\n\u6211\u53D1\u70E7\u90A3\u56DE\uFF0C\u5979\u7FD8\u73ED\u6765\u716E\u7CA5\u3002\n\u7CCA\u4E86\u3002\u9505\u5E95\u90A3\u5C42\u9ED1\u5F97\u53EF\u4EE5\u5F53\u70AD\u7B14\u753B\u7D20\u63CF\u3002\n\u5979\u522E\u4E86\u534A\u5929\uFF0C\u7AEF\u8FC7\u6765\u7684\u65F6\u5019\u8138\u4E0D\u7EA2\u5FC3\u4E0D\u8DF3\uFF1A\n\u201C\u7CCA\u7684\u90A3\u5C42\u6700\u6709\u8425\u517B\u3002\u201D\n\u8BED\u6C14\u8DDF\u5979\u5728\u5929\u6587\u9986\u8BB2\u661F\u5EA7\u4E00\u6837\u6743\u5A01\u3002\n\n\u6211\u5403\u4E86\u3002\u53CD\u6B63\u6211\u6CE1\u9762\u90FD\u80FD\u5FD8\u653E\u8C03\u6599\u5305\uFF0C\u6CA1\u8D44\u683C\u6311\u5254\u3002\n\u800C\u4E14\u7CCA\u7CA5\u6BD4\u6CE1\u9762\u597D\u5403\u3002\u771F\u7684\uFF0C\u4E0D\u662F\u56E0\u4E3A\u611F\u52A8\u624D\u8FD9\u4E48\u8BF4\u7684\u3002\n\u597D\u5427\uFF0C\u6709\u4E00\u70B9\u70B9\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83D\uDDE3\uFE0F \u8BDD\u5C11\n\n\u53F6\u79BE\u8BDD\u5C11\u5230\u4EE4\u4EBA\u53D1\u6307\u3002\n\u6211\u8BF4\u201C\u5FD8\u5E26\u94A5\u5319\u4E86\u201D\uFF0C\u5979\u201C\u55EF\u201D\u4E00\u58F0\uFF0C\u7B2C\u4E8C\u5929\u95E8\u57AB\u4E0B\u9762\u591A\u4E86\u628A\u5907\u7528\u94A5\u5319\u3002\n\u6211\u8BF4\u201C\u6CE1\u9762\u53C8\u5FD8\u653E\u8C03\u6599\u5305\u4E86\u201D\uFF0C\u5979\u5468\u672B\u62CE\u4E86\u888B\u8292\u679C\u5E72\u6765\uFF1A\u201C\u8FD9\u4E2A\u4E0D\u7528\u716E\u3002\u201D\n\u4ECE\u5934\u5230\u5C3E\u6CA1\u63D0\u8C03\u6599\u5305\u7684\u4E8B\u3002\n\n\u5979\u5173\u5FC3\u4EBA\u7684\u65B9\u5F0F\u4E0D\u662F\u5B89\u6170\uFF0C\u662F\u628A\u4F60\u4E0B\u6B21\u53EF\u80FD\u72AF\u8822\u7684\u8DEF\u7ED9\u5835\u4E0A\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83C\uDFF9\uFE0F \u7BAD\u9986\n\n\u5979\u5728\u7BAD\u9986\u8BA4\u771F\u5F97\u8DDF\u62CD\u7EAA\u5F55\u7247\u4F3C\u7684\u3002\n\u7784\u51C6\u7684\u65F6\u5019\u773C\u775B\u90FD\u4E0D\u7728\uFF0C\u7BAD\u98DE\u51FA\u53BB\uFF0C\u9776\u5FC3\u591A\u4E86\u4E2A\u6D1E\u3002\n\u7136\u540E\u8F6C\u5934\u770B\u6211\uFF1A\u201C\u8FD8\u884C\u3002\u201D\n\u6211\u95EE\u6559\u7EC3\u4E0A\u9EC4\u4EC0\u4E48\u610F\u601D\u3002\u6559\u7EC3\u8BF4\u5C31\u662F\u5F88\u51C6\u3002\n\u6240\u4EE5\u201C\u8FD8\u884C\u201D\u7684\u610F\u601D\u662F\u2014\u2014\n\u201C\u6211\u4ECA\u5929\u51C6\u5F97\u79BB\u8C31\u4F46\u6211\u4E0D\u4E60\u60EF\u5938\u81EA\u5DF1\u6240\u4EE5\u7528\u8FD8\u884C\u4EE3\u66FF\u3002\u201D\n\u53F6\u6C0F\u8C26\u865A\u6CD5\u3002\u884C\u5427\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\u2604\uFE0F \u7EA6\u5B9A\n\n\u6D41\u661F\u96E8\uFF0C\u7EA6\u4E86\u4E09\u5E74\uFF0C\u6211\u9E3D\u4E86\u4E09\u5E74\u3002\n\u7B2C\u4E00\u5E74\u662F\u8D77\u4E0D\u6765\u3002\u7B2C\u4E8C\u5E74\u662F\u95F9\u949F\u6CA1\u54CD\u3002\u7B2C\u4E09\u5E74\u8D76\u7A3F\u5230\u51CC\u6668\u4E09\u70B9\uFF0C\u9192\u8FC7\u6765\u5DF2\u7ECF\u5929\u4EAE\u4E86\u3002\n\u5979\u6BCF\u6B21\u90FD\u7B49\u3002\u6BCF\u6B21\u90FD\u8BF4\u201C\u660E\u5E74\u4E00\u5B9A\u201D\u3002\n\u4E0D\u662F\u62B1\u6028\u3002\u5C31\u662F\u90A3\u79CD\u2014\u2014\u884C\uFF0C\u90A3\u5C31\u660E\u5E74\u3002\n\n\u6240\u4EE5\u4ECA\u5E74\u8BF4\u4EC0\u4E48\u4E5F\u5F97\u53BB\u3002\u5B9A\u5341\u4E2A\u95F9\u949F\u3002\n\u5979\u751F\u65E5\u9644\u8FD1\uFF0C\u6D41\u91CF\u6781\u5927\u3002\u8292\u679C\u5E72\u5DF2\u5907\u597D\u3002\u622A\u56FE\u4E86\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\u23F0 \u6211\u5FD8\u5E26\u4E1C\u897F\u7684\u65E5\u5E38\n\n\u4ECA\u5929\u51FA\u95E8\u53C8\u5FD8\u5E26\u94A5\u5319\u3002\u5728\u95E8\u53E3\u7AD9\u4E86\u5341\u5206\u949F\u7B49\u5F00\u9501\u5E08\u5085\u3002\n\u4E0A\u4E2A\u6708\u5FD8\u5E26\u624B\u673A\u3002\u5979\u8BF4\u201C\u4E0D\u4E00\u6837\u201D\u3002\n\u786E\u5B9E\u4E0D\u4E00\u6837\u3002\u4E0A\u4E2A\u6708\u662F\u624B\u673A\uFF0C\u8FD9\u4E2A\u6708\u662F\u94A5\u5319\uFF0C\u4E0B\u4E2A\u6708\u53EF\u80FD\u662F\u81EA\u5DF1\u3002\n\u5979\u8BA9\u6211\u628A\u81EA\u5DF1\u5FD8\u4E86\u7B97\u4E86\u3002\u6211\u8BF4\u4E5F\u4E0D\u662F\u6CA1\u53EF\u80FD\u3002\n\u5979\u53F9\u6C14\u7684\u65F6\u5019\u5634\u89D2\u662F\u5F2F\u7684\u3002\u6211\u770B\u89C1\u4E86\u3002\n\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\uD83C\uDF81 \u793C\u7269\n\n\u9001\u5979\u4E00\u679A\u91D1\u5E01\u3002\u4ECE\u90A3\u8FB9\u5E26\u56DE\u6765\u7684\u3002\u54AC\u4E86\uFF0C\u8F6F\u7684\uFF0C\u771F\u91D1\u3002\n\u5979\u8001\u7B11\u6211\u66B4\u5BCC\u68A6\uFF0C\u7ED9\u5979\u4E00\u679A\u771F\u7684\uFF0C\u8BA9\u5979\u611F\u53D7\u4E00\u4E0B\u4EC0\u4E48\u53EB\u8BF4\u5230\u505A\u5230\u3002\n\u5176\u5B9E\u662F\u89C9\u5F97\u597D\u770B\u3002\u91D1\u8272\u886C\u5979\u3002",
         bold: [],
         footerNote: ""
       }
@@ -101,7 +101,7 @@ const gameData = {
         chatList: [
           { name: "暴躁小鹿", avatar: "🦌", preview: "我就那几个来回用，记不住复杂的", date: "8月12日", target: "07" },
           { name: "禾你一起看星星", avatar: "⭐", preview: "这个先不说，要留点悬念。", date: "8月11日", target: "07" },
-          { name: "妈妈", avatar: "👩", preview: "好嘞！腊肉焖饭！", date: "8月10日", target: "07" }
+          { name: "妈妈", avatar: "👩", preview: "好嘞！腊肉焖饭！", date: "7月5日", target: "07" }
         ]
       }
     },
@@ -207,17 +207,17 @@ const gameData = {
               { role: "self", name: "林晓", text: "帮我谢谢阿姨。" },
               { role: "other", name: "妈妈", text: "你自己去谢。" }
             ]},
+            { time: "2026年7月5日 20:15", messages: [
+              { role: "other", name: "妈妈", text: "晓晓，吃饭了没？别老吃泡面。" },
+              { role: "self", name: "林晓", text: "吃了麻辣烫。" },
+              { role: "other", name: "妈妈", text: "麻辣烫也算泡面亲戚。下个月我回去，给你带腊肉。" },
+              { role: "self", name: "林晓", text: "好嘞！腊肉焖饭！" }
+            ]},
             { time: "2026年7月28日 14:30", messages: [
               { role: "other", name: "妈妈", text: "你表姐生了，女孩，六斤三两。让你帮忙想名字。" },
               { role: "self", name: "林晓", text: "我起名都是翻字典的。" },
               { role: "other", name: "妈妈", text: "翻字典也比她老公起的\u201c王美丽\u201d强。" },
               { role: "self", name: "林晓", text: "……行，我想想。" }
-            ]},
-            { time: "2026年8月10日 19:30", messages: [
-              { role: "other", name: "妈妈", text: "晓晓，吃饭了没？别老吃泡面。" },
-              { role: "self", name: "林晓", text: "吃了麻辣烫。" },
-              { role: "other", name: "妈妈", text: "麻辣烫也算泡面亲戚。下个月我回去，给你带腊肉。" },
-              { role: "self", name: "林晓", text: "好嘞！腊肉焖饭！" }
             ]}
           ]
         },
@@ -599,8 +599,8 @@ const gameData = {
       type: "gallery",
       data: {
         photos: [
-          { id: 6, src: "assets/photos/photo6.webp", desc: "\u4E66\u684C", date: "2026\u5E747\u670828\u65E5 02:33:41", location: "\u9633\u5149\u533A" },
           { id: 5, src: "assets/photos/photo5.webp", desc: "\u5FEB\u9012\u5806", date: "2026\u5E748\u670811\u65E5 16:42:19", location: "\u9633\u5149\u533A" },
+          { id: 6, src: "assets/photos/photo6.webp", desc: "\u4E66\u684C", date: "2026\u5E747\u670828\u65E5 02:33:41", location: "\u9633\u5149\u533A" },
           { id: 4, src: "assets/photos/photo4.webp", desc: "\u8292\u679C\u5E72\u5F00\u888B", date: "2026\u5E747\u670823\u65E5 22:15:08", location: "\u9633\u5149\u533A" },
           { id: 3, src: "assets/photos/photo3.webp", desc: "\u591A\u8089\u690D\u7269", date: "2026\u5E746\u670815\u65E5 11:08:34", location: "\u9633\u5149\u533A" },
           { id: 2, src: "assets/photos/photo2.webp", desc: "\u9A91\u9F99\u81EA\u62CD", date: "2025\u5E748\u670813\u65E5 17:41:52", location: "\u672A\u77E5\u5730\u70B9", unknown: true },
@@ -625,7 +625,8 @@ const gameData = {
           { user: "山野闲人", text: "老猫这期真的猛，我三天就不行了。👍892" },
           { user: "户外老猫（UP主）", text: "真正的大神都在荒野之心论坛，那边有狠人分享过更离谱的经历。我就是跟着学的。👍567", bold: ["荒野之心"], isReply: true, replyTo: "山野闲人" },
           { user: "芒狗躺平中", text: "我去康康！！谢谢推荐！！🌙✨ 👍23" },
-          { user: "户外老猫（UP主）", text: "去吧去吧，装备版块干货挺多的。", isReply: true, replyTo: "芒狗躺平中" }
+          { user: "户外老猫（UP主）", text: "去吧去吧，装备版块干货挺多的。", isReply: true, replyTo: "芒狗躺平中" },
+          { user: "银鬃猫的最爱", text: "我也想去试试！👍1" }
         ]
       }
     },
@@ -1143,44 +1144,66 @@ const gameData = {
       type: "bilibili-home",
       data: {
         entries: [
-          { text: "观看历史", target: "26", clickable: true },
-          { text: "我的收藏", clickable: false },
-          { text: "稍后再看", clickable: false }
+          { text: "消息", target: "26", clickable: true },
+          { text: "我的收藏", clickable: false }
         ],
         videos: [
-          { title: "户外装备选购指南", author: "户外老猫", views: "12万播放" },
-          { title: "野外生存技巧", author: "山野闲人", views: "8万播放" },
-          { title: "露营必备清单", author: "丛林猫", views: "5万播放" }
+          { title: "户外装备选购指南", author: "户外老猫", views: "12万播放", thumb: "assets/bili-gear.webp" },
+          { title: "野外生存技巧", author: "山野闲人", views: "8万播放", thumb: "assets/bili-survival.webp" },
+          { title: "露营必备清单", author: "丛林猫", views: "5万播放", thumb: "assets/bili-camp.webp" }
         ],
         navTabs: [
           { text: "首页", active: true, target: null },
           { text: "动态", active: false, target: null },
-          { text: "历史", active: false, target: "26" },
-          { text: "稍后再看", active: false, target: null }
+          { text: "消息", active: false, target: "26", badge: true, bold: true },
+          { text: "观看历史", active: false, target: null }
         ]
       }
     },
 
-    // ---- 页面 26：B站观看历史 ----
+    // ---- 页面 26：B站消息页 ----
     "26": {
       id: "26",
-      title: "观看历史",
-      footprintTitle: "B站 · 观看历史",
-      type: "bilibili-history",
+      title: "消息",
+      footprintTitle: "B站 · 消息",
+      type: "bilibili-message",
       data: {
-        videos: [
-          { title: "两分钟教你如何荒野求生", progress: "已看72%", date: "8月12日", bold: ["荒野求生"] },
-          { title: "荒野求生的一百个小妙招", progress: "已看完", date: "8月11日", bold: ["荒野求生"] },
-          { title: "野外净水器实测，荒野求生必备", progress: "已看完", date: "8月10日", bold: ["荒野求生"] },
-          { title: "荒野求生装备红黑榜", progress: "已看45%", date: "8月9日", bold: ["荒野求生"] },
-          { title: "一个人荒野求生30天挑战", progress: "已看完", date: "8月9日", bold: ["荒野求生"], target: "27" },
-          { title: "户外露营装备开箱", progress: "已看完", date: "8月8日" },
-          { title: "新手露营避坑指南", progress: "已看完", date: "8月7日" }
+        notifications: [
+          {
+            type: "like",
+            user: "荒野老狼",
+            avatar: "🐺",
+            text: "点赞了你的评论",
+            comment: "我也想去试试！",
+            time: "2分钟前",
+            target: "27",
+            read: false
+          },
+          {
+            type: "like",
+            user: "山野闲人",
+            avatar: "🌲",
+            text: "点赞了你的评论",
+            comment: "我去康康！！谢谢推荐！！🌙✨",
+            time: "3小时前",
+            target: null,
+            read: true
+          },
+          {
+            type: "like",
+            user: "户外老猫（UP主）",
+            avatar: "🐱",
+            text: "点赞了你的评论",
+            comment: "买了买了！🏕️",
+            time: "5小时前",
+            target: null,
+            read: true
+          }
         ]
       }
     },
 
-  },
+    },
 
   // ========== 密码验证表 ==========
   // 各场景的账号密码及安全问题
@@ -1237,14 +1260,15 @@ const gameData = {
     "12": "在主屏幕上方搜机主的名字，会看到两篇关于她的文章。",
     "13": "打开百科，写着每一本书的出版日。",
     "14": "点开那篇采访，她在里面笑得很开心。",
+    "17": "林晓的QQ空间里，有一个通往她朋友主页的入口。",
     "19": "登录微博后，她的首页没什么特别的，但右边推荐了一个名字很长的账号。",
     "20": "从她首页右边点进去，那个小号上了锁。",
-    "21": "B站的观看历史里面有她网络冲浪的痕迹，她是否在其他地方隐藏着什么。",
+    "21": "那个上了锁的小号，点登录就能进，账号已经填好了。",
     "23": "打开相册，那个彩色图标里有两张照片很特别。",
     "24": "小鹿分享的视频，没什么特别的线索。",
     "25": "从视频页面点左上角就能到B站首页，但没什么好看的。",
-    "26": "B站首页点观看历史就能看到，有一个视频值得再看看。",
-    "27": "观看历史里有个视频提供了如何求生的线索。",
+    "26": "B站首页顶部有个带红点的消息入口，点开看看。",
+    "27": "B站消息里有一条通知，点开就是那个视频。",
     "28": "微信里小鹿分享的另一个链接，有人在那里说过自己设密码的套路。",
     "29": "搜索那条视频评论里提到的地方。",
     "30": "论坛里有个帖子锁着，发帖人的名字像一只猫。",
@@ -1263,7 +1287,6 @@ const gameData = {
     "11": "她和AI聊过一次，问了一个发音像「路米纳尔」的词。",
     "15": "账号是那串十一位数字，密码是某个夏天的日子。",
     "16": "说说都敞开着，只有一条笔记锁着，答案在每月都买的零食里。",
-    "17": "转发过一篇流星雨科普，评论区聊过九宫格能当密码生成器。",
     "18": "八位数生日，一半在短信里，另一半在桌面上那个倒计时里。",
     "22": "每一条都像小说素材，蓝龙的名字、发光的果子、一只猫、一个词。",
     "32": "密码套路藏在小红书里，她最喜欢的东西和论坛名字缩写。",
@@ -1386,3 +1409,17 @@ const gameData = {
 
 // 暴露到全局
 window.gameData = gameData;
+
+// 清理已删除页面的访问记录
+(function() {
+  var state = window.gameData.state;
+  if (state.visitedPages && state.visitedPages.length > 0) {
+    var filtered = state.visitedPages.filter(function(id) {
+      return window.gameData.pages[id];
+    });
+    if (filtered.length !== state.visitedPages.length) {
+      state.visitedPages = filtered;
+      try { localStorage.setItem('meteor_game_state', JSON.stringify(state)); } catch(e) {}
+    }
+  }
+})();
